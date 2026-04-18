@@ -1,34 +1,22 @@
 package co.edu.uniquindio.techpark.Model;
 
-public class Visitante {
-    private String nombre;
-    private String documento;
+import java.time.LocalDateTime;
+
+public class Visitante extends Usuario{
     private int edad;
     private float estatura;
+    private FavoritosSet favoritos;
+    private Notificacion Notificaciones;
     private int saldoVirtual;
 
-    public Visitante(String nombre, String documento, int edad, float estatura, int saldoVirtual) {
-        this.nombre = nombre;
-        this.documento = documento;
+    public Visitante(String id, String correo, String contrasena, LocalDateTime fechaRegistro, int edad, float estatura,
+            FavoritosSet favoritos, Notificacion notificaciones, int saldoVirtual) {
+        super(id, correo, contrasena, fechaRegistro);
         this.edad = edad;
         this.estatura = estatura;
+        this.favoritos = favoritos;
+        Notificaciones = notificaciones;
         this.saldoVirtual = saldoVirtual;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getDocumento() {
-        return documento;
-    }
-
-    public void setDocumento(String documento) {
-        this.documento = documento;
     }
 
     public int getEdad() {
@@ -47,6 +35,22 @@ public class Visitante {
         this.estatura = estatura;
     }
 
+    public FavoritosSet getFavoritos() {
+        return favoritos;
+    }
+
+    public void setFavoritos(FavoritosSet favoritos) {
+        this.favoritos = favoritos;
+    }
+
+    public Notificacion getNotificaciones() {
+        return Notificaciones;
+    }
+
+    public void setNotificaciones(Notificacion notificaciones) {
+        Notificaciones = notificaciones;
+    }
+
     public int getSaldoVirtual() {
         return saldoVirtual;
     }
@@ -57,9 +61,23 @@ public class Visitante {
 
     @Override
     public String toString() {
-        return "Visitante [nombre=" + nombre + ", documento=" + documento + ", edad=" + edad + ", estatura=" + estatura
-                + ", saldoVirtual=" + saldoVirtual + "]";
+        return "Visitante [edad=" + edad + ", estatura=" + estatura + ", favoritos=" + favoritos + ", Notificaciones="
+                + Notificaciones + ", saldoVirtual=" + saldoVirtual + "]";
     }
+
+    public static void VerificarEdad(int edad){
+        if (edad > 0 && edad < 120){
+            System.out.println("La edad es valida");
+        }else{
+            System.out.println("La edad no es valida");
+        }
+    }
+
+    
+
+    
+
+    
 
     
 
