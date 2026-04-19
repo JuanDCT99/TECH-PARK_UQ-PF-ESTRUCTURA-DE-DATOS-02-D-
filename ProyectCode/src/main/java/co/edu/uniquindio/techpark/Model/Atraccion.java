@@ -42,6 +42,14 @@ public class Atraccion {
     public float getAlturaMin() { return alturaMin; }
     public int getEdadMin() { return edadMin; }
     public int getCostoAdicional() { return costoAdicional; }
+    
+    public String getTipo() {
+        return tipo;
+    }
+
+    public int getCapacidadMax() {
+        return capacidadMax;
+    }
 
     public String getMotivoCierre() { return motivoCierre; }
     public void setMotivoCierre(String motivoCierre) { this.motivoCierre = motivoCierre; }
