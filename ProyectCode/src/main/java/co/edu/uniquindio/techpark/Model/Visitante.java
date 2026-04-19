@@ -15,7 +15,7 @@ public class Visitante extends Usuario{
         this.edad = edad;
         this.estatura = estatura;
         this.favoritos = favoritos;
-        Notificaciones = notificaciones;
+        this.Notificaciones = notificaciones;
         this.saldoVirtual = saldoVirtual;
     }
 
@@ -48,7 +48,7 @@ public class Visitante extends Usuario{
     }
 
     public void setNotificaciones(Notificacion notificaciones) {
-        Notificaciones = notificaciones;
+        this.Notificaciones = notificaciones;
     }
 
     public int getSaldoVirtual() {
