@@ -10,6 +10,7 @@ public class Zona {
     private int capacidadMaxima;
     private int visitantesActuales;
     private List<Atraccion> listaAtracciones;
+    private List<Operador> listaOperadores;
 
     public Zona(String id, String nombre, String descripcion, int capacidadMaxima) {
         this.id = id;
@@ -18,11 +19,17 @@ public class Zona {
         this.capacidadMaxima = capacidadMaxima;
         this.visitantesActuales = 0;
         this.listaAtracciones = new ArrayList<>();
+        this.listaOperadores = new ArrayList<>();
     }
 
     // Métodos básicos para gestionar la zona
     public void agregarAtraccion(Atraccion atraccion) {
         this.listaAtracciones.add(atraccion);
+    }
+
+    public void asignarOperador(Operador operador) {
+        this.listaOperadores.add(operador);
+        operador.setZonaAsignada(this);
     }
 
     public boolean hayEspacio() {
