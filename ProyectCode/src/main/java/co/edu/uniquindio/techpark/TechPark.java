@@ -1,4 +1,4 @@
-package co.edu.uniquindio.techpark.controller;
+package co.edu.uniquindio.techpark;
 
 import co.edu.uniquindio.techpark.Model.*;
 import java.util.ArrayList;
