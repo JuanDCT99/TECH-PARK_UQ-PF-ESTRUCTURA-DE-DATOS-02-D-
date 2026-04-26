@@ -1,7 +1,5 @@
 package co.edu.uniquindio.techpark;
 
-import co.edu.uniquindio.techpark.controller.TechPark;
-
 public class App {
     public static void main(String[] args) {
         // Inicialización del controlador principal
