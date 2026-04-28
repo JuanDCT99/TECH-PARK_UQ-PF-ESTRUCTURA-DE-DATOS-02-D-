@@ -3,10 +3,10 @@ package co.edu.uniquindio.techpark.Model;
 import java.time.LocalDateTime;
 
 public class Usuario {
-    public String id;
-    public String correo;
-    public String contrasena;
-    public LocalDateTime fechaRegistro;
+    private String id;
+    private String correo;
+    private String contrasena;
+    private LocalDateTime fechaRegistro;
 
     public Usuario(String id, String correo, String contrasena, LocalDateTime fechaRegistro) {
         this.id = id;

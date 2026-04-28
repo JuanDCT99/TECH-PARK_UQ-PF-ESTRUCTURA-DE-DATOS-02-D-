@@ -2,11 +2,13 @@ package co.edu.uniquindio.techpark.Model;
 
 import java.time.LocalDateTime;
 
-public class Operador extends Usuario{
+public class Operador extends Empleado {
     private Turno turno;
+    private Zona zonaAsignada;
     
-    public Operador(String id, String correo, String contrasena, LocalDateTime fechaRegistro, Turno turno) {
-        super(id, correo, contrasena, fechaRegistro);
+    public Operador(String id, String correo, String contrasena, LocalDateTime fechaRegistro, 
+                    String codigoEmpleado, double salario, Turno turno) {
+        super(id, correo, contrasena, fechaRegistro, codigoEmpleado, salario);
         this.turno = turno;
     }
 
@@ -18,9 +20,17 @@ public class Operador extends Usuario{
         this.turno = turno;
     }
 
+    public Zona getZonaAsignada() {
+        return zonaAsignada;
+    }
+
+    public void setZonaAsignada(Zona zonaAsignada) {
+        this.zonaAsignada = zonaAsignada;
+    }
+
     @Override
     public String toString() {
-        return "Operador [turno=" + turno + "]";
+        return "Operador [turno=" + turno + ", zona=" + (zonaAsignada != null ? zonaAsignada.getNombre() : "Ninguna") + "]";
     }
     
     

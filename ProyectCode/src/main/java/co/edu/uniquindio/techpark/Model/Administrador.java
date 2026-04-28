@@ -2,12 +2,12 @@ package co.edu.uniquindio.techpark.Model;
 
 import java.time.LocalDateTime;
 
-public class Administrador extends Usuario{
+public class Administrador extends Empleado {
     private int nivelAcceso;
 
-    
-    public Administrador(String id, String correo, String contrasena, LocalDateTime fechaRegistro, int nivelAcceso) {
-        super(id, correo, contrasena, fechaRegistro);
+    public Administrador(String id, String correo, String contrasena, LocalDateTime fechaRegistro, 
+                         String codigoEmpleado, double salario, int nivelAcceso) {
+        super(id, correo, contrasena, fechaRegistro, codigoEmpleado, salario);
         this.nivelAcceso = nivelAcceso;
     }
 

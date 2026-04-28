@@ -15,7 +15,7 @@ public class Visitante extends Usuario{
         this.edad = edad;
         this.estatura = estatura;
         this.favoritos = favoritos;
-        Notificaciones = notificaciones;
+        this.Notificaciones = notificaciones;
         this.saldoVirtual = saldoVirtual;
     }
 
@@ -48,7 +48,7 @@ public class Visitante extends Usuario{
     }
 
     public void setNotificaciones(Notificacion notificaciones) {
-        Notificaciones = notificaciones;
+        this.Notificaciones = notificaciones;
     }
 
     public int getSaldoVirtual() {
@@ -74,14 +74,32 @@ public class Visitante extends Usuario{
     }
 
     
+    public boolean puedeEntrar(Atraccion atraccion) {
+        // 1. Validar que la atracción esté abierta/activa
+        if (atraccion.getEstado() != EstadoAtraccion.ACTIVA) {
+            System.out.println("La atracción " + atraccion.getNombre() + " no está disponible actualmente.");
+            return false;
+        }
 
-    
+        // 2. Validar estatura mínima requerida
+        if (this.estatura < atraccion.getAlturaMin()) {
+            System.out.println("No cumples con la estatura mínima requerida.");
+            return false;
+        }
 
-    
+        // 3. Validar edad mínima requerida
+        if (this.edad < atraccion.getEdadMin()) {
+            System.out.println("No cumples con la edad mínima requerida.");
+            return false;
+        }
 
-    
+        // 4. Validar si tiene saldo suficiente para el costo adicional
+        if (this.saldoVirtual < atraccion.getCostoAdicional()) {
+            System.out.println("No tienes saldo suficiente para el costo adicional de esta atracción.");
+            return false;
+        }
 
-    
-    
-
+        // Si pasó todas las pruebas anteriores
+        return true;
+    }
 }
