@@ -1,12 +1,14 @@
 package co.edu.uniquindio.techpark;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
 public class App {
     public static void main(String[] args) {
-        // Inicialización del controlador principal
-        TechPark parkUQ = new TechPark();
-
-        System.out.println("Tech Park UQ - Estructura de Datos");
+        SpringApplication.run(App.class, args);
         System.out.println("==================================");
-        System.out.println("Sistema inicializado. Listo para carga de datos.");
+        System.out.println("Tech Park UQ - Servidor Iniciado");
+        System.out.println("==================================");
     }
 }
