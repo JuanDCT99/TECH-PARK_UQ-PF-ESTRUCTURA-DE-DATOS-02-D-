@@ -120,4 +120,20 @@ public class Visitante extends Usuario{
         // Si pasó todas las pruebas anteriores
         return true;
     }
+
+    /**
+     * Realiza el ingreso del visitante a una atracción.
+     * Valida restricciones, descuenta saldo si es necesario, aumenta el contador de la atracción
+     * y registra la visita en el historial del visitante.
+     */
+    public void entrarAAtraccion(Atraccion atraccion) {
+        if (puedeEntrar(atraccion)) {
+            this.saldoVirtual -= atraccion.getCostoAdicional();
+            atraccion.registrarVisita();
+            this.historialVisitas.add(atraccion);
+            System.out.println("Ingreso exitoso a " + atraccion.getNombre() + ". Saldo restante: " + saldoVirtual);
+        } else {
+            System.out.println("No se pudo completar el ingreso a " + atraccion.getNombre());
+        }
+    }
 }
