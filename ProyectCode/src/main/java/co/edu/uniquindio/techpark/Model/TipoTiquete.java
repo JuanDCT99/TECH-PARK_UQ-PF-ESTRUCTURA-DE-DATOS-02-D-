@@ -1,6 +1,6 @@
 package co.edu.uniquindio.techpark.Model;
 
-public enum TipoEntrada {
+public enum TipoTiquete {
     GENERAL,
     FAMILIAR,
     FAST_PASS,
