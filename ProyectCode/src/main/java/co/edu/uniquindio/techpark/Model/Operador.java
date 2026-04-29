@@ -28,6 +28,19 @@ public class Operador extends Empleado {
         this.zonaAsignada = zonaAsignada;
     }
 
+    /**
+     * Registra una revisión técnica para una atracción.
+     * Solo puede hacerlo si la atracción pertenece a su zona asignada.
+     */
+    public void registrarRevisionTecnica(Atraccion atraccion) {
+        if (zonaAsignada != null && zonaAsignada.getListaAtracciones().contains(atraccion)) {
+            atraccion.registrarRevisionTecnica();
+            System.out.println("Revisión técnica registrada por " + getNombre() + " para " + atraccion.getNombre());
+        } else {
+            System.out.println("Error: El operador no tiene permisos para gestionar esta atracción.");
+        }
+    }
+
     @Override
     public String toString() {
         return "Operador [turno=" + turno + ", zona=" + (zonaAsignada != null ? zonaAsignada.getNombre() : "Ninguna") + "]";
