@@ -5,9 +5,9 @@ import java.time.LocalDateTime;
 public class Administrador extends Empleado {
     private int nivelAcceso;
 
-    public Administrador(String id, String correo, String contrasena, LocalDateTime fechaRegistro, 
+    public Administrador(String id, String nombre, String correo, String contrasena, LocalDateTime fechaRegistro, 
                          String codigoEmpleado, double salario, int nivelAcceso) {
-        super(id, correo, contrasena, fechaRegistro, codigoEmpleado, salario);
+        super(id, nombre, correo, contrasena, fechaRegistro, codigoEmpleado, salario);
         this.nivelAcceso = nivelAcceso;
     }
 

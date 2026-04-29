@@ -6,9 +6,9 @@ public class Operador extends Empleado {
     private Turno turno;
     private Zona zonaAsignada;
     
-    public Operador(String id, String correo, String contrasena, LocalDateTime fechaRegistro, 
+    public Operador(String id, String nombre, String correo, String contrasena, LocalDateTime fechaRegistro, 
                     String codigoEmpleado, double salario, Turno turno) {
-        super(id, correo, contrasena, fechaRegistro, codigoEmpleado, salario);
+        super(id, nombre, correo, contrasena, fechaRegistro, codigoEmpleado, salario);
         this.turno = turno;
     }
 
