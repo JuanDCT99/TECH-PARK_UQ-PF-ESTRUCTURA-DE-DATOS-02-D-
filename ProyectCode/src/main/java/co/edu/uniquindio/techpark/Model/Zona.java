@@ -77,6 +77,14 @@ public class Zona {
         this.visitantesActuales = visitantesActuales;
     }
 
+    public List<Atraccion> getListaAtracciones() {
+        return listaAtracciones;
+    }
+
+    public List<Operador> getListaOperadores() {
+        return listaOperadores;
+    }
+
     @Override
     public String toString() {
         return "Zona [nombre=" + nombre + ", atracciones=" + listaAtracciones.size() + 

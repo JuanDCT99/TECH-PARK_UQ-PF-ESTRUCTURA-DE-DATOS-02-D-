@@ -4,12 +4,14 @@ import java.time.LocalDateTime;
 
 public class Usuario {
     private String id;
+    private String nombre;
     private String correo;
     private String contrasena;
     private LocalDateTime fechaRegistro;
 
-    public Usuario(String id, String correo, String contrasena, LocalDateTime fechaRegistro) {
+    public Usuario(String id, String nombre, String correo, String contrasena, LocalDateTime fechaRegistro) {
         this.id = id;
+        this.nombre = nombre;
         this.correo = correo;
         this.contrasena = contrasena;
         this.fechaRegistro = fechaRegistro;
@@ -21,6 +23,14 @@ public class Usuario {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
     public String getCorreo() {

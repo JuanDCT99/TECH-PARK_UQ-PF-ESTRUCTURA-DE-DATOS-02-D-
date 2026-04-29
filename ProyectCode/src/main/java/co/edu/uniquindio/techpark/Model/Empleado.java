@@ -6,8 +6,8 @@ public class Empleado extends Usuario {
     private String codigoEmpleado;
     private double salario;
 
-    public Empleado(String id, String correo, String contrasena, LocalDateTime fechaRegistro, String codigoEmpleado, double salario) {
-        super(id, correo, contrasena, fechaRegistro);
+    public Empleado(String id, String nombre, String correo, String contrasena, LocalDateTime fechaRegistro, String codigoEmpleado, double salario) {
+        super(id, nombre, correo, contrasena, fechaRegistro);
         this.codigoEmpleado = codigoEmpleado;
         this.salario = salario;
     }
