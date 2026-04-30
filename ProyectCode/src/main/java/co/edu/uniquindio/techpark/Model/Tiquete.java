@@ -4,15 +4,17 @@ import java.time.LocalDateTime;
 
 public class Tiquete {
     private String id;
-    private TipoEntrada tipo;
+    private TipoTiquete tipo;
     private double precio;
+    private String descripcion;
     private LocalDateTime fechaCompra;
     private Visitante propietario;
 
-    public Tiquete(String id, TipoEntrada tipo, double precio, Visitante propietario) {
+    public Tiquete(String id, TipoTiquete tipo, double precio, String descripcion, Visitante propietario) {
         this.id = id;
         this.tipo = tipo;
         this.precio = precio;
+        this.descripcion = descripcion;
         this.fechaCompra = LocalDateTime.now();
         this.propietario = propietario;
     }
@@ -25,11 +27,11 @@ public class Tiquete {
         this.id = id;
     }
 
-    public TipoEntrada getTipo() {
+    public TipoTiquete getTipo() {
         return tipo;
     }
 
-    public void setTipo(TipoEntrada tipo) {
+    public void setTipo(TipoTiquete tipo) {
         this.tipo = tipo;
     }
 
@@ -39,6 +41,14 @@ public class Tiquete {
 
     public void setPrecio(double precio) {
         this.precio = precio;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
     }
 
     public Visitante getPropietario() {

@@ -63,6 +63,16 @@ public class Atraccion {
         }
     }
 
+    /**
+     * Registra una revisión técnica satisfactoria.
+     * Reinicia el contador de visitantes, activa la atracción y limpia el motivo de cierre.
+     */
+    public void registrarRevisionTecnica() {
+        this.contadorVisitantes = 0;
+        this.estado = EstadoAtraccion.ACTIVA;
+        this.motivoCierre = null;
+    }
+
     @Override
     public String toString() {
         return "Atraccion [nombre=" + nombre + ", estado=" + estado + ", visitas=" + contadorVisitantes + "]";

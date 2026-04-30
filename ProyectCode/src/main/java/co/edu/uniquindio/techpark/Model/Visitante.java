@@ -1,21 +1,28 @@
 package co.edu.uniquindio.techpark.Model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Visitante extends Usuario{
+    private String documento;
     private int edad;
     private float estatura;
+    private String rutaFoto; // Opcional
     private FavoritosSet favoritos;
-    private Notificacion Notificaciones;
+    private List<Notificacion> listaNotificaciones;
+    private List<Atraccion> historialVisitas; // Placeholder para la Lista Enlazada
     private int saldoVirtual;
 
-    public Visitante(String id, String correo, String contrasena, LocalDateTime fechaRegistro, int edad, float estatura,
-            FavoritosSet favoritos, Notificacion notificaciones, int saldoVirtual) {
-        super(id, correo, contrasena, fechaRegistro);
+    public Visitante(String id, String nombre, String documento, String correo, String contrasena, 
+                     LocalDateTime fechaRegistro, int edad, float estatura, int saldoVirtual) {
+        super(id, nombre, correo, contrasena, fechaRegistro);
+        this.documento = documento;
         this.edad = edad;
         this.estatura = estatura;
-        this.favoritos = favoritos;
-        this.Notificaciones = notificaciones;
+        this.favoritos = new FavoritosSet(this);
+        this.listaNotificaciones = new ArrayList<>();
+        this.historialVisitas = new ArrayList<>();
         this.saldoVirtual = saldoVirtual;
     }
 
@@ -35,20 +42,32 @@ public class Visitante extends Usuario{
         this.estatura = estatura;
     }
 
+    public String getDocumento() {
+        return documento;
+    }
+
+    public void setDocumento(String documento) {
+        this.documento = documento;
+    }
+
+    public String getRutaFoto() {
+        return rutaFoto;
+    }
+
+    public void setRutaFoto(String rutaFoto) {
+        this.rutaFoto = rutaFoto;
+    }
+
     public FavoritosSet getFavoritos() {
         return favoritos;
     }
 
-    public void setFavoritos(FavoritosSet favoritos) {
-        this.favoritos = favoritos;
+    public List<Notificacion> getListaNotificaciones() {
+        return listaNotificaciones;
     }
 
-    public Notificacion getNotificaciones() {
-        return Notificaciones;
-    }
-
-    public void setNotificaciones(Notificacion notificaciones) {
-        this.Notificaciones = notificaciones;
+    public List<Atraccion> getHistorialVisitas() {
+        return historialVisitas;
     }
 
     public int getSaldoVirtual() {
@@ -61,8 +80,7 @@ public class Visitante extends Usuario{
 
     @Override
     public String toString() {
-        return "Visitante [edad=" + edad + ", estatura=" + estatura + ", favoritos=" + favoritos + ", Notificaciones="
-                + Notificaciones + ", saldoVirtual=" + saldoVirtual + "]";
+        return "Visitante [nombre=" + getNombre() + ", documento=" + documento + ", saldo=" + saldoVirtual + "]";
     }
 
     public static void VerificarEdad(int edad){
@@ -101,5 +119,21 @@ public class Visitante extends Usuario{
 
         // Si pasó todas las pruebas anteriores
         return true;
+    }
+
+    /**
+     * Realiza el ingreso del visitante a una atracción.
+     * Valida restricciones, descuenta saldo si es necesario, aumenta el contador de la atracción
+     * y registra la visita en el historial del visitante.
+     */
+    public void entrarAAtraccion(Atraccion atraccion) {
+        if (puedeEntrar(atraccion)) {
+            this.saldoVirtual -= atraccion.getCostoAdicional();
+            atraccion.registrarVisita();
+            this.historialVisitas.add(atraccion);
+            System.out.println("Ingreso exitoso a " + atraccion.getNombre() + ". Saldo restante: " + saldoVirtual);
+        } else {
+            System.out.println("No se pudo completar el ingreso a " + atraccion.getNombre());
+        }
     }
 }
