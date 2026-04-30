@@ -1,69 +1,85 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import './App.css'
+import bienvenidosImg from './assets/Bienvenidos.png'
+import rolImg from './assets/Rol.png'
 
 function App() {
-  const [backendData, setBackendData] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [view, setView] = useState('welcome') // 'welcome', 'role-selection', 'dashboard'
+  const [selectedRole, setSelectedRole] = useState(null)
 
-  useEffect(() => {
-    // Intentamos conectar con el servidor Java (Spring Boot)
-    // El puerto 8080 es el puerto por defecto de Spring Boot
-    fetch('http://localhost:8080/api/test')
-      .then(response => {
-        if (!response.ok) throw new Error('Error en la respuesta del servidor');
-        return response.json();
-      })
-      .then(data => {
-        setBackendData(data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Error conectando con Java:', error);
-        setLoading(false);
-      })
-  }, [])
+  const handleStart = () => {
+    setView('role-selection')
+  }
+
+  const handleRoleSelect = (role) => {
+    setSelectedRole(role)
+    setView('dashboard')
+  }
+
+  if (view === 'welcome') {
+    return (
+      <div className="welcome-container" style={{ backgroundImage: `url(${bienvenidosImg})` }}>
+        <div className="overlay">
+          <div className="content">
+            <h1 className="title">TECH-PARK UQ</h1>
+            <p className="subtitle">Donde la tecnología y la diversión se encuentran</p>
+            <button className="btn-primary" onClick={handleStart}>
+              Ingresar al Parque
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (view === 'role-selection') {
+    return (
+      <div className="role-container" style={{ backgroundImage: `url(${rolImg})` }}>
+        <div className="overlay">
+          <div className="content">
+            <h2 className="title">Selecciona tu Rol</h2>
+            <div className="role-grid">
+              <button className="role-card" onClick={() => handleRoleSelect('Visitante')}>
+                <span className="role-icon">🎟️</span>
+                <h3>Visitante</h3>
+                <p>Compra entradas y disfruta de las atracciones</p>
+              </button>
+              <button className="role-card" onClick={() => handleRoleSelect('Empleado')}>
+                <span className="role-icon">🛠️</span>
+                <h3>Empleado</h3>
+                <p>Gestiona atracciones y turnos</p>
+              </button>
+              <button className="role-card" onClick={() => handleRoleSelect('Administrador')}>
+                <span className="role-icon">🔐</span>
+                <h3>Administrador</h3>
+                <p>Control total del sistema y estadísticas</p>
+              </button>
+            </div>
+            <button className="btn-secondary" onClick={() => setView('welcome')}>
+              Volver
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div style={{ 
-      padding: '40px', 
-      fontFamily: 'Arial, sans-serif', 
-      textAlign: 'center',
-      backgroundColor: '#242424',
-      color: 'white',
-      minHeight: '100vh'
-    }}>
-      <h1>🎡 Tech Park UQ - Sistema de Gestión</h1>
-      <hr style={{ borderColor: '#646cff', width: '50%' }} />
-      
-      <div style={{ 
-        marginTop: '30px', 
-        padding: '20px', 
-        border: '1px solid #646cff', 
-        borderRadius: '10px',
-        display: 'inline-block',
-        minWidth: '300px'
-      }}>
-        <h2>Estado del Backend (Java)</h2>
-        
-        {loading ? (
-          <p style={{ color: '#ffd700' }}>⏳ Buscando servidor Java en http://localhost:8080...</p>
-        ) : backendData ? (
-          <div style={{ textAlign: 'left' }}>
-            <p style={{ color: '#4caf50', fontSize: '1.2em' }}>✅ <strong>{backendData.mensaje}</strong></p>
-            <p><strong>Proyecto:</strong> {backendData.proyecto}</p>
-            <p><strong>Estatus:</strong> {backendData.estado}</p>
+    <div className="dashboard-container">
+      <nav className="navbar">
+        <h2>TECH-PARK | {selectedRole}</h2>
+        <button className="btn-logout" onClick={() => setView('role-selection')}>Cerrar Sesión</button>
+      </nav>
+      <main className="main-content">
+        <div className="placeholder-card">
+          <h3>¡Bienvenido, {selectedRole}!</h3>
+          <p>Esta es la base de tu panel de control. Pronto conectaremos la lógica de Java aquí.</p>
+          <div className="stats-grid">
+            <div className="stat-item"><h4>Estado</h4><p>Activo</p></div>
+            <div className="stat-item"><h4>Conexión</h4><p>Pendiente (Java)</p></div>
           </div>
-        ) : (
-          <div style={{ color: '#f44336' }}>
-            <p>❌ <strong>No se pudo conectar con Java</strong></p>
-            <p style={{ fontSize: '0.9em' }}>Asegúrate de ejecutar <code>mvn spring-boot:run</code> en la carpeta <code>ProyectCode</code></p>
-          </div>
-        )}
-      </div>
-
-      <p style={{ marginTop: '40px', color: '#888' }}>
-        Arquitectura: Java (Spring Boot) + React (Vite)
-      </p>
+        </div>
+      </main>
     </div>
   )
 }
