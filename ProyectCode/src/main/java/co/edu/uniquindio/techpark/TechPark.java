@@ -1,6 +1,8 @@
 package co.edu.uniquindio.techpark;
 
 import co.edu.uniquindio.techpark.Model.*;
+import jakarta.annotation.PostConstruct;
+import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +10,7 @@ import java.util.List;
  * Clase controladora principal del sistema TECH-PARK UQ.
  * Coordina la lógica entre el modelo, las estructuras de datos y la interfaz.
  */
+@Service
 public class TechPark {
     private List<Zona> zonas;
     private List<Usuario> usuarios;
@@ -17,6 +20,24 @@ public class TechPark {
         this.zonas = new ArrayList<>();
         this.usuarios = new ArrayList<>();
         this.todasLasAtracciones = new ArrayList<>();
+    }
+
+    @PostConstruct
+    public void init() {
+        // Inicialización de datos de prueba
+        Zona zonaA = new Zona("Z1", "Zona Extrema", "Norte", 500);
+        Atraccion a1 = new Atraccion("A1", "Montaña Rusa X", "Mecánica", 20, 1.4f, 12, 5000);
+        Atraccion a2 = new Atraccion("A2", "Caída Libre", "Mecánica", 12, 1.5f, 15, 7000);
+        
+        agregarZona(zonaA);
+        registrarNuevaAtraccion(zonaA, a1);
+        registrarNuevaAtraccion(zonaA, a2);
+
+        Zona zonaB = new Zona("Z2", "Zona Acuática", "Sur", 300);
+        Atraccion a3 = new Atraccion("A3", "Tobogán Gigante", "Acuática", 5, 1.2f, 8, 3000);
+        
+        agregarZona(zonaB);
+        registrarNuevaAtraccion(zonaB, a3);
     }
 
     // Métodos de gestión global
