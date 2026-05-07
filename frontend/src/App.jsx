@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 import bienvenidosImg from './assets/Bienvenidos.png'
 import rolImg from './assets/Rol.png'
@@ -6,6 +6,22 @@ import rolImg from './assets/Rol.png'
 function App() {
   const [view, setView] = useState('welcome') // 'welcome', 'role-selection', 'dashboard'
   const [selectedRole, setSelectedRole] = useState(null)
+  const [atracciones, setAtracciones] = useState([])
+  const [estadoParque, setEstadoParque] = useState('CARGANDO...')
+
+  useEffect(() => {
+    if (view === 'dashboard') {
+      fetch('http://localhost:8080/api/parque/atracciones')
+        .then(res => res.json())
+        .then(data => setAtracciones(data))
+        .catch(err => console.error("Error cargando atracciones:", err))
+
+      fetch('http://localhost:8080/api/parque/estado')
+        .then(res => res.text())
+        .then(data => setEstadoParque(data))
+        .catch(err => console.error("Error cargando estado:", err))
+    }
+  }, [view])
 
   const handleStart = () => {
     setView('role-selection')
@@ -70,15 +86,62 @@ function App() {
         <h2>TECH-PARK | {selectedRole}</h2>
         <button className="btn-logout" onClick={() => setView('role-selection')}>Cerrar Sesión</button>
       </nav>
+      
       <main className="main-content">
-        <div className="placeholder-card">
-          <h3>¡Bienvenido, {selectedRole}!</h3>
-          <p>Esta es la base de tu panel de control. Pronto conectaremos la lógica de Java aquí.</p>
-          <div className="stats-grid">
-            <div className="stat-item"><h4>Estado</h4><p>Activo</p></div>
-            <div className="stat-item"><h4>Conexión</h4><p>Pendiente (Java)</p></div>
+        <header className="dashboard-header">
+          <div>
+            <h1>Panel de Control</h1>
+            <p>Bienvenido, gestiona tu experiencia en el parque desde aquí.</p>
           </div>
-        </div>
+          <div className={`status-badge ${estadoParque.toLowerCase()}`}>
+            ● Parque {estadoParque}
+          </div>
+        </header>
+
+        <section className="data-section">
+          <div className="section-header">
+            <h3>Catálogo de Atracciones</h3>
+          </div>
+          
+          <div className="data-table-container">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Tipo</th>
+                  <th>Capacidad</th>
+                  <th>Restricciones</th>
+                  <th>Costo</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {atracciones.length > 0 ? (
+                  atracciones.map(atr => (
+                    <tr key={atr.id}>
+                      <td><strong>{atr.nombre}</strong></td>
+                      <td><span className="atraccion-tag">{atr.tipo}</span></td>
+                      <td>{atr.capacidadMax} pax</td>
+                      <td>📏 {atr.alturaMin}m | 🔞 {atr.edadMin} años</td>
+                      <td>${atr.costoAdicional}</td>
+                      <td>
+                        <span className={`estado-${atr.estado.toLowerCase()}`}>
+                          {atr.estado}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: 'center', padding: '2rem' }}>
+                      Cargando atracciones... Verifica que el backend esté corriendo.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
       </main>
     </div>
   )

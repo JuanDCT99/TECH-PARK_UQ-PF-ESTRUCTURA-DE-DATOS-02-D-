@@ -131,7 +131,7 @@ body {
   color: #aaa;
 }
 
-/* Dashboard Placeholder */
+/* Dashboard UI */
 .dashboard-container {
   min-height: 100vh;
   background-color: #121212;
@@ -144,6 +144,9 @@ body {
   padding: 1rem 2rem;
   background: #1a1a1a;
   border-bottom: 1px solid #333;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .btn-logout {
@@ -153,41 +156,77 @@ body {
   padding: 0.5rem 1rem;
   border-radius: 4px;
   cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-logout:hover {
+  background: #ff4444;
+  color: white;
 }
 
 .main-content {
-  padding: 3rem;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboard-header {
+  margin-bottom: 2rem;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: flex-end;
 }
 
-.placeholder-card {
-  background: #1e1e1e;
-  padding: 3rem;
-  border-radius: 12px;
-  border: 1px solid #333;
-  max-width: 600px;
-  width: 100%;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.stat-item {
-  background: #252525;
-  padding: 1rem;
-  border-radius: 8px;
-}
-
-.stat-item h4 {
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
   font-size: 0.8rem;
-  color: #888;
+  font-weight: 700;
   text-transform: uppercase;
 }
+
+.status-badge.abierto { background: #22c55e33; color: #22c55e; border: 1px solid #22c55e; }
+.status-badge.cerrado { background: #ef444433; color: #ef4444; border: 1px solid #ef4444; }
+
+/* Tabla de Atracciones */
+.data-table-container {
+  background: #1e1e1e;
+  border-radius: 12px;
+  border: 1px solid #333;
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.data-table th {
+  background: #252525;
+  padding: 1rem;
+  font-size: 0.85rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.data-table td {
+  padding: 1rem;
+  border-top: 1px solid #333;
+}
+
+.atraccion-tag {
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  background: #333;
+}
+
+.estado-activa { color: #22c55e; }
+.estado-mantenimiento { color: #eab308; }
+.estado-cerrada { color: #ef4444; }
 
 @media (max-width: 768px) {
   .role-grid {
@@ -195,5 +234,9 @@ body {
   }
   .title {
     font-size: 2.5rem;
+  }
+  .data-table {
+    display: block;
+    overflow-x: auto;
   }
 }
