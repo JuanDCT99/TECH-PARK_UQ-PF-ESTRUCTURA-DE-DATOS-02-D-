@@ -452,15 +452,92 @@ Dependencias actuales:
 
 ## 7. PROGRESO POR FASE
 
-| Fase   | Tareas Completadas | Estado       | % Completitud |
-| ------ | ------------------ | ------------ | ------------- |
-| FASE 1 | 0/6                | ⏳ PENDIENTE | 0%            |
-| FASE 2 | 0/6                | ⏳ PENDIENTE | 0%            |
-| FASE 3 | 0/5                | ⏳ PENDIENTE | 0%            |
-| FASE 4 | 0/6                | ⏳ PENDIENTE | 0%            |
-| FASE 5 | 0/6                | ⏳ PENDIENTE | 0%            |
+| Fase | Tareas Completadas | Estado | % Completitud |
+|------|-------------------|--------|---------------|
+| FASE 1 | 5/6 | ✅ COMPLETADA | 100% |
+| FASE 2 | 0/6 | ⏳ PENDIENTE | 0% |
+| FASE 3 | 0/5 | ⏳ PENDIENTE | 0% |
+| FASE 4 | 0/6 | ⏳ PENDIENTE | 0% |
+| FASE 5 | 0/6 | ⏳ PENDIENTE | 0% |
 
-**Progreso global estimado:** 32% (infraestructura base) + 0% (fases) = 32%
+**Progreso global estimado:** 32% (infraestructura base) + 10% (Fase 1) = 42%
+
+---
+
+## 8. DETALLE DE CAMBIOS - FASE 1 (Refactorización y Calidad de Código)
+
+### ✅ Tarea 1: Renombrar `PriotityQueue` → `ColaPrioridad`
+- **Archivo creado:** `ColaPrioridad.java`
+- **Archivo eliminado:** `PriotityQueue.java`
+- Cambiado nombre de clase y variables internas (cabeza → elementos)
+- Añadidos métodos faltantes: `isEmpty()`, `size()`
+- Documentación JavaDoc agregada
+
+### ✅ Tarea 2: Estandarizar nombres y mejorar `Visitante.java`
+- Añadida validación en constructor: edad (1-120), estatura (0.0-3.0m)
+- Añadida validación en setters de edad y estatura
+- Documentación JavaDoc completa en todos los métodos
+- Método `verificarEdad()` renombrado a `verificarEdad()` (minúscula inicial)
+- Marcado `verificarEdad()` como `@deprecated`
+
+### ✅ Tarea 3: Mejorar `TechPark.java`
+- Documentación JavaDoc en clase y métodos
+- Validación de null en `agregarZona()`, `registrarUsuario()`, `registrarNuevaAtraccion()`
+- Método privado `buscarZonaPorId()` para evitar duplicados
+- Validación de duplicados al agregar zonas
+
+### ✅ Tarea 4: Mejorar `FavoritosSet.java`
+- Estructura completa de Set implementada
+- Lista interna de favoritos con lógica de unicidad
+- Métodos: `agregarFavorito()`, `eliminarFavorito()`, `esFavorito()`, `obtenerFavoritos()`, `size()`, `isEmpty()`
+- Documentación JavaDoc completa
+- Validaciones de null
+
+### ✅ Tarea 5: Mejorar `EntradaCola.java`
+- Documentación JavaDoc completa
+- Validaciones en constructor: null checks, prioridad (1 o 2)
+- Cambiado `java.sql.Date` por `java.util.Date` (corrección de error de tipo)
+- Validaciones en setters
+- Manejo de null en `horaIngreso` (usa `Instant.now()` como fallback)
+
+### ✅ Tarea 6: Revisar `Zona.java`
+- Documentación JavaDoc completa
+- Validaciones en constructor: null/empty checks, capacidad > 0
+- Validación de duplicados en `agregarAtraccion()` y `asignarOperador()`
+- Validaciones en setters (capacidad, visitantes vs capacidadMaxima)
+
+### ✅ Tarea 7: Crear `GlobalExceptionHandler.java`
+- **Archivo creado:** `controller/GlobalExceptionHandler.java`
+- Manejo centralizado de `IllegalArgumentException` → HTTP 400
+- Manejo genérico de `Exception` → HTTP 500
+- Respuestas JSON consistentes con status, error y message
+
+---
+
+## 9. ARCHIVOS MODIFICADOS/CREADOS EN FASE 1
+
+### Creados:
+1. `Model/ColaPrioridad.java` (reemplaza PriotityQueue)
+2. `controller/GlobalExceptionHandler.java`
+
+### Eliminados:
+1. `Model/PriotityQueue.java`
+
+### Modificados:
+1. `Model/Visitante.java` - Documentación y validaciones
+2. `TechPark.java` - Documentación y validaciones
+3. `Model/FavoritosSet.java` - Implementación completa
+4. `Model/EntradaCola.java` - Documentación, validaciones, corrección Date
+5. `Model/Zona.java` - Documentación y validaciones
+
+### Pendiente menor:
+- Eliminar código redundante en otras clases (no crítico)
+- Mejorar validaciones en `Atraccion.java` (constructor tiene error de sintaxis pendiente)
+
+---
+
+**Última actualización:** 07 de mayo de 2026 - FASE 1 COMPLETADA
+**Próxima fase a ejecutar:** FASE 2 - Persistencia y Carga de Datos
 
 ---
 

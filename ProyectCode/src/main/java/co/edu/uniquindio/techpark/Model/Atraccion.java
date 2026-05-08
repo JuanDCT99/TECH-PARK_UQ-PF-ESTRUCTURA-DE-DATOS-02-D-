@@ -13,6 +13,17 @@ public class Atraccion {
     private EstadoAtraccion estado;
     private String motivoCierre;
 
+    /**
+     * Constructor de Atraccion.
+     * 
+     * @param id Identificador único
+     * @param nombre Nombre de la atracción
+     * @param tipo Tipo de atracción (Mecánica, Acuática, etc.)
+     * @param capacidadMax Capacidad máxima por ciclo
+     * @param alturaMin Altura mínima requerida en metros
+     * @param edadMin Edad mínima requerida
+     * @param costoAdicional Costo adicional para ciertos tickets
+     */
     public Atraccion(String id, String nombre, String tipo, int capacidadMax, float alturaMin, int edadMin, int costoAdicional) {
         this.id = id;
         this.nombre = nombre;
