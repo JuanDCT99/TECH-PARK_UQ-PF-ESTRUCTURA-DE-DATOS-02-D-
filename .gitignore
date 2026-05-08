@@ -15,4 +15,11 @@ target/
 Thumbs.db
 
 # Temporales y Logs
-*.log
+*.log;
+
+# Archivos de serialización (no versionar)
+*.dat
+*.ser
+
+# Archivos temporales de datos
+/tmp/

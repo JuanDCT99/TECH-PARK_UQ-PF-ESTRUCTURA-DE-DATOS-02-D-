@@ -1,0 +1,13 @@
+[
+  {
+    "id": "V1",
+    "nombre": "Juan Pérez",
+    "documento": "12345678",
+    "correo": "juan@email.com",
+    "contrasena": "1234",
+    "edad": 25,
+    "estatura": 1.75,
+    "saldoVirtual": 50000,
+    "tipo": "VISITANTE"
+  }
+]

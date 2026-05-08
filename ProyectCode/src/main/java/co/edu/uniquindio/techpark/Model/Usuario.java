@@ -9,6 +9,12 @@ public class Usuario {
     private String contrasena;
     private LocalDateTime fechaRegistro;
 
+    /**
+     * Constructor sin argumentos necesario para deserialización JSON con Jackson.
+     */
+    public Usuario() {
+    }
+
     public Usuario(String id, String nombre, String correo, String contrasena, LocalDateTime fechaRegistro) {
         this.id = id;
         this.nombre = nombre;

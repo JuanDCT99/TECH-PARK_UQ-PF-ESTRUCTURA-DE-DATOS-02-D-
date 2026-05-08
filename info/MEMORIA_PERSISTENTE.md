@@ -454,13 +454,13 @@ Dependencias actuales:
 
 | Fase | Tareas Completadas | Estado | % Completitud |
 |------|-------------------|--------|---------------|
-| FASE 1 | 5/6 | ✅ COMPLETADA | 100% |
-| FASE 2 | 0/6 | ⏳ PENDIENTE | 0% |
+| FASE 1 | 7/7 | ✅ COMPLETADA | 100% |
+| FASE 2 | 7/7 | ✅ COMPLETADA | 100% |
 | FASE 3 | 0/5 | ⏳ PENDIENTE | 0% |
 | FASE 4 | 0/6 | ⏳ PENDIENTE | 0% |
 | FASE 5 | 0/6 | ⏳ PENDIENTE | 0% |
 
-**Progreso global estimado:** 32% (infraestructura base) + 10% (Fase 1) = 42%
+**Progreso global estimado:** 32% (infraestructura base) + 10% (Fase 1) + 10% (Fase 2) = 52%
 
 ---
 
@@ -478,7 +478,7 @@ Dependencias actuales:
 - Añadida validación en setters de edad y estatura
 - Documentación JavaDoc completa en todos los métodos
 - Método `verificarEdad()` renombrado a `verificarEdad()` (minúscula inicial)
-- Marcado `verificarEdad()` como `@deprecated`
+- Marcado `verificarEdad()` como `@Deprecated`
 
 ### ✅ Tarea 3: Mejorar `TechPark.java`
 - Documentación JavaDoc en clase y métodos
@@ -496,9 +496,9 @@ Dependencias actuales:
 ### ✅ Tarea 5: Mejorar `EntradaCola.java`
 - Documentación JavaDoc completa
 - Validaciones en constructor: null checks, prioridad (1 o 2)
-- Cambiado `java.sql.Date` por `java.util.Date` (corrección de error de tipo)
+- Cambiado `java.sql.Date` por `java.util.Date` (corrección de error)
 - Validaciones en setters
-- Manejo de null en `horaIngreso` (usa `Instant.now()` como fallback)
+- Manejo de null en `horaIngreso` (fallback a `Instant.now()`)
 
 ### ✅ Tarea 6: Revisar `Zona.java`
 - Documentación JavaDoc completa
@@ -510,34 +510,92 @@ Dependencias actuales:
 - **Archivo creado:** `controller/GlobalExceptionHandler.java`
 - Manejo centralizado de `IllegalArgumentException` → HTTP 400
 - Manejo genérico de `Exception` → HTTP 500
-- Respuestas JSON consistentes con status, error y message
+- Respuestas JSON consistentes
 
 ---
 
-## 9. ARCHIVOS MODIFICADOS/CREADOS EN FASE 1
+## 9. DETALLE DE CAMBIOS - FASE 2 (Persistencia y Carga de Datos)
+
+### ✅ Paso 1: Añadir dependencia Jackson en `pom.xml`
+- Dependencia `jackson-databind` versión 2.16.0 añadida
+- Requerida para procesar archivos JSON
+
+### ✅ Paso 2: Crear archivos JSON de datos
+- **Directorio creado:** `src/main/resources/data/`
+- **Archivo creado:** `data/atracciones.json` (A1, A2, A3)
+- **Archivo creado:** `data/zonas.json` (Z1, Z2)
+- **Archivo creado:** `data/senderos.json` (para Grafo - Fase 3)
+- **Archivo creado:** `data/usuarios.json` (Visitante de prueba)
+
+### ✅ Paso 3: Crear `DatosService.java`
+- **Archivo creado:** `service/DatosService.java`
+- Métodos: `cargarAtracciones()`, `cargarZonas()`, `cargarSenderos()`, `cargarUsuarios()`
+- Configurado `ObjectMapper` para ignorar propiedades desconocidas
+- Manejo de errores: retorna listas vacías si falla
+
+### ✅ Paso 3.1-3.4: Modificar modelos para Jackson
+- `Atraccion.java`: Añadido constructor sin argumentos
+- `Zona.java`: Añadido constructor sin argumentos
+- `Usuario.java`: Añadido constructor sin argumentos
+- `Visitante.java`: Añadido constructor sin argumentos
+
+### ✅ Paso 3.5: Crear `Sender.java`
+- **Archivo creado:** `service/Sender.java` (clase auxiliar para grafo)
+- Constructor sin argumentos y completo
+
+### ✅ Paso 4: Modificar `TechPark.java` para usar `DatosService`
+- Inyectado `DatosService` con `@Autowired`
+- Método `init()` modificado para cargar desde JSON
+- Método privado `cargarDatosDesdeJSON()` implementado
+- Fallback a datos hardcoded si falla JSON
+- Nuevo método público `recargarDatos()` para re-carga bajo demanda
+
+### ✅ Paso 5: Modificar `.gitignore`
+- Añadidas exclusiones: `*.dat`, `*.ser`, `/tmp/`
+- Protege archivos de serialización y temporales
+
+### ✅ Paso 6: Crear endpoint en `ParqueController.java`
+- Nuevo endpoint: `POST /api/parque/cargar-datos`
+- Retorna éxito o error al cargar datos
+- Llama a `techPark.recargarDatos()`
+
+### ✅ Paso 7: Modificar frontend `App.jsx`
+- Añadido estado `mensajeCarga`
+- Función `cargarDatosPrueba()` implementada
+- Botón "🔄 Cargar Datos de Prueba" añadido en dashboard
+- Mensaje de éxito/error visual debajo del botón
+
+---
+
+## 10. ARCHIVOS MODIFICADOS/CREADOS EN FASE 2
 
 ### Creados:
-1. `Model/ColaPrioridad.java` (reemplaza PriotityQueue)
-2. `controller/GlobalExceptionHandler.java`
-
-### Eliminados:
-1. `Model/PriotityQueue.java`
+1. `service/DatosService.java`
+2. `service/Sender.java`
+3. `resources/data/atracciones.json`
+4. `resources/data/zonas.json`
+5. `resources/data/senderos.json`
+6. `resources/data/usuarios.json`
 
 ### Modificados:
-1. `Model/Visitante.java` - Documentación y validaciones
-2. `TechPark.java` - Documentación y validaciones
-3. `Model/FavoritosSet.java` - Implementación completa
-4. `Model/EntradaCola.java` - Documentación, validaciones, corrección Date
-5. `Model/Zona.java` - Documentación y validaciones
+1. `pom.xml` - Dependencia Jackson añadida
+2. `TechPark.java` - Integración con DatosService
+3. `ParqueController.java` - Endpoint de carga de datos
+4. `Atraccion.java` - Constructor sin argumentos
+5. `Zona.java` - Constructor sin argumentos
+6. `Usuario.java` - Constructor sin argumentos
+7. `Visitante.java` - Constructor sin argumentos
+8. `.gitignore` - Exclusiones añadidas
+9. `frontend/src/App.jsx` - Botón de carga de datos
 
-### Pendiente menor:
-- Eliminar código redundante en otras clases (no crítico)
-- Mejorar validaciones en `Atraccion.java` (constructor tiene error de sintaxis pendiente)
+### Correcciones realizadas:
+- `DatosService.java` - Clase `Sender` movida a archivo separado
+- `DatosService.java` - Método `cargarUsuarios()` cambiado a `List<Visitante>`
 
 ---
 
-**Última actualización:** 07 de mayo de 2026 - FASE 1 COMPLETADA
-**Próxima fase a ejecutar:** FASE 2 - Persistencia y Carga de Datos
+**Última actualización:** 07 de mayo de 2026 - FASE 2 COMPLETADA
+**Próxima fase a ejecutar:** FASE 3 - Estructuras de Datos Propias
 
 ---
 

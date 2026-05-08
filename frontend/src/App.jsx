@@ -8,6 +8,24 @@ function App() {
   const [selectedRole, setSelectedRole] = useState(null)
   const [atracciones, setAtracciones] = useState([])
   const [estadoParque, setEstadoParque] = useState('CARGANDO...')
+  const [mensajeCarga, setMensajeCarga] = useState('')
+
+  const cargarDatosPrueba = () => {
+    setMensajeCarga('Cargando...');
+    fetch('http://localhost:8080/api/parque/cargar-datos', { method: 'POST' })
+      .then(res => res.text())
+      .then(data => {
+        setMensajeCarga('✅ ' + data);
+        // Recargar datos en el dashboard
+        fetch('http://localhost:8080/api/parque/atracciones')
+          .then(res => res.json())
+          .then(data => setAtracciones(data));
+        fetch('http://localhost:8080/api/parque/estado')
+          .then(res => res.text())
+          .then(data => setEstadoParque(data));
+      })
+      .catch(err => setMensajeCarga('❌ Error: ' + err));
+  };
 
   useEffect(() => {
     if (view === 'dashboard') {
@@ -101,7 +119,21 @@ function App() {
         <section className="data-section">
           <div className="section-header">
             <h3>Catálogo de Atracciones</h3>
+            <button className="btn-primary" onClick={cargarDatosPrueba} style={{ marginLeft: '1rem' }}>
+              📂 Cargar Datos de Prueba
+            </button>
           </div>
+          {mensajeCarga && (
+            <div style={{ 
+              padding: '1rem', 
+              margin: '1rem 0', 
+              backgroundColor: mensajeCarga.includes('✅') ? '#d4edda' : '#f8d7da',
+              color: mensajeCarga.includes('✅') ? '#155724' : '#721c24',
+              borderRadius: '4px'
+            }}>
+              {mensajeCarga}
+            </div>
+          )}
           
           <div className="data-table-container">
             <table className="data-table">

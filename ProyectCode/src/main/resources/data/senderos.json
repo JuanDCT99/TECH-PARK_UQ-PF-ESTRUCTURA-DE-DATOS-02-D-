@@ -1,0 +1,17 @@
+[
+  {
+    "origen": "A1",
+    "destino": "A2",
+    "peso": 50
+  },
+  {
+    "origen": "A2",
+    "destino": "A3",
+    "peso": 30
+  },
+  {
+    "origen": "A1",
+    "destino": "A3",
+    "peso": 70
+  }
+]
