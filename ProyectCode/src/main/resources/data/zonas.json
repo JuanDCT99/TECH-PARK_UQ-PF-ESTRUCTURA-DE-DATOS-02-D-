@@ -1,0 +1,14 @@
+[
+  {
+    "id": "Z1",
+    "nombre": "Zona Extrema",
+    "descripcion": "Norte",
+    "capacidadMaxima": 500
+  },
+  {
+    "id": "Z2",
+    "nombre": "Zona Acuática",
+    "descripcion": "Sur",
+    "capacidadMaxima": 300
+  }
+]

@@ -1,7 +1,9 @@
 package co.edu.uniquindio.techpark;
 
 import co.edu.uniquindio.techpark.Model.*;
+import co.edu.uniquindio.techpark.service.DatosService;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,9 @@ public class TechPark {
     private List<Zona> zonas;
     private List<Usuario> usuarios;
     private List<Atraccion> todasLasAtracciones;
+    
+    @Autowired
+    private DatosService datosService;
 
     /**
      * Constructor de la clase TechPark.
@@ -30,12 +35,80 @@ public class TechPark {
     }
 
     /**
-     * Inicializa el parque con datos de prueba.
+     * Inicializa el parque cargando datos desde archivos JSON.
+     * Si falla la carga, usa datos de prueba hardcoded como fallback.
      * Método ejecutado automáticamente después de la construcción del bean.
      */
     @PostConstruct
     public void init() {
-        // Inicialización de datos de prueba
+        boolean cargaExitosa = cargarDatosDesdeJSON();
+        
+        if (!cargaExitosa) {
+            System.out.println("⚠️ Falló la carga desde JSON. Usando datos hardcoded como fallback...");
+            inicializacionHardcoded();
+        } else {
+            System.out.println("✅ Datos cargados exitosamente desde archivos JSON.");
+        }
+    }
+    
+    /**
+     * Intenta cargar zonas y atracciones desde archivos JSON.
+     * 
+     * @return true si la carga fue exitosa, false en caso contrario
+     */
+    private boolean cargarDatosDesdeJSON() {
+        try {
+            // Cargar zonas
+            List<Zona> zonasCargadas = datosService.cargarZonas();
+            if (zonasCargadas == null || zonasCargadas.isEmpty()) {
+                return false;
+            }
+            
+            // Cargar atracciones
+            List<Atraccion> atraccionesCargadas = datosService.cargarAtracciones();
+            if (atraccionesCargadas == null || atraccionesCargadas.isEmpty()) {
+                return false;
+            }
+            
+            // Asociar atracciones a zonas (asignamos primero a la primera zona como ejemplo)
+            Zona zonaInicial = zonasCargadas.get(0);
+            for (Atraccion atr : atraccionesCargadas) {
+                zonaInicial.agregarAtraccion(atr);
+            }
+            
+            // Agregar zonas al parque
+            for (Zona zona : zonasCargadas) {
+                agregarZona(zona);
+            }
+            
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error al cargar datos desde JSON: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Recarga los datos desde los archivos JSON.
+     * Útil para ser llamado desde el frontend.
+     * 
+     * @return true si la carga fue exitosa, false en caso contrario
+     */
+    public boolean recargarDatos() {
+        // Limpiar datos actuales
+        this.zonas.clear();
+        this.usuarios.clear();
+        this.todasLasAtracciones.clear();
+        
+        // Intentar cargar desde JSON
+        return cargarDatosDesdeJSON();
+    }
+
+    /**
+     * Inicialización con datos hardcoded (fallback).
+     * Solo se usa si falla la carga desde JSON.
+     */
+    private void inicializacionHardcoded() {
         Zona zonaA = new Zona("Z1", "Zona Extrema", "Norte", 500);
         Atraccion a1 = new Atraccion("A1", "Montaña Rusa X", "Mecánica", 20, 1.4f, 12, 5000);
         Atraccion a2 = new Atraccion("A2", "Caída Libre", "Mecánica", 12, 1.5f, 15, 7000);

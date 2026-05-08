@@ -1,0 +1,29 @@
+[
+  {
+    "id": "A1",
+    "nombre": "Montaña Rusa X",
+    "tipo": "Mecánica",
+    "capacidadMax": 20,
+    "alturaMin": 1.4,
+    "edadMin": 12,
+    "costoAdicional": 5000
+  },
+  {
+    "id": "A2",
+    "nombre": "Caída Libre",
+    "tipo": "Mecánica",
+    "capacidadMax": 12,
+    "alturaMin": 1.5,
+    "edadMin": 15,
+    "costoAdicional": 7000
+  },
+  {
+    "id": "A3",
+    "nombre": "Tobogán Gigante",
+    "tipo": "Acuática",
+    "capacidadMax": 5,
+    "alturaMin": 1.2,
+    "edadMin": 8,
+    "costoAdicional": 3000
+  }
+]

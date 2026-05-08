@@ -19,8 +19,18 @@ public class Visitante extends Usuario {
     private String rutaFoto; // Opcional
     private FavoritosSet favoritos;
     private List<Notificacion> listaNotificaciones;
-    private List<Atraccion> historialVisitas; // TODO: Cambiar a ListaEnlazada propia
+    private List<Atraccion> historialVisitas; // TODO: Cambiar a ListaEnlazada
     private int saldoVirtual;
+
+    /**
+     * Constructor sin argumentos necesario para deserialización JSON con Jackson.
+     */
+    public Visitante() {
+        super();
+        this.favoritos = new FavoritosSet(this);
+        this.listaNotificaciones = new ArrayList<>();
+        this.historialVisitas = new ArrayList<>(); // TODO: Refactorizar a ListaEnlazada
+    }
 
     /**
      * Constructor del Visitante.

@@ -20,6 +20,15 @@ public class Zona {
     private List<Operador> listaOperadores;
 
     /**
+     * Constructor sin argumentos necesario para deserialización JSON con Jackson.
+     */
+    public Zona() {
+        this.listaAtracciones = new ArrayList<>();
+        this.listaOperadores = new ArrayList<>();
+        this.visitantesActuales = 0;
+    }
+
+    /**
      * Constructor de Zona.
      * 
      * @param id Identificador único de la zona

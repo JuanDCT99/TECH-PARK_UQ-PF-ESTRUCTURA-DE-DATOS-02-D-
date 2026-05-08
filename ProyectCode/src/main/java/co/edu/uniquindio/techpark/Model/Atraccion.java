@@ -24,6 +24,15 @@ public class Atraccion {
      * @param edadMin Edad mínima requerida
      * @param costoAdicional Costo adicional para ciertos tickets
      */
+    /**
+     * Constructor sin argumentos necesario para deserialización JSON con Jackson.
+     */
+    public Atraccion() {
+        this.contadorVisitantes = 0;
+        this.tiempoEspera = 0;
+        this.estado = EstadoAtraccion.ACTIVA;
+    }
+
     public Atraccion(String id, String nombre, String tipo, int capacidadMax, float alturaMin, int edadMin, int costoAdicional) {
         this.id = id;
         this.nombre = nombre;
