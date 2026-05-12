@@ -1,8 +1,5 @@
 package co.edu.uniquindio.techpark.Model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Representa una zona del parque TECH-PARK UQ.
  * Agrupa atracciones y operadores asignados.
@@ -16,15 +13,15 @@ public class Zona {
     private String descripcion;
     private int capacidadMaxima;
     private int visitantesActuales;
-    private List<Atraccion> listaAtracciones;
-    private List<Operador> listaOperadores;
+    private ListaEnlazada<Atraccion> listaAtracciones;
+    private ListaEnlazada<Operador> listaOperadores;
 
     /**
      * Constructor sin argumentos necesario para deserialización JSON con Jackson.
      */
     public Zona() {
-        this.listaAtracciones = new ArrayList<>();
-        this.listaOperadores = new ArrayList<>();
+        this.listaAtracciones = new ListaEnlazada<>();
+        this.listaOperadores = new ListaEnlazada<>();
         this.visitantesActuales = 0;
     }
 
@@ -56,8 +53,8 @@ public class Zona {
         this.descripcion = descripcion;
         this.capacidadMaxima = capacidadMaxima;
         this.visitantesActuales = 0;
-        this.listaAtracciones = new ArrayList<>();
-        this.listaOperadores = new ArrayList<>();
+        this.listaAtracciones = new ListaEnlazada<>();
+        this.listaOperadores = new ListaEnlazada<>();
     }
 
     /**
@@ -77,7 +74,7 @@ public class Zona {
                 return;
             }
         }
-        this.listaAtracciones.add(atraccion);
+        this.listaAtracciones.agregar(atraccion);
     }
 
     /**
@@ -92,8 +89,16 @@ public class Zona {
             throw new IllegalArgumentException("El operador no puede ser null");
         }
         // Verificar duplicados
-        if (!listaOperadores.contains(operador)) {
-            this.listaOperadores.add(operador);
+        boolean existe = false;
+        for (Operador o : listaOperadores) {
+            if (o.getId().equals(operador.getId())) {
+                existe = true;
+                break;
+            }
+        }
+        
+        if (!existe) {
+            this.listaOperadores.agregar(operador);
             operador.setZonaAsignada(this);
         }
     }
@@ -222,20 +227,20 @@ public class Zona {
     }
 
     /**
-     * Obtiene la lista de atracciones en la zona.
+     * Obtiene la lista de atracciones en la zona propia.
      * 
-     * @return Lista de atracciones
+     * @return ListaEnlazada de atracciones
      */
-    public List<Atraccion> getListaAtracciones() {
+    public ListaEnlazada<Atraccion> getListaAtracciones() {
         return listaAtracciones;
     }
 
     /**
-     * Obtiene la lista de operadores asignados a la zona.
+     * Obtiene la lista de operadores asignados a la zona propia.
      * 
-     * @return Lista de operadores
+     * @return ListaEnlazada de operadores
      */
-    public List<Operador> getListaOperadores() {
+    public ListaEnlazada<Operador> getListaOperadores() {
         return listaOperadores;
     }
 

@@ -37,6 +37,124 @@ public class ColaPrioridad {
     }
 
     /**
+     * Inserta un nuevo elemento en la cola de prioridad.
+     * Mantiene la propiedad de heap (min-heap basado en prioridad y tiempo).
+     * 
+     * @param entrada Elemento a insertar
+     */
+    public void insertar(EntradaCola entrada) {
+        if (entrada == null) return;
+        
+        if (tam == elementos.length) {
+            redimensionar();
+        }
+        
+        elementos[tam] = entrada;
+        subir(tam);
+        tam++;
+    }
+
+    /**
+     * Elimina y retorna el elemento con mayor prioridad (raíz del heap).
+     * 
+     * @return El elemento con mayor prioridad, o null si la cola está vacía
+     */
+    public EntradaCola eliminar() {
+        if (isEmpty()) return null;
+        
+        EntradaCola raiz = elementos[0];
+        elementos[0] = elementos[tam - 1];
+        elementos[tam - 1] = null;
+        tam--;
+        
+        if (tam > 0) {
+            bajar(0);
+        }
+        
+        return raiz;
+    }
+
+    /**
+     * Retorna el elemento con mayor prioridad sin eliminarlo.
+     * 
+     * @return El elemento con mayor prioridad, o null si está vacía
+     */
+    public EntradaCola peek() {
+        if (isEmpty()) return null;
+        return elementos[0];
+    }
+
+    /**
+     * Mantiene la propiedad de heap hacia arriba.
+     */
+    private void subir(int index) {
+        int padre = (index - 1) / 2;
+        
+        while (index > 0 && comparar(elementos[index], elementos[padre]) < 0) {
+            intercambiar(index, padre);
+            index = padre;
+            padre = (index - 1) / 2;
+        }
+    }
+
+    /**
+     * Mantiene la propiedad de heap hacia abajo.
+     */
+    private void bajar(int index) {
+        int menor = index;
+        int izq = 2 * index + 1;
+        int der = 2 * index + 2;
+        
+        if (izq < tam && comparar(elementos[izq], elementos[menor]) < 0) {
+            menor = izq;
+        }
+        
+        if (der < tam && comparar(elementos[der], elementos[menor]) < 0) {
+            menor = der;
+        }
+        
+        if (menor != index) {
+            intercambiar(index, menor);
+            bajar(menor);
+        }
+    }
+
+    /**
+     * Compara dos entradas de cola para determinar prioridad.
+     * Retorna < 0 si e1 tiene mayor prioridad que e2.
+     * Retorna > 0 si e1 tiene menor prioridad que e2.
+     * Retorna 0 si son iguales.
+     */
+    private int comparar(EntradaCola e1, EntradaCola e2) {
+        // Primero comparamos la prioridad (1=Fast-Pass es mayor prioridad que 2=General)
+        // En un Min-Heap, el valor más bajo sale primero.
+        if (e1.getPrioridad() != e2.getPrioridad()) {
+            return Integer.compare(e1.getPrioridad(), e2.getPrioridad());
+        }
+        
+        // Si la prioridad es igual, comparamos el tiempo de ingreso (FIFO)
+        return e1.getHoraIngreso().compareTo(e2.getHoraIngreso());
+    }
+
+    /**
+     * Intercambia dos elementos en el arreglo.
+     */
+    private void intercambiar(int i, int j) {
+        EntradaCola temp = elementos[i];
+        elementos[i] = elementos[j];
+        elementos[j] = temp;
+    }
+
+    /**
+     * Duplica el tamaño del arreglo interno.
+     */
+    private void redimensionar() {
+        EntradaCola[] nuevo = new EntradaCola[elementos.length * 2];
+        System.arraycopy(elementos, 0, nuevo, 0, elementos.length);
+        elementos = nuevo;
+    }
+
+    /**
      * Obtiene el arreglo de elementos en la cola.
      * @return Arreglo de EntradaCola
      */

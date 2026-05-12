@@ -1,8 +1,6 @@
 package co.edu.uniquindio.techpark.Model;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Representa a un visitante del parque TECH-PARK UQ.
@@ -18,8 +16,8 @@ public class Visitante extends Usuario {
     private float estatura;
     private String rutaFoto; // Opcional
     private FavoritosSet favoritos;
-    private List<Notificacion> listaNotificaciones;
-    private List<Atraccion> historialVisitas; // TODO: Cambiar a ListaEnlazada
+    private ListaEnlazada<Notificacion> listaNotificaciones;
+    private ListaEnlazada<Atraccion> historialVisitas;
     private int saldoVirtual;
 
     /**
@@ -28,8 +26,8 @@ public class Visitante extends Usuario {
     public Visitante() {
         super();
         this.favoritos = new FavoritosSet(this);
-        this.listaNotificaciones = new ArrayList<>();
-        this.historialVisitas = new ArrayList<>(); // TODO: Refactorizar a ListaEnlazada
+        this.listaNotificaciones = new ListaEnlazada<>();
+        this.historialVisitas = new ListaEnlazada<>();
     }
 
     /**
@@ -61,8 +59,8 @@ public class Visitante extends Usuario {
         this.edad = edad;
         this.estatura = estatura;
         this.favoritos = new FavoritosSet(this);
-        this.listaNotificaciones = new ArrayList<>();
-        this.historialVisitas = new ArrayList<>(); // TODO: Refactorizar a ListaEnlazada
+        this.listaNotificaciones = new ListaEnlazada<>();
+        this.historialVisitas = new ListaEnlazada<>();
         this.saldoVirtual = saldoVirtual;
     }
 
@@ -148,17 +146,17 @@ public class Visitante extends Usuario {
 
     /**
      * Obtiene la lista de notificaciones pendientes del visitante.
-     * @return Lista de notificaciones
+     * @return Lista de notificaciones propia
      */
-    public List<Notificacion> getListaNotificaciones() {
+    public ListaEnlazada<Notificacion> getListaNotificaciones() {
         return listaNotificaciones;
     }
 
     /**
      * Obtiene el historial de visitas del visitante.
-     * @return Lista de atracciones visitadas (TODO: cambiar a ListaEnlazada)
+     * @return Lista enlazada de atracciones visitadas
      */
-    public List<Atraccion> getHistorialVisitas() {
+    public ListaEnlazada<Atraccion> getHistorialVisitas() {
         return historialVisitas;
     }
 
@@ -246,7 +244,7 @@ public class Visitante extends Usuario {
         if (puedeEntrar(atraccion)) {
             this.saldoVirtual -= atraccion.getCostoAdicional();
             atraccion.registrarVisita();
-            this.historialVisitas.add(atraccion);
+            this.historialVisitas.agregar(atraccion);
             System.out.println("Ingreso exitoso a " + atraccion.getNombre() + ". Saldo restante: " + saldoVirtual);
         } else {
             System.out.println("No se pudo completar el ingreso a " + atraccion.getNombre());
