@@ -18,12 +18,12 @@ public class ParqueController {
     private TechPark techPark;
 
     @GetMapping("/atracciones")
-    public List<Atraccion> getAtracciones() {
+    public Atraccion[] getAtracciones() {
         return techPark.getTodasLasAtracciones();
     }
 
     @GetMapping("/zonas")
-    public List<Zona> getZonas() {
+    public Zona[] getZonas() {
         return techPark.getZonas();
     }
 

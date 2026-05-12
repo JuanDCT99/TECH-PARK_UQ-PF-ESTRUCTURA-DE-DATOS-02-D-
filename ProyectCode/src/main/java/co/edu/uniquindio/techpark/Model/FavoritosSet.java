@@ -1,21 +1,18 @@
 package co.edu.uniquindio.techpark.Model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Implementación de un Set (Conjunto) para gestionar las atracciones favoritas
  * de un visitante del parque TECH-PARK UQ.
  * 
  * Esta estructura garantiza que no haya atracciones duplicadas en la lista de favoritos.
- * Es una estructura propia que NO utiliza colecciones de Java como HashSet.
+ * Es una estructura propia que utiliza ListaEnlazada propia y NO colecciones de Java.
  * 
  * @author TECH-PARK UQ Team
  * @version 1.0
  */
 public class FavoritosSet {
     private Visitante visitante;
-    private List<Atraccion> favoritos;
+    private ListaEnlazada<Atraccion> favoritos;
 
     /**
      * Constructor del conjunto de favoritos.
@@ -24,7 +21,7 @@ public class FavoritosSet {
      */
     public FavoritosSet(Visitante visitante) {
         this.visitante = visitante;
-        this.favoritos = new ArrayList<>();
+        this.favoritos = new ListaEnlazada<>();
     }
 
     /**
@@ -60,12 +57,10 @@ public class FavoritosSet {
             throw new IllegalArgumentException("La atracción no puede ser null");
         }
         // Verificar unicidad
-        for (Atraccion a : favoritos) {
-            if (a.getId().equals(atraccion.getId())) {
-                return false; // Ya está en favoritos
-            }
+        if (esFavorito(atraccion)) {
+            return false; // Ya está en favoritos
         }
-        favoritos.add(atraccion);
+        favoritos.agregar(atraccion);
         return true;
     }
 
@@ -79,13 +74,7 @@ public class FavoritosSet {
         if (atraccion == null) {
             return false;
         }
-        for (int i = 0; i < favoritos.size(); i++) {
-            if (favoritos.get(i).getId().equals(atraccion.getId())) {
-                favoritos.remove(i);
-                return true;
-            }
-        }
-        return false;
+        return favoritos.eliminar(atraccion);
     }
 
     /**
@@ -107,12 +96,12 @@ public class FavoritosSet {
     }
 
     /**
-     * Obtiene la lista de todas las atracciones favoritas.
+     * Obtiene la lista propia de todas las atracciones favoritas.
      * 
-     * @return Lista de atracciones favoritas
+     * @return ListaEnlazada de atracciones favoritas
      */
-    public List<Atraccion> obtenerFavoritos() {
-        return new ArrayList<>(favoritos); // Retorna una copia para evitar modificaciones externas
+    public ListaEnlazada<Atraccion> obtenerFavoritos() {
+        return favoritos;
     }
 
     /**

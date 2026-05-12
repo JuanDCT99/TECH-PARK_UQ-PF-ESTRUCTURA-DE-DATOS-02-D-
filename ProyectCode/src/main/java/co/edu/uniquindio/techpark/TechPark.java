@@ -2,10 +2,10 @@ package co.edu.uniquindio.techpark;
 
 import co.edu.uniquindio.techpark.Model.*;
 import co.edu.uniquindio.techpark.service.DatosService;
+import co.edu.uniquindio.techpark.service.Sender;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,21 +17,27 @@ import java.util.List;
  */
 @Service
 public class TechPark {
-    private List<Zona> zonas;
-    private List<Usuario> usuarios;
-    private List<Atraccion> todasLasAtracciones;
+    private ListaEnlazada<Zona> zonas;
+    private ListaEnlazada<Usuario> usuarios;
+    private ListaEnlazada<Atraccion> todasLasAtracciones;
+    
+    // Nuevas estructuras propias (Fase 2)
+    private ArbolBinarioBusqueda catalogoAtracciones;
+    private Grafo mapaParque;
     
     @Autowired
     private DatosService datosService;
 
     /**
      * Constructor de la clase TechPark.
-     * Inicializa las listas principales del sistema.
+     * Inicializa las listas principales y las estructuras propias.
      */
     public TechPark() {
-        this.zonas = new ArrayList<>();
-        this.usuarios = new ArrayList<>();
-        this.todasLasAtracciones = new ArrayList<>();
+        this.zonas = new ListaEnlazada<>();
+        this.usuarios = new ListaEnlazada<>();
+        this.todasLasAtracciones = new ListaEnlazada<>();
+        this.catalogoAtracciones = new ArbolBinarioBusqueda();
+        this.mapaParque = new Grafo();
     }
 
     /**
@@ -52,7 +58,7 @@ public class TechPark {
     }
     
     /**
-     * Intenta cargar zonas y atracciones desde archivos JSON.
+     * Intenta cargar zonas, atracciones y senderos desde archivos JSON.
      * 
      * @return true si la carga fue exitosa, false en caso contrario
      */
@@ -68,6 +74,18 @@ public class TechPark {
             List<Atraccion> atraccionesCargadas = datosService.cargarAtracciones();
             if (atraccionesCargadas == null || atraccionesCargadas.isEmpty()) {
                 return false;
+            }
+
+            // Alimentar el ABB y la lista global
+            for (Atraccion atr : atraccionesCargadas) {
+                catalogoAtracciones.insertar(atr);
+                this.todasLasAtracciones.agregar(atr);
+            }
+            
+            // Cargar senderos y alimentar el Grafo
+            List<Sender> senderosCargados = datosService.cargarSenderos();
+            for (Sender sender : senderosCargados) {
+                mapaParque.agregarArista(sender.getOrigen(), sender.getDestino(), sender.getPeso(), true);
             }
             
             // Asociar atracciones a zonas (asignamos primero a la primera zona como ejemplo)
@@ -96,9 +114,11 @@ public class TechPark {
      */
     public boolean recargarDatos() {
         // Limpiar datos actuales
-        this.zonas.clear();
-        this.usuarios.clear();
-        this.todasLasAtracciones.clear();
+        this.zonas = new ListaEnlazada<>();
+        this.usuarios = new ListaEnlazada<>();
+        this.todasLasAtracciones = new ListaEnlazada<>();
+        this.catalogoAtracciones = new ArbolBinarioBusqueda();
+        this.mapaParque = new Grafo();
         
         // Intentar cargar desde JSON
         return cargarDatosDesdeJSON();
@@ -117,11 +137,26 @@ public class TechPark {
         registrarNuevaAtraccion(zonaA, a1);
         registrarNuevaAtraccion(zonaA, a2);
 
+        // Alimentar ABB
+        catalogoAtracciones.insertar(a1);
+        catalogoAtracciones.insertar(a2);
+
         Zona zonaB = new Zona("Z2", "Zona Acuática", "Sur", 300);
         Atraccion a3 = new Atraccion("A3", "Tobogán Gigante", "Acuática", 5, 1.2f, 8, 3000);
         
         agregarZona(zonaB);
         registrarNuevaAtraccion(zonaB, a3);
+        catalogoAtracciones.insertar(a3);
+    }
+
+    /**
+     * Busca una atracción por su ID usando el ABB (O(log n)).
+     * 
+     * @param id Identificador de la atracción
+     * @return Atracción encontrada o null
+     */
+    public Atraccion buscarAtraccion(String id) {
+        return catalogoAtracciones.buscarPorId(id);
     }
 
     /**
@@ -138,11 +173,18 @@ public class TechPark {
             System.out.println("La zona con ID " + zona.getId() + " ya existe en el parque.");
             return;
         }
-        zonas.add(zona);
+        zonas.agregar(zona);
         // Sincronizar las atracciones existentes de la zona con la lista global del parque
         for (Atraccion atraccion : zona.getListaAtracciones()) {
-            if (!todasLasAtracciones.contains(atraccion)) {
-                todasLasAtracciones.add(atraccion);
+            boolean existe = false;
+            for (Atraccion a : todasLasAtracciones) {
+                if (a.getId().equals(atraccion.getId())) {
+                    existe = true;
+                    break;
+                }
+            }
+            if (!existe) {
+                todasLasAtracciones.agregar(atraccion);
             }
         }
     }
@@ -156,8 +198,17 @@ public class TechPark {
         if (usuario == null) {
             throw new IllegalArgumentException("El usuario no puede ser null");
         }
-        if (!usuarios.contains(usuario)) {
-            usuarios.add(usuario);
+        
+        boolean existe = false;
+        for (Usuario u : usuarios) {
+            if (u.getId().equals(usuario.getId())) {
+                existe = true;
+                break;
+            }
+        }
+        
+        if (!existe) {
+            usuarios.agregar(usuario);
         }
     }
 
@@ -173,8 +224,18 @@ public class TechPark {
             throw new IllegalArgumentException("La zona y la atracción no pueden ser null");
         }
         zona.agregarAtraccion(atraccion);
-        if (!todasLasAtracciones.contains(atraccion)) {
-            todasLasAtracciones.add(atraccion);
+        
+        boolean existe = false;
+        for (Atraccion a : todasLasAtracciones) {
+            if (a.getId().equals(atraccion.getId())) {
+                existe = true;
+                break;
+            }
+        }
+        
+        if (!existe) {
+            todasLasAtracciones.agregar(atraccion);
+            catalogoAtracciones.insertar(atraccion);
         }
     }
 
@@ -229,29 +290,30 @@ public class TechPark {
     }
 
     /**
-     * Obtiene la lista de zonas del parque.
+     * Obtiene el arreglo de zonas del parque.
      * 
-     * @return Lista de zonas
+     * @return Arreglo de zonas
      */
-    public List<Zona> getZonas() {
-        return zonas;
+    public Zona[] getZonas() {
+        return zonas.toArray(Zona.class);
     }
 
     /**
-     * Obtiene la lista de usuarios registrados.
+     * Obtiene el arreglo de usuarios registrados.
      * 
-     * @return Lista de usuarios
+     * @return Arreglo de usuarios
      */
-    public List<Usuario> getUsuarios() {
-        return usuarios;
+    public Usuario[] getUsuarios() {
+        return usuarios.toArray(Usuario.class);
     }
 
     /**
      * Obtiene el catálogo completo de atracciones del parque.
      * 
-     * @return Lista de todas las atracciones
+     * @return Arreglo de todas las atracciones
      */
-    public List<Atraccion> getTodasLasAtracciones() {
-        return todasLasAtracciones;
+    public Atraccion[] getTodasLasAtracciones() {
+        return todasLasAtracciones.toArray(Atraccion.class);
     }
 }
+

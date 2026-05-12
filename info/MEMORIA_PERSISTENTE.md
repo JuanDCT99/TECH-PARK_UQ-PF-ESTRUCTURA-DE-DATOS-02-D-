@@ -753,3 +753,22 @@ git commit -m "docs: Actualización final MEMORIA_PERSISTENTE - Sesión 07 mayo
 **Última actualización:** 07 de mayo de 2026 - Fin de sesión (Fases 1 y 2 completadas)
 **Próxima fase a ejecutar:** FASE 3 - Estructuras de Datos Propias
 **Estado de memoria:** ✅ ACTUALIZADA AL DÍA
+
+---
+
+## 11. DETALLE DE IMPLEMENTACIÓN RECIENTE (ESTRUCTURAS DE DATOS PROPIAS)
+
+### ✅ FASE 1: Estructuras Lineales y Prioridad (Completada)
+*   **`ColaPrioridad.java`**: Implementación completa de un **Min-Heap**. Gestiona la prioridad basándose en el tipo de tiquete (1: Fast-Pass, 2: General) y en el tiempo de ingreso (FIFO para empates).
+*   **`ListaEnlazada.java`**: Estructura propia genérica que sustituye a `ArrayList`. Incluye soporte para iteración y conversión a arreglo (`toArray`) para compatibilidad con la API REST.
+*   **Refactorización de `Visitante.java`**: El historial de visitas y las notificaciones ahora utilizan `ListaEnlazada`.
+
+### ✅ FASE 2: Estructuras No Lineales y Refactorización Global (Completada)
+*   **`ArbolBinarioBusqueda.java`**: Implementación de un ABB para el catálogo de atracciones. Permite búsquedas por ID en tiempo $O(\log n)$.
+*   **`Grafo.java`** y **`Arista.java`**: Representación del mapa físico mediante lista de adyacencia. Carga los senderos desde el archivo JSON y establece la conectividad del parque.
+*   **Refactorización de `Zona.java`** y **`FavoritosSet.java`**: Migración total a `ListaEnlazada` para cumplir con la restricción de estructuras propias.
+*   **Integración en `TechPark.java`**: El orquestador central ahora centraliza el ABB y el Grafo, sincronizando los datos cargados desde JSON.
+*   **Adaptación de `ParqueController.java`**: Actualización de los endpoints para retornar arreglos nativos, manteniendo la funcionalidad del Frontend (React).
+
+**Progreso Actualizado:** 65% 📈
+**Próximo Objetivo:** Fase 3 (Algoritmos de Optimización - Dijkstra).
