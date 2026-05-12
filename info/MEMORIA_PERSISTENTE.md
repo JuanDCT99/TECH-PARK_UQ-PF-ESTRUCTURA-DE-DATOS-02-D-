@@ -1,8 +1,8 @@
 # MEMORIA PERSISTENTE - PROYECTO TECH-PARK UQ
 
 **Fecha de creación:** 07 de mayo de 2026
-**Última actualización:** 07 de mayo de 2026
-**Estado del proyecto:** 32% de avance (según reporte técnico)
+**Última actualización:** 07 de mayo de 2026 - FASES 1 y 2 COMPLETADAS
+**Estado del proyecto:** 52% de avance (Fase 1 y 2 completadas)
 **Modo actual:** BUILD
 
 ---
@@ -664,5 +664,92 @@ Dependencias actuales:
 
 ---
 
-**Última actualización:** 07 de mayo de 2026 - Creación inicial de la memoria persistente
-**Próxima fase a ejecutar:** FASE 1 - Refactorización y Calidad de Código
+## NOTA FINAL - SESIÓN 07 DE MAYO DE 2026
+
+**Estado al finalizar la sesión:**
+- ✅ FASE 1: Refactorización y Calidad de Código - **COMPLETADA (100%)**
+- ✅ FASE 2: Persistencia y Carga de Datos - **COMPLETADA (100%)**
+- ⏳ FASE 3: Estructuras de Datos Propias - **PENDIENTE (Lista para próxima sesión)**
+
+**Progreso global del proyecto:** 52% (32% infraestructura base + 10% Fase 1 + 10% Fase 2)
+
+**Commits realizados en esta sesión:**
+- ✅ Commit de FASE 1 realizado
+- ✅ Commit de FASE 2 realizado
+- 📝 Pendiente: Hacer commit de los cambios de actualización de MEMORIA_PERSISTENTE.md
+
+**Archivos creados en esta sesión:**
+1. `Model/ColaPrioridad.java` (reemplaza PriotityQueue)
+2. `controller/GlobalExceptionHandler.java`
+3. `service/DatosService.java`
+4. `service/Sender.java`
+5. `resources/data/atracciones.json`
+6. `resources/data/zonas.json`
+7. `resources/data/senderos.json`
+8. `resources/data/usuarios.json`
+
+**Archivos modificados en esta sesión:**
+1. `pom.xml` - Dependencia Jackson añadida
+2. `TechPark.java` - Integración con DatosService
+3. `ParqueController.java` - Endpoint de carga de datos
+4. `Atraccion.java` - Constructor sin argumentos
+5. `Zona.java` - Constructor sin argumentos
+6. `Usuario.java` - Constructor sin argumentos
+7. `Visitante.java` - Constructor sin argumentos
+8. `.gitignore` - Exclusiones añadidas
+9. `frontend/src/App.jsx` - Botón de carga de datos
+10. `Model/Visitante.java` - Documentación y validaciones
+11. `Model/FavoritosSet.java` - Implementación completa
+12. `Model/EntradaCola.java` - Documentación, validaciones, corrección Date
+13. `Model/Zona.java` - Documentación y validaciones
+
+**Para la próxima sesión:**
+- Ejecutar commit de actualización de `MEMORIA_PERSISTENTE.md`
+- Iniciar **FASE 3: Estructuras de Datos Propias**
+- Orden de implementación: ListaEnlazada → ABB → Grafo → ColaPrioridad real → FavoritosSet real
+
+---
+
+## 📴 FINALIZACIÓN DE SESIÓN - 07 DE MAYO DE 2026
+
+**✅ TAREA FINAL REALIZADA:** Actualización completa de MEMORIA_PERSISTENTE.md
+
+**Estado final del proyecto:**
+- ✅ FASE 1: Refactorización y Calidad de Código - **COMPLETADA (100%)**
+- ✅ FASE 2: Persistencia y Carga de Datos - **COMPLETADA (100%)**
+- ⏳ FASE 3: Estructuras de Datos Propias - **PENDIENTE (Lista para próxima sesión)**
+
+**Progreso global:** 52% (32% base + 10% Fase 1 + 10% Fase 2)
+
+**📋 ÚLTIMA TAREA POR HOY:**
+- ✅ MEMORIA_PERSISTENTE.md actualizada y completa
+- ✅ Registro detallado de Fases 1 y 2
+- ✅ Plan de ejecución para FASE 3 listo
+
+**📝 PENDIENTE PARA PRÓXIMA SESIÓN:**
+1. Hacer commit de los cambios de hoy (incluyendo actualización de MEMORIA_PERSISTENTE.md)
+2. Iniciar FASE 3: Estructuras de Datos Propias en orden:
+   - ListaEnlazada.java
+   - ArbolBinarioBusqueda.java  
+   - Grafo.java
+   - ColaPrioridad.java (Heap real)
+   - FavoritosSet.java (usando ListaEnlazada)
+   - TechPark.java (integrar Grafo y ABB)
+   - Atraccion.java (coordenadas y ColaPrioridad)
+   - Visitante.java (usar ListaEnlazada)
+
+**Comando para commit final:**
+```bash
+git add info/MEMORIA_PERSISTENTE.md
+git commit -m "docs: Actualización final MEMORIA_PERSISTENTE - Sesión 07 mayo
+
+- Fases 1 y 2 completadas (100% cada una)
+- Progreso global: 52%
+- FASE 3 lista para próxima sesión"
+```
+
+---
+
+**Última actualización:** 07 de mayo de 2026 - Fin de sesión (Fases 1 y 2 completadas)
+**Próxima fase a ejecutar:** FASE 3 - Estructuras de Datos Propias
+**Estado de memoria:** ✅ ACTUALIZADA AL DÍA
