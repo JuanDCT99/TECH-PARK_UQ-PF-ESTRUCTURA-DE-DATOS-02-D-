@@ -1,5 +1,9 @@
 package co.edu.uniquindio.techpark.Model;
 
+/**
+ * Representa una atracción del parque TECH-PARK UQ.
+ * Posee lógica de mantenimiento automático y gestión de colas de prioridad.
+ */
 public class Atraccion {
     private String id;
     private String nombre;
@@ -12,18 +16,8 @@ public class Atraccion {
     private int tiempoEspera;
     private EstadoAtraccion estado;
     private String motivoCierre;
+    private ColaPrioridad colaEspera;
 
-    /**
-     * Constructor de Atraccion.
-     * 
-     * @param id Identificador único
-     * @param nombre Nombre de la atracción
-     * @param tipo Tipo de atracción (Mecánica, Acuática, etc.)
-     * @param capacidadMax Capacidad máxima por ciclo
-     * @param alturaMin Altura mínima requerida en metros
-     * @param edadMin Edad mínima requerida
-     * @param costoAdicional Costo adicional para ciertos tickets
-     */
     /**
      * Constructor sin argumentos necesario para deserialización JSON con Jackson.
      */
@@ -31,8 +25,12 @@ public class Atraccion {
         this.contadorVisitantes = 0;
         this.tiempoEspera = 0;
         this.estado = EstadoAtraccion.ACTIVA;
+        this.colaEspera = new ColaPrioridad();
     }
 
+    /**
+     * Constructor completo de Atraccion.
+     */
     public Atraccion(String id, String nombre, String tipo, int capacidadMax, float alturaMin, int edadMin, int costoAdicional) {
         this.id = id;
         this.nombre = nombre;
@@ -44,6 +42,7 @@ public class Atraccion {
         this.contadorVisitantes = 0;
         this.tiempoEspera = 0;
         this.estado = EstadoAtraccion.ACTIVA;
+        this.colaEspera = new ColaPrioridad();
     }
 
     // Getters y Setters
@@ -60,21 +59,29 @@ public class Atraccion {
     public void setEstado(EstadoAtraccion estado) { this.estado = estado; }
 
     public float getAlturaMin() { return alturaMin; }
-    public int getEdadMin() { return edadMin; }
-    public int getCostoAdicional() { return costoAdicional; }
-    
-    public String getTipo() {
-        return tipo;
-    }
+    public void setAlturaMin(float alturaMin) { this.alturaMin = alturaMin; }
 
-    public int getCapacidadMax() {
-        return capacidadMax;
-    }
+    public int getEdadMin() { return edadMin; }
+    public void setEdadMin(int edadMin) { this.edadMin = edadMin; }
+
+    public int getCostoAdicional() { return costoAdicional; }
+    public void setCostoAdicional(int costoAdicional) { this.costoAdicional = costoAdicional; }
+    
+    public String getTipo() { return tipo; }
+    public void setTipo(String tipo) { this.tipo = tipo; }
+
+    public int getCapacidadMax() { return capacidadMax; }
+    public void setCapacidadMax(int capacidadMax) { this.capacidadMax = capacidadMax; }
+
+    public ColaPrioridad getColaEspera() { return colaEspera; }
+    public void setColaEspera(ColaPrioridad colaEspera) { this.colaEspera = colaEspera; }
 
     public String getMotivoCierre() { return motivoCierre; }
     public void setMotivoCierre(String motivoCierre) { this.motivoCierre = motivoCierre; }
 
-    // Lógica básica pedida: Bloqueo por mantenimiento
+    /**
+     * Registra una visita y activa mantenimiento si llega a 500.
+     */
     public void registrarVisita() {
         this.contadorVisitantes++;
         if (this.contadorVisitantes >= 500) {
@@ -85,7 +92,6 @@ public class Atraccion {
 
     /**
      * Registra una revisión técnica satisfactoria.
-     * Reinicia el contador de visitantes, activa la atracción y limpia el motivo de cierre.
      */
     public void registrarRevisionTecnica() {
         this.contadorVisitantes = 0;

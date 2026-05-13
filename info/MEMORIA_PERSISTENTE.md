@@ -772,3 +772,27 @@ git commit -m "docs: Actualización final MEMORIA_PERSISTENTE - Sesión 07 mayo
 
 **Progreso Actualizado:** 65% 📈
 **Próximo Objetivo:** Fase 3 (Algoritmos de Optimización - Dijkstra).
+
+---
+
+## 12. DETALLE DE IMPLEMENTACIÓN: FASE 3 (INTELIGENCIA Y ALGORITMOS)
+
+### ✅ Algoritmo de Dijkstra e Inteligencia de Rutas
+*   **`ResultadoRuta.java`**: Nueva clase para encapsular el camino óptimo y el peso total del recorrido.
+*   **`Grafo.java` (Implementación Dijkstra)**: Se implementó el algoritmo de Dijkstra desde cero. 
+    *   **Lógica:** Utiliza arreglos internos para distancias y predecesores, realizando una búsqueda de mínimo costo sobre los nodos no visitados.
+    *   **Propósito:** Calcular la ruta más corta entre cualquier par de atracciones del parque.
+*   **Integración en `TechPark.java`**: Se añadió el método `obtenerRutaOptima` que expone la funcionalidad del grafo al resto del sistema.
+
+### ✅ Gestión de Colas y Prioridades
+*   **`Atraccion.java`**: Se integró el campo `colaEspera` (instancia de `ColaPrioridad`) para manejar las filas individuales de cada atracción.
+*   **Lógica de Negocio en `TechPark.java`**: Implementado el método `unirseAFila`.
+    *   **Validación:** Verifica requisitos de seguridad (estatura, edad) y saldo antes de permitir el ingreso a la fila.
+    *   **Priorización:** Asigna prioridad 1 a tiquetes *Fast-Pass* y prioridad 2 a tiquetes *General*, insertándolos en el Heap de la atracción correspondiente.
+
+### ✅ Endpoints de API REST
+*   **`GET /api/parque/ruta`**: Permite al frontend consultar la ruta óptima entre dos atracciones.
+*   **`POST /api/parque/unirse-fila`**: Permite a los visitantes registrarse en una fila virtual respetando su nivel de prioridad.
+
+**Progreso Actualizado:** 80% 🚀
+**Próximo Objetivo:** Fase 4 (Visualización e Interactividad en el Frontend).

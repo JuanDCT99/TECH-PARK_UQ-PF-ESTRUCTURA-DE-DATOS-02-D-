@@ -3,6 +3,7 @@ package co.edu.uniquindio.techpark.controller;
 import co.edu.uniquindio.techpark.TechPark;
 import co.edu.uniquindio.techpark.Model.Atraccion;
 import co.edu.uniquindio.techpark.Model.Zona;
+import co.edu.uniquindio.techpark.Model.ResultadoRuta;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,6 +48,34 @@ public class ParqueController {
             }
         } catch (Exception e) {
             return ResponseEntity.status(500).body("❌ Error interno: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Endpoint para obtener la ruta más corta entre dos puntos.
+     */
+    @GetMapping("/ruta")
+    public ResponseEntity<ResultadoRuta> getRuta(@RequestParam String origen, @RequestParam String destino) {
+        ResultadoRuta ruta = techPark.obtenerRutaOptima(origen, destino);
+        if (ruta != null) {
+            return ResponseEntity.ok(ruta);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    /**
+     * Endpoint para que un visitante se una a la fila de una atracción.
+     */
+    @PostMapping("/unirse-fila")
+    public ResponseEntity<String> unirseAFila(@RequestParam String visitanteId, 
+                                              @RequestParam String atraccionId, 
+                                              @RequestParam String tipoTiquete) {
+        try {
+            co.edu.uniquindio.techpark.Model.TipoTiquete tipo = co.edu.uniquindio.techpark.Model.TipoTiquete.valueOf(tipoTiquete.toUpperCase());
+            String mensaje = techPark.unirseAFila(visitanteId, atraccionId, tipo);
+            return ResponseEntity.ok(mensaje);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("❌ Tipo de tiquete inválido.");
         }
     }
 }
