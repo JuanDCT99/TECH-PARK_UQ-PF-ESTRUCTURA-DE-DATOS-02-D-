@@ -130,8 +130,8 @@ public class TechPark {
      */
     private void inicializacionHardcoded() {
         Zona zonaA = new Zona("Z1", "Zona Extrema", "Norte", 500);
-        Atraccion a1 = new Atraccion("A1", "Montaña Rusa X", "Mecánica", 20, 1.4f, 12, 5000);
-        Atraccion a2 = new Atraccion("A2", "Caída Libre", "Mecánica", 12, 1.5f, 15, 7000);
+        Atraccion a1 = new Atraccion("A1", "Montaña Rusa X", "Mecánica", 20, 1.4f, 12, 5000, 100, 100);
+        Atraccion a2 = new Atraccion("A2", "Caída Libre", "Mecánica", 12, 1.5f, 15, 7000, 300, 150);
         
         agregarZona(zonaA);
         registrarNuevaAtraccion(zonaA, a1);
@@ -142,7 +142,7 @@ public class TechPark {
         catalogoAtracciones.insertar(a2);
 
         Zona zonaB = new Zona("Z2", "Zona Acuática", "Sur", 300);
-        Atraccion a3 = new Atraccion("A3", "Tobogán Gigante", "Acuática", 5, 1.2f, 8, 3000);
+        Atraccion a3 = new Atraccion("A3", "Tobogán Gigante", "Acuática", 5, 1.2f, 8, 3000, 200, 300);
         
         agregarZona(zonaB);
         registrarNuevaAtraccion(zonaB, a3);
