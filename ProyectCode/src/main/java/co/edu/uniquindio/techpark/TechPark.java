@@ -150,13 +150,60 @@ public class TechPark {
     }
 
     /**
-     * Busca una atracción por su ID usando el ABB (O(log n)).
+     * Calcula la ruta más corta entre dos atracciones usando Dijkstra.
      * 
-     * @param id Identificador de la atracción
-     * @return Atracción encontrada o null
+     * @param origenId ID de origen
+     * @param destinoId ID de destino
+     * @return Resultado de la ruta
      */
-    public Atraccion buscarAtraccion(String id) {
-        return catalogoAtracciones.buscarPorId(id);
+    public ResultadoRuta obtenerRutaOptima(String origenId, String destinoId) {
+        return mapaParque.calcularRutaOptima(origenId, destinoId);
+    }
+
+    /**
+     * Gestiona el ingreso de un visitante a la fila de una atracción.
+     * 
+     * @param visitanteId ID del visitante
+     * @param atraccionId ID de la atracción
+     * @param tipoTiquete Tipo de tiquete (determina prioridad)
+     * @return Mensaje de confirmación o error
+     */
+    public String unirseAFila(String visitanteId, String atraccionId, TipoTiquete tipoTiquete) {
+        // Buscar visitante
+        Visitante visitante = null;
+        for (Usuario u : usuarios) {
+            if (u.getId().equals(visitanteId) && u instanceof Visitante) {
+                visitante = (Visitante) u;
+                break;
+            }
+        }
+        
+        if (visitante == null) return "❌ Error: Visitante no encontrado.";
+
+        // Buscar atracción usando ABB
+        Atraccion atraccion = catalogoAtracciones.buscarPorId(atraccionId);
+        if (atraccion == null) return "❌ Error: Atracción no encontrada.";
+
+        // Validar si puede entrar
+        if (!visitante.puedeEntrar(atraccion)) {
+            return "⚠️ El visitante no cumple con los requisitos mínimos.";
+        }
+
+        // Determinar prioridad
+        int prioridad = (tipoTiquete == TipoTiquete.FAST_PASS) ? 1 : 2;
+
+        // Crear entrada y unir a la cola de la atracción
+        Tiquete tiquete = new Tiquete("T-" + System.currentTimeMillis(), tipoTiquete, atraccion.getCostoAdicional(), "Registro en fila", visitante);
+        EntradaCola entrada = new EntradaCola(visitante, tiquete, prioridad, new java.util.Date(), atraccion);
+        
+        // La clase Atraccion debe tener una instancia de ColaPrioridad
+        if (atraccion.getColaEspera() == null) {
+            atraccion.setColaEspera(new ColaPrioridad());
+        }
+        
+        atraccion.getColaEspera().insertar(entrada);
+
+        return "✅ " + visitante.getNombre() + " se ha unido a la fila de " + atraccion.getNombre() + " con prioridad " + (prioridad == 1 ? "ALTA (Fast-Pass)" : "NORMAL");
     }
 
     /**
