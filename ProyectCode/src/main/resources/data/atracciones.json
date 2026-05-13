@@ -6,7 +6,9 @@
     "capacidadMax": 20,
     "alturaMin": 1.4,
     "edadMin": 12,
-    "costoAdicional": 5000
+    "costoAdicional": 5000,
+    "x": 100,
+    "y": 100
   },
   {
     "id": "A2",
@@ -15,7 +17,9 @@
     "capacidadMax": 12,
     "alturaMin": 1.5,
     "edadMin": 15,
-    "costoAdicional": 7000
+    "costoAdicional": 7000,
+    "x": 300,
+    "y": 150
   },
   {
     "id": "A3",
@@ -24,6 +28,8 @@
     "capacidadMax": 5,
     "alturaMin": 1.2,
     "edadMin": 8,
-    "costoAdicional": 3000
+    "costoAdicional": 3000,
+    "x": 200,
+    "y": 300
   }
 ]

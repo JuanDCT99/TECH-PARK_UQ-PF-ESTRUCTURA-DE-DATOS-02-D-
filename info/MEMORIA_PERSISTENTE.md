@@ -796,3 +796,28 @@ git commit -m "docs: Actualización final MEMORIA_PERSISTENTE - Sesión 07 mayo
 
 **Progreso Actualizado:** 80% 🚀
 **Próximo Objetivo:** Fase 4 (Visualización e Interactividad en el Frontend).
+
+---
+
+## 13. DETALLE DE IMPLEMENTACIÓN: FASE 4 (VISUALIZACIÓN E INTERACTIVIDAD)
+
+### ✅ Mapa Interactivo del Parque
+*   **Actualización del Modelo (`Atraccion.java`)**: Se añadieron coordenadas `x` e `y` para permitir el posicionamiento espacial de los nodos en el mapa.
+*   **Persistencia Geográfica (`atracciones.json`)**: Se actualizaron los datos iniciales con coordenadas reales para el renderizado.
+*   **Componente `MapaParque.jsx`**: Creado un motor de renderizado SVG que:
+    *   Dibuja las atracciones como nodos interactivos.
+    *   Dibuja los senderos como aristas con pesos visibles.
+    *   Resalta dinámicamente la **Ruta Óptima** calculada por Dijkstra.
+
+### ✅ Paneles de Usuario por Rol
+*   **Panel del Visitante**: 
+    *   Interfaz para solicitar el cálculo de la ruta más corta entre dos puntos.
+    *   Botones de acción rápida para unirse a la fila General o Fast-Pass de cualquier atracción.
+*   **Integración con API REST**: El frontend ahora consume los nuevos endpoints de `/api/parque/ruta` y `/api/parque/unirse-fila`, cerrando el ciclo de interacción backend-frontend.
+
+### ✅ Estética y Experiencia de Usuario (UX)
+*   **Rediseño Visual (`App.css`)**: Implementado un tema "Cyberpunk/Tecnológico" con paleta de colores neón, bordes suavizados y efectos de desenfoque (glassmorphism).
+*   **Estado en Tiempo Real**: Los nodos del mapa cambian de color según el estado técnico de la atracción (ACTIVA, MANTENIMIENTO, CERRADA).
+
+**Progreso Actualizado:** 95% 🏆
+**Próximo Objetivo:** Fase 5 (Reportes, Pulido Final y Pruebas Unitarias).

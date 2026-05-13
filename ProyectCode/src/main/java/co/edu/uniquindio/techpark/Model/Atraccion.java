@@ -17,6 +17,8 @@ public class Atraccion {
     private EstadoAtraccion estado;
     private String motivoCierre;
     private ColaPrioridad colaEspera;
+    private int x; // Coordenada X
+    private int y; // Coordenada Y
 
     /**
      * Constructor sin argumentos necesario para deserialización JSON con Jackson.
@@ -31,7 +33,7 @@ public class Atraccion {
     /**
      * Constructor completo de Atraccion.
      */
-    public Atraccion(String id, String nombre, String tipo, int capacidadMax, float alturaMin, int edadMin, int costoAdicional) {
+    public Atraccion(String id, String nombre, String tipo, int capacidadMax, float alturaMin, int edadMin, int costoAdicional, int x, int y) {
         this.id = id;
         this.nombre = nombre;
         this.tipo = tipo;
@@ -43,6 +45,8 @@ public class Atraccion {
         this.tiempoEspera = 0;
         this.estado = EstadoAtraccion.ACTIVA;
         this.colaEspera = new ColaPrioridad();
+        this.x = x;
+        this.y = y;
     }
 
     // Getters y Setters
@@ -78,6 +82,12 @@ public class Atraccion {
 
     public String getMotivoCierre() { return motivoCierre; }
     public void setMotivoCierre(String motivoCierre) { this.motivoCierre = motivoCierre; }
+
+    public int getX() { return x; }
+    public void setX(int x) { this.x = x; }
+
+    public int getY() { return y; }
+    public void setY(int y) { this.y = y; }
 
     /**
      * Registra una visita y activa mantenimiento si llega a 500.
