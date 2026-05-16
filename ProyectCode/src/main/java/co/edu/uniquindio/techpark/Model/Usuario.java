@@ -1,11 +1,13 @@
 package co.edu.uniquindio.techpark.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 
 public class Usuario {
     private String id;
     private String nombre;
     private String correo;
+    @JsonIgnore
     private String contrasena;
     private LocalDateTime fechaRegistro;
 

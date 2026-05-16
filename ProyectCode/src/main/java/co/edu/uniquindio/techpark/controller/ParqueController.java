@@ -5,6 +5,7 @@ import co.edu.uniquindio.techpark.Model.Atraccion;
 import co.edu.uniquindio.techpark.Model.Zona;
 import co.edu.uniquindio.techpark.Model.ResultadoRuta;
 import co.edu.uniquindio.techpark.Model.Reporte;
+import co.edu.uniquindio.techpark.Model.Usuario;
 import co.edu.uniquindio.techpark.service.ReporteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -83,6 +84,11 @@ public class ParqueController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("❌ Tipo de tiquete inválido.");
         }
+    }
+
+    @GetMapping("/usuarios")
+    public Usuario[] getUsuarios() {
+        return techPark.getUsuarios();
     }
 
     @GetMapping("/reportes/diario")

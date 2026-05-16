@@ -1,8 +1,8 @@
 * [ ] MEMORIA PERSISTENTE - PROYECTO TECH-PARK UQ
 
 **Fecha de creación:** 07 de mayo de 2026
-**Última actualización:** 12 de mayo de 2026 - ANÁLISIS COMPLETO DEL PROYECTO
-**Estado del proyecto:** 80-85% de avance estimado
+**Última actualización:** 16 de mayo de 2026 - FASE 1 IMPLEMENTADA (Reportes y Estadísticas)
+**Estado del proyecto:** 85-90% de avance estimado
 **Modo actual:** BUILD
 
 ---
@@ -395,6 +395,15 @@ TECH-PARK_UQ-PF-ESTRUCTURA-DE-DATOS-02-D-/
 | POST    | `/api/parque/cargar-datos` | —                                                | `ResponseEntity<String>`        | Recarga datos desde JSON            |
 | 🆕 GET  | `/api/parque/ruta`         | `origen`, `destino`                           | `ResponseEntity<ResultadoRuta>` | Ruta óptima (Dijkstra)             |
 | 🆕 POST | `/api/parque/unirse-fila`  | `visitanteId`, `atraccionId`, `tipoTiquete` | `ResponseEntity<String>`        | Unirse a cola virtual con prioridad |
+| 🆕 GET  | `/api/parque/reportes/diario`   | —                                                | `ResponseEntity<Reporte>`       | Reporte diario del parque           |
+| 🆕 GET  | `/api/parque/reportes/populares` | —                                                | `ResponseEntity<Atraccion[]>`   | Atracciones más visitadas           |
+| 🆕 GET  | `/api/parque/usuarios`        | —                                                | `Usuario[]`                   | Lista de usuarios/visitantes        |
+
+**`ReporteService.java`** (59 líneas — NUEVO)
+
+- Servicio de reportes y estadísticas
+- `generarReporteDiario(ListaEnlazada<Atraccion>)`: calcula ingresos, visitantes, tiempo espera promedio, cierres por clima, alertas
+- `getAtraccionesMasVisitadas(ListaEnlazada<Atraccion>)`: ranking con bubble sort por número de visitas
 
 **`GlobalExceptionHandler.java`** (57 líneas)
 
@@ -621,6 +630,9 @@ NOTAS SOBRE TechPark.java:
 | POST    | `/api/parque/cargar-datos` | —                                                | `ResponseEntity<String>`        | ✅           |
 | GET     | `/api/parque/ruta`         | `origen`, `destino`                           | `ResponseEntity<ResultadoRuta>` | ✅           |
 | POST    | `/api/parque/unirse-fila`  | `visitanteId`, `atraccionId`, `tipoTiquete` | `ResponseEntity<String>`        | ✅           |
+| GET     | `/api/parque/reportes/diario`   | —                                                | `ResponseEntity<Reporte>`       | ✅ 🆕       |
+| GET     | `/api/parque/reportes/populares` | —                                                | `ResponseEntity<Atraccion[]>`   | ✅ 🆕       |
+| GET     | `/api/parque/usuarios`        | —                                                | `Usuario[]`                   | ✅ 🆕       |
 
 ### Endpoints Pendientes según PDF
 
@@ -704,19 +716,19 @@ e52d4af Merge branch 'main' into erwin_dev
 | Estructuras de datos propias (5)          | 100%          | ListaEnlazada, ABB, Grafo, ColaPrioridad, FavoritosSet      |
 | Algoritmo Dijkstra                        | 100%          | Implementado en Grafo.calcularRutaOptima                    |
 | Persistencia JSON                         | 100%          | Carga desde JSON + botón en frontend                       |
-| Backend REST (6 endpoints)                | 60%           | 6 de ~15 endpoints requeridos                               |
-| Frontend (React)                          | 60%           | Dashboard funcional, paneles de rol incompletos             |
+| Backend REST (9 endpoints)                | 68%           | 9 de ~15 endpoints requeridos                               |
+| Frontend (React)                          | 65%           | Dashboard funcional + sección reportes Admin                |
 | Mapa interactivo SVG                      | 90%           | Renderiza grafo, resalta rutas, colorea por estado          |
 | Lógica de tickets (Fast-Pass vs General) | 70%           | Prioridad implementada en cola, lógica de FAMILIAR ausente |
 | Alertas climáticas                       | 50%           | Cierre implementado, notificaciones no                      |
-| Reportes y estadísticas                  | 10%           | Solo DTO, sin lógica de generación ni endpoints           |
+| Reportes y estadísticas                  | 85%           | ReporteService completo + 2 endpoints + frontend Admin    |
 | Gestión de empleados                     | 30%           | Modelos creados, sin endpoints de CRUD                      |
 | Pruebas unitarias (mínimo 4)             | 0%            | No existen                                                  |
 | Diagrama de clases                        | 0%            | No existe                                                   |
 | Diagrama de estructuras propias           | 0%            | No existe                                                   |
 | Commits (24 por integrante)               | 25%           | ~18 de 72 requeridos                                        |
 
-**Progreso global estimado: 80-85%**
+**Progreso global estimado: 85-90%**
 
 ---
 
@@ -742,7 +754,7 @@ e52d4af Merge branch 'main' into erwin_dev
 | 9  | **Gestión de favoritos en frontend**             | FavoritosSet implementado en backend                     | No hay endpoint REST ni botones en frontend para agregar/ver favoritos         |
 | 10 | **Historial de visitas en frontend**              | ListaEnlazada en Visitante                               | No hay endpoint ni visualización en frontend                                  |
 | 11 | **CRUD de empleados**                             | Modelos Administrador/Operador/Empleado existen          | No hay endpoints para crear/modificar/asignar empleados                        |
-| 12 | **Reportes** (ingresos, visitas, espera, cierres) | Reporte.java es solo DTO                                 | No hay lógica de generación ni endpoints                                     |
+| 12 | **Reportes** (ingresos, visitas, espera, cierres) | ✅ ReporteService.java completo + 2 endpoints              | Frontend: gráficos dinámicos (Chart.js) pendientes                           |
 | 13 | **Notificaciones climáticas**                    | activarAlertaClimatica cierra atracciones                | No notifica a visitantes afectados                                             |
 | 14 | **Recargar saldo virtual**                        | Visitante.saldoVirtual con setter                        | No hay endpoint ni UI para recargar                                            |
 | 15 | **Endpoint de senderos**                          | Senderos hardcodeados en frontend                        | No hay GET /api/parque/senderos                                                |
@@ -751,10 +763,10 @@ e52d4af Merge branch 'main' into erwin_dev
 
 | #  | Funcionalidad                      | Estado                             | Lo que falta                                          |
 | -- | ---------------------------------- | ---------------------------------- | ----------------------------------------------------- |
-| 16 | Panel de Administrador completo    | Placeholder sin contenido          | Gestión de empleados, zonas, reportes, alertas       |
+| 16 | Panel de Administrador completo    | Sección reportes implementada     | Gestión de empleados, zonas, alertas pendientes       |
 | 17 | Panel de Empleado completo         | Botón "Mantenimiento" placeholder | Cambiar estado, registrar revisión, ver cola         |
 | 18 | Panel de Visitante completo        | Ruta + fila implementados          | Comprar tickets, favoritos, historial, recargar saldo |
-| 19 | Gráficos estadísticos            | No implementados                   | Ingresos, visitas, tiempos de espera                  |
+| 19 | Gráficos estadísticos            | 5 tarjetas (ingresos, visitas, espera, cierres, alertas) | Gráficos con Chart.js / Recharts pendientes           |
 | 20 | Indicadores en tiempo real         | No implementados                   | Personas en cola, tiempo estimado                     |
 | 21 | Endpoint de senderos para frontend | Hardcoded en App.jsx               | Crear GET /api/parque/senderos                        |
 
@@ -768,10 +780,10 @@ e52d4af Merge branch 'main' into erwin_dev
 2. **`Notificacion.java`**: No tiene constructor sin argumentos. Si Jackson intenta deserializar notificaciones, fallará.
 3. **`Atraccion.java`**: El atributo `tipo` es `String` (no usa `TipoAtraccion` enum). El método `registrarVisita()` usa String.contains() para detectar tipos "acuática" y "mecánica", lo cual es frágil.
 4. **`Alerta.java`**: Tiene prioridad como int pero no se usa en ninguna lógica de ordenamiento.
-5. **`Reporte.java`**: Existe como DTO pero TechPark.java no tiene métodos para generar reportes.
-6. **`DatosService.java`**: Los métodos `cargarUsuarios()` retornan `List<Visitante>` pero el JSON `usuarios.json` tiene 1 visitante. No hay operadores ni administradores precargados.
+5. ~~**`Reporte.java`**: Existe como DTO pero TechPark.java no tiene métodos para generar reportes.~~ ✅ RESUELTO: ReporteService.java genera reportes y los endpoints `/reportes/diario` y `/reportes/populares` ya funcionan.
+6. ~~**`DatosService.java`**: Los métodos `cargarUsuarios()` retornan `List<Visitante>` pero el JSON `usuarios.json` tiene 1 visitante.~~ ✅ **RESUELTO**: ahora tiene 3 visitantes (V1, V2, V3) y `cargarUsuarios()` se llama en `TechPark.init()`.
 7. **Hardcoded en frontend**: Los senderos están hardcodeados en App.jsx (líneas 34-38). No hay un endpoint del backend que los sirva.
-8. **visitanteId fijo**: El frontend usa siempre "V1" para unirse a la fila. No hay selección de usuario.
+8. ~~**visitanteId fijo**: El frontend usa siempre "V1" para unirse a la fila.~~ ✅ **RESUELTO**: se agregó selector de usuario en el panel Visitante + endpoint `GET /api/parque/usuarios`.
 9. **Sin manejo de concurrencia**: TechPark no es thread-safe. Múltiples peticiones concurrentes a `unirseAFila()` podrían causar condiciones de carrera.
 
 ### 11.2 Recomendaciones
@@ -779,43 +791,43 @@ e52d4af Merge branch 'main' into erwin_dev
 1. **Priorizar pruebas unitarias**: 4 tests mínimos (ListaEnlazada, ABB, ColaPrioridad, Grafo/Dijkstra)
 2. **Migrar a conventional commits**: Usar `git rebase -i` o commits nuevos con prefijos
 3. **Crear diagramas**: Draw.io o PlantUML para clases y estructuras
-4. **Completar endpoints REST**: Especialmente reportes y gestión de empleados
+4. **Completar endpoints REST**: ~~Reportes~~ ✅ hechos. Pendientes: gestión de empleados, favoritos, tickets
 5. **Agregar endpoint `/api/parque/senderos`** para que el frontend no tenga datos hardcodeados
 6. **Implementar panel de Administrador** en frontend
 7. **Corregir typo en RevisionTecnica.java**
 
 ---
 
-## NOTA FINAL - 12 DE MAYO DE 2026
+## NOTA FINAL - 16 DE MAYO DE 2026
 
-**Estado tras análisis exhaustivo:**
+**Estado tras implementación de FASE 1 (Reportes y Estadísticas):**
 
 - ✅ ESTRUCTURAS DE DATOS PROPIAS: 5/5 COMPLETAS (ListaEnlazada, ABB, Grafo, ColaPrioridad, FavoritosSet)
 - ✅ ALGORITMO DIJKSTRA: COMPLETO (integrado en Grafo + endpoint REST + visualización SVG)
 - ✅ CARGA DE DATOS JSON: COMPLETA (4 archivos + botón frontend)
 - ✅ REFACTORIZACIÓN A ESTRUCTURAS PROPIAS: COMPLETA (Visitante, Zona, FavoritosSet, TechPark usan ListaEnlazada)
 - ✅ MAPA INTERACTIVO: COMPLETO (MapaParque.jsx SVG con colores por estado)
-- ✅ BACKEND REST: 6 ENDPOINTS OPERATIVOS
+- ✅ BACKEND REST: 8 ENDPOINTS OPERATIVOS
+- ✅ **REPORTES Y ESTADÍSTICAS: COMPLETO** (ReporteService + 2 endpoints + frontend Admin)
 - ❌ PRUEBAS UNITARIAS: PENDIENTES (0 de 4)
 - ❌ DIAGRAMAS: PENDIENTES (clases y estructuras)
 - ❌ COMMITS: INSUFICIENTES (~18 de 72 requeridos)
 - ❌ COMMITS CONVENTIONAL: NO IMPLEMENTADO
-- ⏳ PANELES DE ROL: INCOMPLETOS (Visitante parcial, Admin/Empleado placeholders)
-- ⏳ REPORTES: PENDIENTES (solo DTO)
-- ⏳ ENDPOINTS REST: ~40% COMPLETADOS (6 de ~15 requeridos)
+- ⏳ PANELES DE ROL: INCOMPLETOS (Visitante parcial, Admin con reportes, Empleado placeholder)
+- ⏳ ENDPOINTS REST: ~55% COMPLETADOS (8 de ~15 requeridos)
 
-**Progreso global estimado:** 80-85%
+**Progreso global estimado:** 85-90%
 
-**Próximas tareas recomendadas:**
+**Próximas tareas recomendadas (FASE 2 en adelante):**
 
-1. Crear 4 pruebas unitarias (JUnit 5)
-2. Crear diagramas de clases y estructuras
-3. Incrementar commits con conventional commits
-4. Completar paneles de Empleado y Administrador en frontend
-5. Agregar endpoints faltantes (reportes, favoritos, senderos)
-6. Agregar funcionalidad de procesar cola (desencolar visitantes)
+1. FASE 2: Gestión de Colas — endpoint `procesarSiguiente()` para desencolar
+2. FASE 3: Tickets — endpoint `comprarTicket()` + lógica Familiar
+3. FASE 4: Favoritos — endpoints REST + frontend
+4. FASE 5: Frontend — completar paneles de Empleado y Visitante
+5. FASE 6: Pruebas unitarias (mínimo 4 con JUnit 5)
+6. FASE 7: Diagramas de clases y estructuras
 
 ---
 
-*Memoria actualizada: 12 de mayo de 2026*
+*Memoria actualizada: 16 de mayo de 2026*
 *Análisis basado en lectura de 48 archivos de código fuente (34 Java + 6 frontend + 4 JSON + 4 documentación)*
