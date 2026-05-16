@@ -16,6 +16,8 @@ function App() {
   const [destinoRuta, setDestinoRuta] = useState('')
   const [reporteDiario, setReporteDiario] = useState(null)
   const [populares, setPopulares] = useState([])
+  const [usuarios, setUsuarios] = useState([])
+  const [selectedUser, setSelectedUser] = useState(null)
 
   const fetchDatosBase = () => {
     fetch('http://localhost:8080/api/parque/atracciones')
@@ -30,6 +32,14 @@ function App() {
 
     // Nota: Necesitaríamos un endpoint para senderos, pero por ahora los definimos manual 
     // o podemos crear el endpoint en el backend. Vamos a asumir que los senderos vienen de un JSON local o endpoint.
+    fetch('http://localhost:8080/api/parque/usuarios')
+      .then(res => res.json())
+      .then(data => {
+        setUsuarios(data)
+        if (data.length > 0 && !selectedUser) setSelectedUser(data[0].id)
+      })
+      .catch(err => console.error("Error cargando usuarios:", err))
+
     fetch('http://localhost:8080/api/parque/zonas') // Como ejemplo, pero lo ideal es un endpoint de senderos
       .then(() => {
         // Hardcoded por ahora para el frontend si no hay endpoint
@@ -61,8 +71,8 @@ function App() {
   }
 
   const unirseAFila = (atraccionId, tipo) => {
-    // Para el demo usamos un visitanteId fijo "V-1"
-    fetch(`http://localhost:8080/api/parque/unirse-fila?visitanteId=V1&atraccionId=${atraccionId}&tipoTiquete=${tipo}`, {
+    const vid = selectedUser || 'V1'
+    fetch(`http://localhost:8080/api/parque/unirse-fila?visitanteId=${vid}&atraccionId=${atraccionId}&tipoTiquete=${tipo}`, {
       method: 'POST'
     })
       .then(res => res.text())
@@ -160,6 +170,16 @@ function App() {
           <div>
             <h1>{selectedRole === 'Visitante' ? 'Explora el Parque' : 'Panel de Gestión'}</h1>
             <p>Estado global: <strong>{estadoParque}</strong></p>
+            {selectedRole === 'Visitante' && usuarios.length > 0 && (
+              <div className="user-selector">
+                <label>Visitante: </label>
+                <select value={selectedUser || ''} onChange={(e) => setSelectedUser(e.target.value)}>
+                  {usuarios.map(u => (
+                    <option key={u.id} value={u.id}>{u.nombre} ({u.id})</option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
           <button className="btn-primary" onClick={cargarDatosPrueba}>
             🔄 Sincronizar Datos

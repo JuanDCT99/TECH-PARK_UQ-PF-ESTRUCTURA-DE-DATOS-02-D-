@@ -99,6 +99,12 @@ public class TechPark {
                 agregarZona(zona);
             }
             
+            // Cargar usuarios (visitantes)
+            List<Visitante> usuariosCargados = datosService.cargarUsuarios();
+            for (Visitante v : usuariosCargados) {
+                this.usuarios.agregar(v);
+            }
+            
             return true;
         } catch (Exception e) {
             System.err.println("Error al cargar datos desde JSON: " + e.getMessage());
