@@ -14,6 +14,8 @@ function App() {
   const [rutaOptima, setRutaOptima] = useState(null)
   const [origenRuta, setOrigenRuta] = useState('')
   const [destinoRuta, setDestinoRuta] = useState('')
+  const [reporteDiario, setReporteDiario] = useState(null)
+  const [populares, setPopulares] = useState([])
 
   const fetchDatosBase = () => {
     fetch('http://localhost:8080/api/parque/atracciones')
@@ -68,11 +70,26 @@ function App() {
       .catch(err => alert("Error: " + err));
   }
 
+  const fetchReportes = () => {
+    fetch('http://localhost:8080/api/parque/reportes/diario')
+      .then(res => res.json())
+      .then(data => setReporteDiario(data))
+      .catch(err => console.error("Error cargando reportes:", err))
+
+    fetch('http://localhost:8080/api/parque/reportes/populares')
+      .then(res => res.json())
+      .then(data => setPopulares(data))
+      .catch(err => console.error("Error cargando populares:", err))
+  }
+
   useEffect(() => {
     if (view === 'dashboard') {
       fetchDatosBase();
+      if (selectedRole === 'Administrador') {
+        fetchReportes();
+      }
     }
-  }, [view])
+  }, [view, selectedRole])
 
   const handleStart = () => {
     setView('role-selection')
@@ -218,6 +235,62 @@ function App() {
             </div>
           </section>
         </div>
+
+        {selectedRole === 'Administrador' && reporteDiario && (
+          <section className="reports-section">
+            <h2>📊 Reportes del Parque</h2>
+            <div className="stats-grid">
+              <div className="stat-card">
+                <span className="stat-value">${reporteDiario.ingresosDiarios.toLocaleString()}</span>
+                <span className="stat-label">Ingresos Diarios</span>
+              </div>
+              <div className="stat-card">
+                <span className="stat-value">{reporteDiario.totalVisitantes}</span>
+                <span className="stat-label">Visitantes Totales</span>
+              </div>
+              <div className="stat-card">
+                <span className="stat-value">{reporteDiario.tiempoPromEspera.toFixed(1)} min</span>
+                <span className="stat-label">Tiempo Prom. Espera</span>
+              </div>
+              <div className="stat-card">
+                <span className="stat-value">{reporteDiario.cierresClima}</span>
+                <span className="stat-label">Cierres por Clima</span>
+              </div>
+              <div className="stat-card">
+                <span className="stat-value">{reporteDiario.alertasMantenimiento}</span>
+                <span className="stat-label">Alertas Mantenimiento</span>
+              </div>
+            </div>
+
+            {populares.length > 0 && (
+              <div className="popular-section">
+                <h3>🏆 Atracciones Más Visitadas</h3>
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Atracción</th>
+                      <th>Tipo</th>
+                      <th>Visitas</th>
+                      <th>Ingresos Generados</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {populares.map((atr, idx) => (
+                      <tr key={atr.id}>
+                        <td>{idx + 1}</td>
+                        <td><strong>{atr.nombre}</strong></td>
+                        <td>{atr.tipo}</td>
+                        <td>{atr.contadorVisitantes}</td>
+                        <td>${(atr.contadorVisitantes * atr.costoAdicional).toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+        )}
       </main>
     </div>
   )

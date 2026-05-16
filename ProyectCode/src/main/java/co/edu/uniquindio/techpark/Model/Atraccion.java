@@ -77,6 +77,9 @@ public class Atraccion {
     public int getCapacidadMax() { return capacidadMax; }
     public void setCapacidadMax(int capacidadMax) { this.capacidadMax = capacidadMax; }
 
+    public int getTiempoEspera() { return tiempoEspera; }
+    public void setTiempoEspera(int tiempoEspera) { this.tiempoEspera = tiempoEspera; }
+
     public ColaPrioridad getColaEspera() { return colaEspera; }
     public void setColaEspera(ColaPrioridad colaEspera) { this.colaEspera = colaEspera; }
 

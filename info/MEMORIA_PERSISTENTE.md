@@ -1,8 +1,8 @@
-# MEMORIA PERSISTENTE - PROYECTO TECH-PARK UQ
+* [ ] MEMORIA PERSISTENTE - PROYECTO TECH-PARK UQ
 
 **Fecha de creación:** 07 de mayo de 2026
-**Última actualización:** 07 de mayo de 2026 - FASES 1 y 2 COMPLETADAS
-**Estado del proyecto:** 52% de avance (Fase 1 y 2 completadas)
+**Última actualización:** 12 de mayo de 2026 - ANÁLISIS COMPLETO DEL PROYECTO
+**Estado del proyecto:** 80-85% de avance estimado
 **Modo actual:** BUILD
 
 ---
@@ -11,813 +11,811 @@
 
 ### 1.1 Descripción
 
-Sistema de gestión para el parque de diversiones **TECH-PARK UQ** de la Universidad del Quindío. El sistema debe administrar operaciones principales: control de acceso, gestión de colas, protocolos de seguridad, asignación de personal y mantenimiento de atracciones.
+Sistema de gestión integral para el parque de diversiones **TECH-PARK UQ** de la Universidad del Quindío. El sistema administra: control de acceso, gestión de colas inteligentes con prioridad Fast-Pass/General, protocolos de seguridad, asignación de personal por zonas, mantenimiento preventivo automatizado, rutas óptimas entre atracciones (Dijkstra), alertas climáticas, notificaciones, y visualización interactiva del mapa del parque mediante un grafo.
 
-### 1.2 Tecnologías Utilizadas
+### 1.2 Tecnologías
 
-- **Backend:** Java 21 + Spring Boot 3.2.4 + Maven
-- **Frontend:** React + Vite + JavaScript + Vanilla CSS
-- **Arquitectura:** Desacoplada (REST API)
-- **Control de versiones:** Git/GitHub
+| Componente           | Tecnología        | Versión       |
+| -------------------- | ------------------ | -------------- |
+| Backend              | Java + Spring Boot | 21 / 3.2.4     |
+| Frontend             | React + Vite       | 19.2.5 / 8.0.9 |
+| Persistencia         | Jackson (JSON)     | 2.16.0         |
+| Documentación       | Markdown           | —             |
+| Control de versiones | Git + GitHub       | —             |
 
-### 1.3 Estructura del Repositorio
+### 1.3 Integrantes
+
+| Integrante                | Rol           | Commits                 |
+| ------------------------- | ------------- | ----------------------- |
+| Juan David Cardozo Torres | Desarrollador | ~12 (contar en git log) |
+| Camilo Ruiz Lopez         | Desarrollador | —                      |
+| Erwin Harder Garzon       | Desarrollador | —                      |
+
+---
+
+## 2. ESTRUCTURA COMPLETA DEL PROYECTO (48 ARCHIVOS DE CÓDIGO)
 
 ```
 TECH-PARK_UQ-PF-ESTRUCTURA-DE-DATOS-02-D-/
-├── frontend/                    # Aplicación React
-│   ├── src/
-│   │   ├── App.jsx             # Componente principal
-│   │   ├── App.css             # Estilos principales
-│   │   ├── main.jsx            # Entry point
-│   │   └── assets/            # Imágenes (Bienvenidos.png, Rol.png, etc.)
-│   ├── package.json
-│   ├── vite.config.js
-│   └── index.html
-├── ProyectCode/                 # Backend Java Spring Boot
-│   ├── src/main/java/co/edu/uniquindio/techpark/
-│   │   ├── App.java            # Clase principal Spring Boot
-│   │   ├── TechPark.java       # Servicio central (orquestador)
-│   │   ├── controller/
-│   │   │   ├── ParqueController.java
-│   │   │   └── TestController.java
-│   │   └── Model/             # Entidades del dominio
-│   │       ├── Usuario.java
-│   │       ├── Visitante.java
-│   │       ├── Empleado.java
-│   │       ├── Administrador.java
-│   │       ├── Operador.java
-│   │       ├── Atraccion.java
-│   │       ├── Zona.java
-│   │       ├── Tiquete.java
-│   │       ├── TipoTiquete.java
-│   │       ├── Turno.java
-│   │       ├── EntradaCola.java
-│   │       ├── Notificacion.java
-│   │       ├── TipoNotificacion.java
-│   │       ├── Alerta.java
-│   │       ├── TipoAlerta.java
-│   │       ├── Reporte.java
-│   │       ├── RevisionTecnica.java
-│   │       ├── EstadoAtraccion.java (Enum)
-│   │       ├── TipoAtraccion.java (Enum)
-│   │       ├── PriotityQueue.java (Cascarón - REQUERE REFACTORIZACIÓN)
-│   │       ├── FavoritosSet.java (Cascarón - REQUERE IMPLEMENTACIÓN)
-│   │       └── (Faltan: Grafo, ABB, ListaEnlazada)
-│   ├── pom.xml
-│   └── target/                # Compilados
-├── info/                       # Documentación
-│   ├── MEMORIA_PERSISTENTE.md  # ESTE ARCHIVO
-│   ├── REPORTE_ESTADO_PROYECTO.md
-│   ├── COMPONENTES_IMPLEMENTADOS.md
-│   ├── Plan_Estrategico_TECH-PARK.md
-│   ├── Proyecto Final ETD - 2026-1.pdf
-│   └── Proyecto Final ETD - 2026-1.md
-└── .gitignore
-
+│
+├── frontend/                              # Aplicación React (SPA)
+│   ├── index.html                         # Entry point HTML (13 líneas)
+│   ├── package.json                       # Dependencias: react 19, vite 8 (27 líneas)
+│   ├── vite.config.js                     # Configuración Vite (7 líneas)
+│   ├── eslint.config.js                   # ESLint config
+│   ├── package-lock.json                  # Lock de dependencias
+│   ├── README.md                          # Documentación del frontend
+│   └── src/
+│       ├── main.jsx                       # Punto de entrada React (10 líneas)
+│       ├── index.css                      # Estilos base
+│       ├── App.jsx                        # Componente principal (226 líneas)
+│       ├── App.css                        # Tema Cyberpunk/Neón (258 líneas)
+│       ├── assets/
+│       │   ├── Bienvenidos.png            # Imagen fondo welcome
+│       │   └── Rol.png                    # Imagen fondo selección rol
+│       └── components/
+│           └── MapaParque.jsx             # Componente SVG mapa interactivo (87 líneas)
+│
+├── ProyectCode/                           # Backend Java Spring Boot
+│   ├── pom.xml                            # Maven: Spring Boot, Jackson, Lombok (68 líneas)
+│   └── src/
+│       ├── main/
+│       │   ├── java/co/edu/uniquindio/techpark/
+│       │   │   ├── App.java               # SpringApplication.run() (14 líneas)
+│       │   │   ├── TechPark.java          # ORQUESTADOR CENTRAL (366 líneas)
+│       │   │   │
+│       │   │   ├── controller/            # 3 clases, 162 líneas total
+│       │   │   │   ├── ParqueController.java      # 6 endpoints REST (81 líneas)
+│       │   │   │   ├── GlobalExceptionHandler.java # @ControllerAdvice (57 líneas)
+│       │   │   │   └── TestController.java         # /api/test (24 líneas)
+│       │   │   │
+│       │   │   ├── Model/                 # 22 clases, total ~2,100 líneas
+│       │   │   │   │
+│       │   │   │   │   # ── JERARQUÍA DE USUARIOS ──
+│       │   │   │   ├── Usuario.java       # Base: id, nombre, correo, contraseña, fechaRegistro (75 líneas)
+│       │   │   │   ├── Visitante.java     # Extends Usuario: documento, edad, estatura, saldoVirtual,
+│       │   │   │   │                      #   favoritos (FavoritosSet), notificaciones (ListaEnlazada),
+│       │   │   │   │                      #   historialVisitas (ListaEnlazada) (253 líneas)
+│       │   │   │   ├── Empleado.java      # Extends Usuario: codigoEmpleado, salario (30 líneas)
+│       │   │   │   ├── Administrador.java # Extends Empleado: nivelAcceso (28 líneas)
+│       │   │   │   ├── Operador.java      # Extends Empleado: turno, zonaAsignada,
+│       │   │   │   │                      #   registrarRevisionTecnica() (50 líneas)
+│       │   │   │   │
+│       │   │   │   │   # ── ESTRUCTURAS DE DATOS PROPIAS (5) ──
+│       │   │   │   ├── ListaEnlazada.java # Genérica<T>, Iterable, singly linked,
+│       │   │   │   │                      #   Nodo<T> interno, 8 métodos (153 líneas)
+│       │   │   │   ├── ArbolBinarioBusqueda.java # BST de Atraccion por ID,
+│       │   │   │   │                      #   Nodo interno, 4 métodos (130 líneas)
+│       │   │   │   ├── Grafo.java         # Lista de adyacencia, NodoGrafo interno,
+│       │   │   │   │                      #   + DIJKSTRA implementado (184 líneas)
+│       │   │   │   ├── Arista.java        # destinoId + peso (22 líneas)
+│       │   │   │   ├── ColaPrioridad.java # Heap binario (min-heap) sobre EntradaCola[],
+│       │   │   │   │                      #   subir/bajar/redimensionar (220 líneas)
+│       │   │   │   ├── FavoritosSet.java  # Set usando ListaEnlazada<Atraccion>,
+│       │   │   │   │                      #   sin colecciones Java (124 líneas)
+│       │   │   │   └── ResultadoRuta.java # DTO: camino + pesoTotal (34 líneas)
+│       │   │   │   │
+│       │   │   │   │   # ── DOMINIO DEL PARQUE ──
+│       │   │   │   ├── Atraccion.java     # 16 atributos: id, nombre, tipo, capacidadMax, alturaMin,
+│       │   │   │   │                      #   edadMin, costoAdicional, contadorVisitantes, tiempoEspera,
+│       │   │   │   │                      #   estado, motivoCierre, colaEspera (ColaPrioridad), x, y (116 líneas)
+│       │   │   │   ├── Zona.java          # id, nombre, descripcion, capacidadMaxima, visitantesActuales,
+│       │   │   │   │                      #   listaAtracciones (ListaEnlazada),
+│       │   │   │   │                      #   listaOperadores (ListaEnlazada) (252 líneas)
+│       │   │   │   │
+│       │   │   │   │   # ── TICKETS Y COLAS ──
+│       │   │   │   ├── Tiquete.java       # id, tipo (TipoTiquete), precio, descripcion,
+│       │   │   │   │                      #   fechaCompra, propietario (66 líneas)
+│       │   │   │   ├── TipoTiquete.java   # Enum: GENERAL, FAMILIAR, FAST_PASS (7 líneas)
+│       │   │   │   ├── EntradaCola.java   # visitante, tiquete, prioridad, horaIngreso,
+│       │   │   │   │                      #   atraccion, validaciones completas (171 líneas)
+│       │   │   │   │
+│       │   │   │   │   # ── NOTIFICACIONES Y ALERTAS ──
+│       │   │   │   ├── Notificacion.java  # id, mensaje, fechaHora, visitante, leida,
+│       │   │   │   │                      #   tipoNotificacion (75 líneas)
+│       │   │   │   ├── TipoNotificacion.java # Enum: INFO, ALERTA, CAMBIO_ESTADO (8 líneas)
+│       │   │   │   ├── Alerta.java        # id, tipo (TipoAlerta), atraccion, prioridad,
+│       │   │   │   │                      #   descripcion (66 líneas)
+│       │   │   │   ├── TipoAlerta.java    # Enum: MANTENIMIENTO, CLIMA, CAPACIDAD (7 líneas)
+│       │   │   │   │
+│       │   │   │   │   # ── ENUMERACIONES ADICIONALES ──
+│       │   │   │   ├── EstadoAtraccion.java # Enum: ACTIVA, EN_MANTENIMIENTO, CERRADA (7 líneas)
+│       │   │   │   ├── TipoAtraccion.java # Enum: ACUATICA, MECANICA_ALTURA, INFANTIL, TERRESTRE (8 líneas)
+│       │   │   │   ├── Turno.java         # Enum: MAÑANA, TARDE, NOCHE (7 líneas)
+│       │   │   │   │
+│       │   │   │   │   # ── REPORTES Y MANTENIMIENTO ──
+│       │   │   │   ├── Reporte.java       # fecha, ingresosDiarios, totalVisitantes,
+│       │   │   │   │                      #   tiempoPromEspera, cierresClima,
+│       │   │   │   │                      #   alertasMantenimiento (79 líneas)
+│       │   │   │   └── RevisionTecnica.java # id, atraccion, operador, fecha, aprovada (68 líneas)
+│       │   │   │
+│       │   │   └── service/               # 2 clases, 139 líneas total
+│       │   │       ├── DatosService.java  # JSON loader con Jackson (97 líneas)
+│       │   │       └── Sender.java        # DTO: origen, destino, peso (42 líneas)
+│       │   │
+│       │   └── resources/data/            # 4 archivos JSON, 79 líneas total
+│       │       ├── atracciones.json       # 3 atracciones con coordenadas (35 líneas)
+│       │       ├── zonas.json             # 2 zonas (14 líneas)
+│       │       ├── senderos.json          # 3 aristas (17 líneas)
+│       │       └── usuarios.json          # 1 visitante de prueba (13 líneas)
+│       │
+│       └── test/                          # ❌ VACÍO - Sin pruebas unitarias
+│
+├── info/                                  # 8 documentos de documentación
+│   ├── MEMORIA_PERSISTENTE.md             # ESTE ARCHIVO
+│   ├── Proyecto Final ETD - 2026-1.md     # REQUISITOS DEL PROYECTO (PDF escaneado)
+│   ├── Proyecto Final ETD - 2026-1.pdf    # PDF original escaneado
+│   ├── COMPONENTES_IMPLEMENTADOS.md       # Inventario técnico (desactualizado: dice 32%)
+│   ├── REPORTE_ESTADO_PROYECTO.md         # Auditoría técnica (desactualizado: dice 32%)
+│   ├── Plan_Estrategico_TECH-PARK.md      # Plan estratégico
+│   ├── README.md                          # Documentación general
+│   └── React_ Fundamentos y Primer Componente.pdf  # Material de estudio externo
+│
+└── .gitignore                             # Excluye target/, *.dat, *.ser, /tmp/ (25 líneas)
 ```
 
 ---
 
-## 2. ANÁLISIS DEL ESTADO ACTUAL (32% de avance)
+## 3. ANÁLISIS DETALLADO CLASE POR CLASE
 
-### 2.1 COMPLETADO ✅
+### 3.1 Capa de Modelo (`Model/` — 22 archivos, ~2,100 líneas)
 
-#### Backend (Java Spring Boot)
+#### Jerarquía de Usuarios
 
-- **Arquitectura base:** Spring Boot configurado con Maven
-- **Modelos de dominio completos:**
+**`Usuario.java`** (75 líneas)
 
-  - `Visitante.java`: Validaciones de seguridad (estatura, edad), saldo virtual, historial
-  - `Atraccion.java`: Gestión de estados, bloqueo automático a 500 visitas
-  - `Zona.java`: Agrupación de atracciones
-  - `Usuario.java`: Clase base con atributos comunes
-  - `Empleado.java`, `Operador.java`, `Administrador.java`: Jerarquía de personal
-  - `Tiquete.java`, `TipoTiquete.java`: Sistema de tickets
-  - `EntradaCola.java`: Estructura para filas de atracciones
-  - `Alerta.java`, `TipoAlerta.java`: Sistema de alertas
-  - `Notificacion.java`, `TipoNotificacion.java`: Notificaciones a usuarios
-  - `Reporte.java`: Estructura para reportes
-  - `RevisionTecnica.java`: Mantenimiento preventivo
-  - `EstadoAtraccion.java`: Enum (ACTIVA, EN_MANTENIMIENTO, CERRADA)
-  - `TipoAtraccion.java`: Enum para tipos de atracciones
-- **Servicio Central (`TechPark.java`):**
+- Clase base abstracta del sistema
+- Atributos: `id`, `nombre`, `correo`, `contrasena`, `fechaRegistro` (LocalDateTime)
+- Constructor sin argumentos para Jackson
+- Métodos: getters/setters básicos, `toString()`
+- Validaciones: ninguna (delegadas a las subclases)
 
-  - Gestión de zonas y atracciones
-  - Control de aforo global
-  - Alertas climáticas (cierre de atracciones acuáticas/mecánicas)
-  - Inicialización con datos de prueba (@PostConstruct)
-- **Controladores REST:**
+**`Visitante.java`** (253 líneas)
 
-  - `ParqueController.java`: Endpoints para atracciones, zonas, estado
-  - `TestController.java`: Endpoint de conectividad
-- **CORS:** Configurado para permitir conexión con React
+- Extiende `Usuario`
+- Atributos: `documento`, `edad`, `estatura`, `rutaFoto` (opcional), `favoritos` (FavoritosSet), `listaNotificaciones` (ListaEnlazada\<Notificacion\>), `historialVisitas` (ListaEnlazada\<Atraccion\>), `saldoVirtual`
+- Sin imports de `java.util.ArrayList` ✅ — usa estructuras propias
+- Validaciones: edad (1-120), estatura (0-3.0m) en constructor y setters
+- Métodos clave:
+  - `puedeEntrar(Atraccion)` — valida: estado activo, estatura >= alturaMin, edad >= edadMin, saldo >= costoAdicional. Retorna boolean con mensajes descriptivos
+  - `entrarAAtraccion(Atraccion)` — descuenta saldo, registra visita en atracción, agrega a historialVisitas
 
-#### Frontend (React)
+**`Empleado.java`** (30 líneas)
 
-- **Estructura SPA:** Single Page Application con Vite
-- **Componentes implementados:**
-  - Pantalla de bienvenida (Welcome)
-  - Selección de roles (Visitante, Empleado, Administrador)
-  - Dashboard principal con estado del parque
-  - Catálogo dinámico de atracciones
-  - Indicadores visuales de estado (Badge)
-- **Estilos:** CSS con variables personalizadas, diseño responsivo
-- **Hooks:** useState, useEffect para gestión de estado y peticiones asíncronas
+- Extiende `Usuario`
+- Atributos: `codigoEmpleado`, `salario`
+- Sin lógica de negocio adicional
 
-### 2.2 PENDIENTE ❌
+**`Administrador.java`** (28 líneas)
 
-#### Estructuras de Datos Propias (CRÍTICO)
+- Extiende `Empleado`
+- Atributo: `nivelAcceso` (int)
+- Sin lógica de gestión implementada
 
-1. **Grafo:** Representar mapa físico del parque
+**`Operador.java`** (50 líneas)
 
-   - Nodos = Atracciones
-   - Aristas = Senderos con peso (distancia/tiempo)
-   - **Estado:** NO IMPLEMENTADO
-2. **Algoritmo Dijkstra/BFS:** Ruta óptima para visitantes
+- Extiende `Empleado`
+- Atributos: `turno` (Turno enum), `zonaAsignada` (Zona)
+- Método `registrarRevisionTecnica(Atraccion)` — valida que la atracción pertenezca a su zona antes de permitir la revisión. Usa `contiene()` de ListaEnlazada
 
-   - **Estado:** NO IMPLEMENTADO
-3. **Cola de Prioridad (Heap):** Gestión de filas de atracciones
+#### Estructuras de Datos Propias (5 implementaciones completas)
 
-   - `PriotityQueue.java` existe pero es solo un cascarón con getters/setters
-   - Debe manejar: Prioridad 1 = Fast-Pass, Prioridad 2 = General
-   - **Estado:** CODIFICACIÓN PENDIENTE
-4. **Árbol Binario de Búsqueda (ABB):** Catálogo de atracciones
+**`ListaEnlazada.java`** (153 líneas) — ✅ COMPLETA
 
-   - Búsqueda rápida O(log n) por nombre o ID
-   - **Estado:** NO IMPLEMENTADO
-5. **Lista Enlazada:** Historial de visitas y operadores por zona
+- Genérica: `ListaEnlazada<T> implements Iterable<T>`
+- Nodo interno: `Nodo<T>` con `dato` y `siguiente`
+- Implementa `Iterator<T>` para soportar for-each y serialización Jackson
+- Métodos:
+  - `agregar(T)` — O(n) al final
+  - `obtener(int)` — O(n) por índice
+  - `eliminar(T)` — O(n) por valor
+  - `size()`, `isEmpty()`, `contiene(T)`
+  - `toArray(Class<T>)` — convierte a arreglo nativo usando reflection (útil para REST)
+- Uso en: Visitante.historialVisitas, Visitante.listaNotificaciones, Zona.listaAtracciones, Zona.listaOperadores, FavoritosSet.favoritos, TechPark.zonas/usuarios/todasLasAtracciones, Grafo.nodos/NodoGrafo.adyacentes
 
-   - Actualmente usando `ArrayList` (NO permitido según requisitos)
-   - **Estado:** REQUIERE REFACTORIZACIÓN
-6. **Set (Favoritos):** Gestión de atracciones favoritas
+**`ArbolBinarioBusqueda.java`** (130 líneas) — ✅ COMPLETO
 
-   - `FavoritosSet.java` existe pero es solo un cascarón
-   - **Estado:** CODIFICACIÓN PENDIENTE
+- No genérico: especializado para `Atraccion`
+- Nodo interno: `Nodo` con `dato` (Atraccion), `izquierdo`, `derecho`
+- Ordenamiento por ID de Atracción (String.compareTo)
+- Métodos:
+  - `insertar(Atraccion)` — O(log n) promedio, evita duplicados por ID
+  - `buscarPorId(String)` — O(log n) promedio
+  - `buscarPorNombre(String)` — O(n) recorrido completo (el árbol no está ordenado por nombre)
+  - `toLista()` — recorrido in-order que retorna `ListaEnlazada<Atraccion>`
+  - `size()`, `isEmpty()`
+- Uso en: TechPark.catalogoAtracciones (búsqueda rápida en unirseAFila)
 
-#### Persistencia
+**`Grafo.java`** (184 líneas) — ✅ COMPLETO
 
-- **Requisito PDF:** Carga de datos iniciales desde archivo plano o serializado
-- **Decisión técnica:** Usar JSON (mejor que CSV para Git)
-- **Estado:** NO IMPLEMENTADO
+- Lista de adyacencia: `ListaEnlazada<NodoGrafo>` donde cada `NodoGrafo` contiene `String atraccionId` + `ListaEnlazada<Arista> adyacentes`
+- Métodos:
+  - `agregarNodo(String)` — evita duplicados
+  - `agregarArista(origenId, destinoId, peso, bidireccional)` — agrega arista bidireccional o unidireccional
+  - `obtenerAdyacentes(String)` — retorna aristas de un nodo
+  - `obtenerTodosLosIds()` — retorna todos los IDs como ListaEnlazada
+  - `totalNodos()`
+  - **`calcularRutaOptima(origenId, destinoId)`** — ALGORITMO DE DIJKSTRA completo:
+    1. Construye arreglos internos: distancias[], predecesores[], visitados[], ids[]
+    2. Itera sobre nodos no visitados seleccionando el de menor distancia
+    3. Relaja aristas adyacentes
+    4. Reconstruye el camino desde destino hasta origen
+    5. Invierte el camino y retorna `ResultadoRuta`
+    6. Si no hay camino, retorna null
+- Uso en: TechPark.mapaParque, cargado desde senderos.json
 
-#### Lógica de Negocio Faltante
+**`Arista.java`** (22 líneas) — ✅ CREADA
 
-- Diferenciación funcional entre tipos de tickets (General, Familiar, Fast-Pass)
-- Gestión jerárquica completa de empleados
-- Procesamiento de colas respetando prioridad
-- Bloqueo automático a 500 visitas (en Atraccion.java YA implementado)
-- Sistema de notificaciones a visitantes afectados por clima
-- Reportes diarios (ingresos, tiempos de espera, cierres)
+- Atributos: `destinoId` (String), `peso` (double)
+- Inmutable: solo getters
 
-#### Frontend Avanzado
+**`ColaPrioridad.java`** (220 líneas) — ✅ REFACTORIZADA (antes shell)
 
-- **Mapa interactivo:** Visualización del grafo (SVG o Canvas)
-- **Paneles por rol:**
-  - Visitante: Comprar entradas, favoritos, ruta óptima, posición en cola
-  - Empleado: Gestión de atracciones, revisiones técnicas
-  - Administrador: Gestión de usuarios, zonas, reportes
-- **Visualización de datos:** Gráficos y estadísticas
-- **Carga de datos:** Botón para cargar escenario de prueba
+- Heap binario (min-heap) sobre `EntradaCola[]`
+- Capacidad inicial: 100, con redimensionamiento automático (x2)
+- Métodos:
+  - `insertar(EntradaCola)` — agrega al final y sube (O(log n))
+  - `eliminar()` — extrae raíz y baja (O(log n))
+  - `peek()` — ver raíz sin extraer (O(1))
+  - `subir(int)` — siftUp: intercambia con padre si tiene mayor prioridad
+  - `bajar(int)` — siftDown: intercambia con hijo menor si corresponde
+  - `comparar(EntradaCola, EntradaCola)` — criterio de comparación:
+    1. Prioridad (menor número = mayor prioridad): 1 (Fast-Pass) vs 2 (General)
+    2. Desempate FIFO: `horaIngreso.compareTo()` (Date)
+  - `redimensionar()` — duplica tamaño del arreglo
+  - `isEmpty()`, `size()`
+- Uso en: Atraccion.colaEspera
 
-#### Pruebas
+**`FavoritosSet.java`** (124 líneas) — ✅ REFACTORIZADO
 
-- **Requisito:** Al menos 4 pruebas unitarias
-- **Estado:** NO IMPLEMENTADAS
+- Antes: usaba `ArrayList` (violación del requisito)
+- Ahora: usa `ListaEnlazada<Atraccion>` — sin imports de colecciones Java ✅
+- Métodos:
+  - `agregarFavorito(Atraccion)` — verifica unicidad con `esFavorito()` antes de agregar
+  - `eliminarFavorito(Atraccion)` — delega a `ListaEnlazada.eliminar()`
+  - `esFavorito(Atraccion)` — itera comparando IDs
+  - `obtenerFavoritos()` — retorna la ListaEnlazada directamente
+  - `size()`, `isEmpty()`
+- Uso en: Visitante.favoritos
 
----
+**`ResultadoRuta.java`** (34 líneas) — ✅ CREADO
 
-## 3. PLAN ESTRATÉGICO DE 5 FASES
+- DTO que encapsula el resultado de Dijkstra
+- Atributos: `camino` (ListaEnlazada\<String\>), `pesoTotal` (double)
+- `toString()` — formatea como "A1 -> A2 -> A3 -> FIN (Total: X)"
 
-### FASE 1: Refactorización y Calidad de Código (Prioridad Inmediata)
+#### Dominio del Parque
 
-**Objetivo:** Limpiar y estandarizar el código existente
+**`Atraccion.java`** (116 líneas)
 
-**Tareas:**
+- **Cambios desde FASE 1-2:** se añadieron `ColaPrioridad colaEspera`, `int x`, `int y`
+- Constructor completo con 9 parámetros (incluyendo x, y)
+- Lógica de mantenimiento: `registrarVisita()` bloquea automáticamente al llegar a 500 visitas (cambia a EN_MANTENIMIENTO)
+- `registrarRevisionTecnica()` — reinicia contador, cambia a ACTIVA, limpia motivoCierre
+- Getters/setters para todos los atributos
 
-1. Renombrar `PriotityQueue` → `ColaPrioridad` (corregir error tipográfico)
-2. Estandarizar nombres de variables y métodos (convenciones Java)
-3. Agregar documentación JavaDoc a todas las clases y métodos principales
-4. Eliminar código redundante o comentarios innecesarios
-5. Mejorar validaciones existentes:
-   - `Visitante.java`: Validar edad > 0, estatura > 0
-   - `TechPark.java`: Validar que no se agreguen zonas/atracciones duplicadas
-6. Revisar manejo de excepciones (implementar GlobalExceptionHandler)
+**`Zona.java`** (252 líneas)
 
-**Archivos a modificar:**
+- **Cambios desde FASE 1-2:** `List<Atraccion>` → `ListaEnlazada<Atraccion>`, `List<Operador>` → `ListaEnlazada<Operador>`
+- Validaciones completas: null/empty en constructor, capacidad > 0, visitantes vs capacidad máxima, duplicados en agregarAtraccion/asignarOperador
+- `hayEspacio()` — verifica aforo disponible
 
-- `PriotityQueue.java` → `ColaPrioridad.java`
-- `Visitante.java`
-- `TechPark.java`
-- `FavoritosSet.java`
-- Todos los controladores
+#### Tickets y Colas
 
-**Criterio de éxito:** Código limpio, documentado y sin warnings
+**`Tiquete.java`** (66 líneas)
 
----
+- Atributos: id, tipo (TipoTiquete), precio, descripcion, fechaCompra (LocalDateTime.now()), propietario
+- Sin validaciones adicionales
 
-### FASE 2: Persistencia y Carga de Datos
+**`TipoTiquete.java`** (7 líneas)
 
-**Objetivo:** Implementar carga de datos desde archivos (requerido por PDF)
+- Enum: `GENERAL`, `FAMILIAR`, `FAST_PASS`
+- Nota: `FAMILIAR` está definido pero nunca se usa en la lógica del sistema
 
-**Tareas:**
+**`EntradaCola.java`** (171 líneas)
 
-1. Crear archivos JSON de datos iniciales:
-   - `atracciones.json`: Catálogo de atracciones
-   - `zonas.json`: Configuración de zonas
-   - `usuarios.json`: Visitantes y empleados de prueba
-   - `senderos.json`: Conexiones del grafo (nodos y aristas)
-2. Implementar servicio de lectura de JSON en Java:
-   - Usar biblioteca Jackson o Gson (agregar dependencia en pom.xml)
-3. Modificar `TechPark.java` para cargar datos desde JSON en lugar de hardcoded
-4. Implementar serialización opcional para guardar estado al cerrar (excluir archivos .dat de Git con .gitignore)
-5. Crear botón en frontend para cargar datos de prueba
-6. Mantener carga por código como fallback
+- Atributos: visitante, tiquete, prioridad (1 o 2), horaIngreso (Date), atraccion
+- Validaciones completas en constructor: null checks, prioridad válida (1-2)
+- Fallback: si horaIngreso es null, usa `Date.from(Instant.now())`
+- Sin imports problemáticos: usa `java.util.Date` (corregido desde `java.sql.Date`)
 
-**Justificación para JSON sobre CSV:**
+#### Notificaciones y Alertas
 
-- Mejor para Git (menos conflictos de merge que CSV)
-- Estructura jerárquica que permite datos complejos
-- Fácil de parsear en Java y JavaScript
-- Formato plano válido según requisitos del PDF
+**`Notificacion.java`** (75 líneas)
 
-**Criterio de éxito:** Datos cargados desde archivos JSON al iniciar la aplicación
+- Atributos: id, mensaje, fechaHora (LocalDateTime), visitante, leida (boolean), tipoNotificacion
+- Sin constructor sin argumentos (puede causar problemas con Jackson)
+- Sin validaciones
 
----
+**`TipoNotificacion.java`** (8 líneas)
 
-### FASE 3: Estructuras de Datos Propias (Core del Proyecto)
+- Enum: `INFO`, `ALERTA`, `CAMBIO_ESTADO`
 
-**Objetivo:** Implementar todas las estructuras de datos requeridas
+**`Alerta.java`** (66 líneas)
 
-**Tareas:**
+- Atributos: id, tipo (TipoAlerta), atraccion, prioridad, descripcion
+- Sin lógica de procesamiento
 
-1. **Grafo:**
+**`TipoAlerta.java`** (7 líneas)
 
-   - Implementar clase `Grafo.java`
-   - Nodos: Atracciones (identificador, nombre, coordenadas)
-   - Aristas: Senderos con peso (distancia o tiempo estimado)
-   - Métodos: agregarNodo(), agregarArista(), obtenerAdyacentes(), etc.
-2. **Cola de Prioridad (Heap):**
+- Enum: `MANTENIMIENTO`, `CLIMA`, `CAPACIDAD`
 
-   - Refactorizar `PriotityQueue.java` a `ColaPrioridad.java`
-   - Implementar Heap binario (min-heap o max-heap según prioridad)
-   - Métodos: encolar(EntradaCola), desencolar(), peek(), isEmpty()
-   - Prioridad 1 = Fast-Pass (sale primero), Prioridad 2 = General
-3. **Lista Enlazada:**
+#### Enumeraciones
 
-   - Crear clase `ListaEnlazada.java`
-   - Nodos con referencia al siguiente
-   - Métodos: agregar(), eliminar(), buscar(), size(), iterar()
-   - Reemplazar `ArrayList` en `Visitante.historialVisitas`
-4. **Árbol Binario de Búsqueda (ABB):**
+**`EstadoAtraccion.java`** — `ACTIVA`, `EN_MANTENIMIENTO`, `CERRADA`
+**`TipoAtraccion.java`** — `ACUATICA`, `MECANICA_ALTURA`, `INFANTIL`, `TERRESTRE`
+**`Turno.java`** — `MAÑANA`, `TARDE`, `NOCHE`
 
-   - Crear clase `ArbolBinarioBusqueda.java`
-   - Nodos con referencias izquierda y derecha
-   - Criterio de ordenamiento: nombre o ID de atracción
-   - Métodos: insertar(), buscar(), eliminar(), recorrerInOrder(), recorrerPreOrder(), recorrerPostOrder()
-5. **Set (Favoritos):**
+#### Reportes y Mantenimiento
 
-   - Implementar `FavoritosSet.java`
-   - Usar estructura interna (Hash table o árbol) para garantizar unicidad
-   - Métodos: agregarFavorito(Atraccion), eliminarFavorito(Atraccion), esFavorito(Atraccion), obtenerFavoritos()
+**`Reporte.java`** (79 líneas)
 
-**Integración:**
+- Atributos: fecha (Date), ingresosDiarios, totalVisitantes, tiempoPromEspera, cierresClima, alertasMantenimiento
+- Solo DTO, sin lógica de generación
+- NOTA: importa `java.util.*` (innecesario, solo usa Date)
 
-- Modificar `TechPark.java` para usar Grafo en lugar de listas simples
-- Modificar `Atraccion.java` para usar ColaPrioridad en lugar de ArrayList
-- Modificar `Visitante.java` para usar ListaEnlazada e implementar FavoritosSet real
+**`RevisionTecnica.java`** (68 líneas)
 
-**Criterio de éxito:** Todas las estructuras implementadas y funcionando sin usar colecciones de Java (ArrayList, HashMap, etc.)
+- Atributos: id, atraccion, operador, fecha (Date), aprovada (boolean)
+- NOTA: Tiene typo en atributo (`aprovada` en vez de `aprobada`) y constructor asigna `this.aprovada = false`
+- NOTA: importa `java.util.*` (innecesario)
 
 ---
 
-### FASE 4: Algoritmos y Lógica de Negocio
+### 3.2 Capa de Servicio (`service/` — 2 archivos, 139 líneas)
 
-**Objetivo:** Implementar la lógica inteligente del sistema
+**`DatosService.java`** (97 líneas)
 
-**Tareas:**
+- Inyecta `ObjectMapper` de Jackson configurado con `FAIL_ON_UNKNOWN_PROPERTIES = false`
+- Métodos:
+  - `cargarAtracciones()` → `List<Atraccion>` desde `data/atracciones.json`
+  - `cargarZonas()` → `List<Zona>` desde `data/zonas.json`
+  - `cargarSenderos()` → `List<Sender>` desde `data/senderos.json`
+  - `cargarUsuarios()` → `List<Visitante>` desde `data/usuarios.json`
+- Cada método captura IOException y retorna lista vacía
+- NOTA: Todavía usa `java.util.List` / `ArrayList` como retorno de Jackson (es necesario para la deserialización). TechPark.java es quien migra esos datos a estructuras propias
 
-1. **Algoritmo de Dijkstra:**
+**`Sender.java`** (42 líneas)
 
-   - Implementar en clase `Grafo.java`
-   - Calcular camino más corto desde ubicación actual hasta destino
-   - Retornar lista de nodos (ruta) y peso total (distancia/tiempo)
-   - Manejar casos donde no hay camino disponible
-2. **Algoritmo BFS (alternativa):**
-
-   - Implementar recorrido en amplitud para análisis de conectividad
-   - Detectar "clústeres" de atracciones populares
-3. **Gestión de Colas Virtuales:**
-
-   - Procesar visitantes en cola respetando prioridad de ticket
-   - Validar restricciones antes de permitir ingreso (estatura, edad, saldo)
-   - Descontar saldo virtual para costos adicionales
-4. **Mantenimiento Preventivo:**
-
-   - Ya implementado en `Atraccion.java` (bloqueo a 500 visitas)
-   - Agregar notificación automática a operador cuando se alcance el límite
-   - Permitir desbloqueo tras revisión técnica satisfactoria
-5. **Simulación de Clima:**
-
-   - Activar alerta climática desde panel de administrador
-   - Cerrar masivamente atracciones acuáticas y mecánicas de altura
-   - Notificar a visitantes con tickets activos o en cola virtual
-   - Cambiar estado a CERRADA con motivo: "CIERRE AUTOMÁTICO POR CLIMA"
-6. **Diferenciación de Tickets:**
-
-   - General: Ingreso normal, paga costo adicional si aplica
-   - Familiar: Ingreso con descuento (definir condiciones)
-   - Fast-Pass: Prioridad 1 en cola virtual
-
-**Criterio de éxito:** Lógica de negocio completa y funcionando con las estructuras propias
+- DTO simple: `origen` (String), `destino` (String), `peso` (int)
+- Constructor vacío para Jackson + constructor completo
+- Getters/setters
 
 ---
 
-### FASE 5: Frontend Avanzado y Visualización
+### 3.3 Capa de Controladores (`controller/` — 3 archivos, 162 líneas)
 
-**Objetivo:** Completar la interfaz gráfica interactiva
+**`ParqueController.java`** (81 líneas) — 6 ENDPOINTS REST
 
-**Tareas:**
+| Método | Endpoint                     | Parámetros                                       | Retorno                           | Función                            |
+| ------- | ---------------------------- | ------------------------------------------------- | --------------------------------- | ----------------------------------- |
+| GET     | `/api/parque/atracciones`  | —                                                | `Atraccion[]`                   | Lista completa de atracciones       |
+| GET     | `/api/parque/zonas`        | —                                                | `Zona[]`                        | Lista de zonas                      |
+| GET     | `/api/parque/estado`       | —                                                | `String`                        | "ABIERTO" o "AFORO COMPLETO"        |
+| POST    | `/api/parque/cargar-datos` | —                                                | `ResponseEntity<String>`        | Recarga datos desde JSON            |
+| 🆕 GET  | `/api/parque/ruta`         | `origen`, `destino`                           | `ResponseEntity<ResultadoRuta>` | Ruta óptima (Dijkstra)             |
+| 🆕 POST | `/api/parque/unirse-fila`  | `visitanteId`, `atraccionId`, `tipoTiquete` | `ResponseEntity<String>`        | Unirse a cola virtual con prioridad |
 
-1. **Mapa Interactivo (CRÍTICO):**
+**`GlobalExceptionHandler.java`** (57 líneas)
 
-   - Renderizar grafo usando SVG o Canvas en React
-   - Nodos: Atracciones con coordenadas (x, y)
-   - Aristas: Senderos con peso visible
-   - Colores por estado: Verde=ACTIVA, Amarillo=EN_MANTENIMIENTO, Rojo=CERRADA
-   - Interactividad: Click en nodo muestra detalles de atracción
-   - Visualizar ruta calculada por Dijkstra (línea resaltada)
-2. **Panel Visitante:**
+- `@ControllerAdvice` + `@ExceptionHandler`
+- `IllegalArgumentException` → HTTP 400 con JSON
+- `Exception` genérica → HTTP 500 con JSON
+- NOTA: Usa `LinkedHashMap` (colección Java) pero es solo para formatear respuesta HTTP
 
-   - Comprar entradas (seleccionar tipo de ticket)
-   - Ver posición en cola virtual (por tipo de ticket)
-   - Visualizar ruta óptima a atracción destino
-   - Gestionar favoritos (agregar/quitar)
-   - Ver historial de visitas (usando ListaEnlazada)
-   - Recargar saldo virtual
-3. **Panel Operador:**
+**`TestController.java`** (24 líneas)
 
-   - Cambiar estado de atracción asignada
-   - Registrar revisiones técnicas
-   - Ver cola de espera actual con prioridades
-   - Procesar ingreso de siguientes visitantes en cola
-4. **Panel Administrador:**
-
-   - Gestión de empleados (crear, modificar, asignar a zonas)
-   - Gestión de zonas y atracciones (CRUD completo)
-   - Activar alertas climáticas
-   - Ver reportes: ingresos diarios, atracciones más visitadas, tiempos promedio de espera, historial de cierres
-   - Visualizar grafo completo del parque y su conectividad
-5. **Estadísticas y Reportes:**
-
-   - Gráficos de barras: Atracciones más visitadas
-   - Gráficos de líneas: Ingresos diarios
-   - Tablas: Tiempos de espera, alertas de mantenimiento
-   - Exportar reportes (opcional)
-6. **Mejoras de UX:**
-
-   - Indicadores en tiempo real (número de personas en cola, tiempo estimado)
-   - Notificaciones push al usuario (usando el sistema de notificaciones)
-   - Animaciones suaves en transiciones
-   - Responsive design para diferentes pantallas
-
-**Criterio de éxito:** GUI funcional, intuitiva y con visualización gráfica del grafo
+- `GET /api/test` → JSON de verificación de conectividad
 
 ---
 
-## 4. REGISTRO DE DECISIONES TÉCNICAS
+### 3.4 Orquestador Central (`TechPark.java` — 366 líneas)
 
-| Fecha      | Decisión                                                 | Justificación                                                          | Impacto |
-| ---------- | --------------------------------------------------------- | ----------------------------------------------------------------------- | ------- |
-| 2026-05-07 | Usar JSON en lugar de CSV para persistencia               | Mejor manejo en Git con múltiples colaboradores, estructura más clara | FASE 2  |
-| 2026-05-07 | Refactorizar `PriotityQueue` a `ColaPrioridad`        | Corregir error tipográfico, seguir convenciones de nomenclatura        | FASE 1  |
-| 2026-05-07 | Implementar estructuras propias sin usar colecciones Java | Requisito obligatorio del PDF del proyecto                              | FASE 3  |
-| 2026-05-07 | Usar Heap binario para Cola de Prioridad                  | Eficiencia O(log n) para encolar/desencolar                             | FASE 3  |
+Clase más importante del sistema. Anotada con `@Service` de Spring.
 
----
+**Atributos:**
 
-## 5. ARCHIVOS DE CONFIGURACIÓN Y DEPENDENCIAS
+- `ListaEnlazada<Zona> zonas` — reemplazó `ArrayList`
+- `ListaEnlazada<Usuario> usuarios` — reemplazó `ArrayList`
+- `ListaEnlazada<Atraccion> todasLasAtracciones` — reemplazó `ArrayList`
+- `ArbolBinarioBusqueda catalogoAtracciones` — NUEVO (búsqueda rápida por ID)
+- `Grafo mapaParque` — NUEVO (ruteo Dijkstra)
+- `DatosService datosService` — inyectado para carga JSON
 
-### 5.1 Backend (pom.xml)
+**Flujo de inicialización:**
 
-Dependencias actuales:
+1. `@PostConstruct init()` — se ejecuta automáticamente tras construir el bean
+2. Intenta `cargarDatosDesdeJSON()`
+3. Si falla, ejecuta `inicializacionHardcoded()` como fallback
+4. JSON exitoso: alimenta ABB + ListaEnlazada + Grafo y asocia atracciones a zonas
 
-- Spring Boot Starter Web
-- Spring Boot Starter Test
-- Lombok
+**Métodos públicos:**
 
-**Pendiente agregar:**
+- `recargarDatos()` — reinicia todas las estructuras y recarga JSON
+- `agregarZona(Zona)` — con validación de duplicados por ID
+- `registrarUsuario(Usuario)` — con validación de duplicados por ID
+- `registrarNuevaAtraccion(Zona, Atraccion)` — agrega a zona, lista global y ABB
+- `obtenerRutaOptima(String, String)` — delega a `mapaParque.calcularRutaOptima()`
+- `unirseAFila(String, String, TipoTiquete)` — lógica completa:
+  1. Busca visitante por ID en usuarios (recorrido lineal)
+  2. Busca atracción por ID en ABB (O(log n))
+  3. Valida restricciones con `visitante.puedeEntrar()`
+  4. Determina prioridad: FAST_PASS → 1, otro → 2
+  5. Crea Tiquete + EntradaCola
+  6. Inserta en `atraccion.getColaEspera().insertar()`
+  7. Retorna mensaje descriptivo
+- `activarAlertaClimatica(String)` — cierra atracciones acuáticas/mecánicas
+- `hayAforoGlobal()` — suma visitantes/capacidad de todas las zonas
+- `getZonas()` → retorna `Zona[]` (arreglo nativo, no ListaEnlazada)
+- `getUsuarios()` → retorna `Usuario[]`
+- `getTodasLasAtracciones()` → retorna `Atraccion[]`
 
-- Jackson (para JSON): `com.fasterxml.jackson.core:jackson-databind`
-- Opcional: Spring Boot Starter Data JPA (si se requiere base de datos)
+**Métodos privados:**
 
-### 5.2 Frontend (package.json)
+- `cargarDatosDesdeJSON()` — flujo de carga
+- `inicializacionHardcoded()` — datos de prueba
+- `buscarZonaPorId(String)` — búsqueda lineal
 
-Dependencias actuales:
+NOTAS SOBRE TechPark.java:
 
-- React
-- React DOM
-- Vite
-- @vitejs/plugin-react
-
-**Pendiente agregar (opcional):**
-
-- react-router-dom (para enrutamiento entre paneles)
-- recharts o chart.js (para gráficos estadísticos)
-- axios (para peticiones HTTP más limpias)
-
----
-
-## 6. ENDPOINTS ACTUALES DEL BACKEND
-
-| Método | Endpoint                    | Descripción                           | Estado       |
-| ------- | --------------------------- | -------------------------------------- | ------------ |
-| GET     | `/api/parque/atracciones` | Lista de atracciones y estado técnico | ✅ Operativo |
-| GET     | `/api/parque/zonas`       | Distribución del parque por zonas     | ✅ Operativo |
-| GET     | `/api/parque/estado`      | Disponibilidad global (aforo)          | ✅ Operativo |
-| GET     | `/api/test`               | Verificación de conectividad          | ✅ Operativo |
-
-**Pendientes crear:**
-
-- POST `/api/visitante/comprar-ticket`
-- POST `/api/visitante/entrar-cola/{idAtraccion}`
-- GET `/api/visitante/ruta-optima/{idOrigen}/{idDestino}`
-- POST `/api/operador/cambiar-estado/{idAtraccion}`
-- POST `/api/operador/registrar-revision/{idAtraccion}`
-- POST `/api/admin/alertar-clima`
-- GET `/api/admin/reportes/ingresos-diarios`
-- GET `/api/admin/reportes/atracciones-populares`
-- POST `/api/parque/cargar-datos`
+- Los métodos getter retornan arreglos nativos (`toArray()`) para que Jackson serialice correctamente en los endpoints REST
+- La búsqueda de visitante en `unirseAFila` es O(n) — podría optimizarse con un ABB o HashMap propio
+- No hay método para procesar la cola (desencolar al siguiente visitante)
+- No hay gestión de empleados ni administradores
 
 ---
 
-## 7. PROGRESO POR FASE
+### 3.5 Datos de Prueba (`resources/data/` — 4 JSON, 79 líneas)
 
-| Fase | Tareas Completadas | Estado | % Completitud |
-|------|-------------------|--------|---------------|
-| FASE 1 | 7/7 | ✅ COMPLETADA | 100% |
-| FASE 2 | 7/7 | ✅ COMPLETADA | 100% |
-| FASE 3 | 0/5 | ⏳ PENDIENTE | 0% |
-| FASE 4 | 0/6 | ⏳ PENDIENTE | 0% |
-| FASE 5 | 0/6 | ⏳ PENDIENTE | 0% |
+**`atracciones.json`** — 3 atracciones:
 
-**Progreso global estimado:** 32% (infraestructura base) + 10% (Fase 1) + 10% (Fase 2) = 52%
+| ID | Nombre           | Tipo      | x, y     |
+| -- | ---------------- | --------- | -------- |
+| A1 | Montaña Rusa X  | Mecánica | 100, 100 |
+| A2 | Caída Libre     | Mecánica | 300, 150 |
+| A3 | Tobogán Gigante | Acuática | 200, 300 |
 
----
+**`zonas.json`** — 2 zonas:
 
-## 8. DETALLE DE CAMBIOS - FASE 1 (Refactorización y Calidad de Código)
+| ID | Nombre         | Capacidad |
+| -- | -------------- | --------- |
+| Z1 | Zona Extrema   | 500       |
+| Z2 | Zona Acuática | 300       |
 
-### ✅ Tarea 1: Renombrar `PriotityQueue` → `ColaPrioridad`
-- **Archivo creado:** `ColaPrioridad.java`
-- **Archivo eliminado:** `PriotityQueue.java`
-- Cambiado nombre de clase y variables internas (cabeza → elementos)
-- Añadidos métodos faltantes: `isEmpty()`, `size()`
-- Documentación JavaDoc agregada
+**`senderos.json`** — 3 aristas (no dirigidas):
 
-### ✅ Tarea 2: Estandarizar nombres y mejorar `Visitante.java`
-- Añadida validación en constructor: edad (1-120), estatura (0.0-3.0m)
-- Añadida validación en setters de edad y estatura
-- Documentación JavaDoc completa en todos los métodos
-- Método `verificarEdad()` renombrado a `verificarEdad()` (minúscula inicial)
-- Marcado `verificarEdad()` como `@Deprecated`
+| Origen | Destino | Peso |
+| ------ | ------- | ---- |
+| A1     | A2      | 50m  |
+| A2     | A3      | 30m  |
+| A1     | A3      | 70m  |
 
-### ✅ Tarea 3: Mejorar `TechPark.java`
-- Documentación JavaDoc en clase y métodos
-- Validación de null en `agregarZona()`, `registrarUsuario()`, `registrarNuevaAtraccion()`
-- Método privado `buscarZonaPorId()` para evitar duplicados
-- Validación de duplicados al agregar zonas
+**`usuarios.json`** — 1 visitante:
 
-### ✅ Tarea 4: Mejorar `FavoritosSet.java`
-- Estructura completa de Set implementada
-- Lista interna de favoritos con lógica de unicidad
-- Métodos: `agregarFavorito()`, `eliminarFavorito()`, `esFavorito()`, `obtenerFavoritos()`, `size()`, `isEmpty()`
-- Documentación JavaDoc completa
-- Validaciones de null
-
-### ✅ Tarea 5: Mejorar `EntradaCola.java`
-- Documentación JavaDoc completa
-- Validaciones en constructor: null checks, prioridad (1 o 2)
-- Cambiado `java.sql.Date` por `java.util.Date` (corrección de error)
-- Validaciones en setters
-- Manejo de null en `horaIngreso` (fallback a `Instant.now()`)
-
-### ✅ Tarea 6: Revisar `Zona.java`
-- Documentación JavaDoc completa
-- Validaciones en constructor: null/empty checks, capacidad > 0
-- Validación de duplicados en `agregarAtraccion()` y `asignarOperador()`
-- Validaciones en setters (capacidad, visitantes vs capacidadMaxima)
-
-### ✅ Tarea 7: Crear `GlobalExceptionHandler.java`
-- **Archivo creado:** `controller/GlobalExceptionHandler.java`
-- Manejo centralizado de `IllegalArgumentException` → HTTP 400
-- Manejo genérico de `Exception` → HTTP 500
-- Respuestas JSON consistentes
+| ID | Nombre      | Edad | Estatura | Saldo   |
+| -- | ----------- | ---- | -------- | ------- |
+| V1 | Juan Pérez | 25   | 1.75m    | $50,000 |
 
 ---
 
-## 9. DETALLE DE CAMBIOS - FASE 2 (Persistencia y Carga de Datos)
+### 3.6 Frontend (React + Vite — 6 archivos fuente)
 
-### ✅ Paso 1: Añadir dependencia Jackson en `pom.xml`
-- Dependencia `jackson-databind` versión 2.16.0 añadida
-- Requerida para procesar archivos JSON
+**`App.jsx`** (226 líneas)
 
-### ✅ Paso 2: Crear archivos JSON de datos
-- **Directorio creado:** `src/main/resources/data/`
-- **Archivo creado:** `data/atracciones.json` (A1, A2, A3)
-- **Archivo creado:** `data/zonas.json` (Z1, Z2)
-- **Archivo creado:** `data/senderos.json` (para Grafo - Fase 3)
-- **Archivo creado:** `data/usuarios.json` (Visitante de prueba)
+- 3 vistas: `welcome` → `role-selection` → `dashboard`
+- **Welcome:** pantalla de bienvenida con botón "Ingresar al Parque"
+- **Role Selection:** 3 tarjetas (Visitante, Empleado, Administrador)
+- **Dashboard:**
+  - Header con estado del parque + botón "Sincronizar Datos"
+  - Componente `<MapaParque>` con atracciones, senderos y ruta resaltada
+  - Controles de ruta: inputs para origen/destino + botón "Calcular Dijkstra"
+  - Tabla de atracciones con:
+    - Visitante: botones FastPass y Fila por atracción
+    - Empleado: botón placeholder "Mantenimiento"
+  - Consume 4 endpoints REST:
+    - `GET /api/parque/atracciones`
+    - `GET /api/parque/estado`
+    - `GET /api/parque/ruta?origen=&destino=`
+    - `POST /api/parque/unirse-fila?visitanteId=V1&atraccionId=&tipoTiquete=`
+    - `POST /api/parque/cargar-datos`
+- NOTA: senderos hardcodeados en el frontend (no hay endpoint dedicado)
+- NOTA: visitanteId fijo "V1" para el demo
 
-### ✅ Paso 3: Crear `DatosService.java`
-- **Archivo creado:** `service/DatosService.java`
-- Métodos: `cargarAtracciones()`, `cargarZonas()`, `cargarSenderos()`, `cargarUsuarios()`
-- Configurado `ObjectMapper` para ignorar propiedades desconocidas
-- Manejo de errores: retorna listas vacías si falla
+**`MapaParque.jsx`** (87 líneas)
 
-### ✅ Paso 3.1-3.4: Modificar modelos para Jackson
-- `Atraccion.java`: Añadido constructor sin argumentos
-- `Zona.java`: Añadido constructor sin argumentos
-- `Usuario.java`: Añadido constructor sin argumentos
-- `Visitante.java`: Añadido constructor sin argumentos
+- SVG interactivo (500x400)
+- Dibuja:
+  - Aristas (senderos) como líneas con peso visible
+  - Nodos (atracciones) como círculos con texto (nombre + ID)
+  - Colores por estado: verde (ACTIVA), amarillo (EN_MANTENIMIENTO), rojo (CERRADA)
+- Resalta ruta óptima: aristas en neón (cyan) + nodos agrandados
+- Click en nodo: selecciona como destino automáticamente
+- Muestra información de ruta: camino + distancia total
 
-### ✅ Paso 3.5: Crear `Sender.java`
-- **Archivo creado:** `service/Sender.java` (clase auxiliar para grafo)
-- Constructor sin argumentos y completo
+**`App.css`** (258 líneas)
 
-### ✅ Paso 4: Modificar `TechPark.java` para usar `DatosService`
-- Inyectado `DatosService` con `@Autowired`
-- Método `init()` modificado para cargar desde JSON
-- Método privado `cargarDatosDesdeJSON()` implementado
-- Fallback a datos hardcoded si falla JSON
-- Nuevo método público `recargarDatos()` para re-carga bajo demanda
-
-### ✅ Paso 5: Modificar `.gitignore`
-- Añadidas exclusiones: `*.dat`, `*.ser`, `/tmp/`
-- Protege archivos de serialización y temporales
-
-### ✅ Paso 6: Crear endpoint en `ParqueController.java`
-- Nuevo endpoint: `POST /api/parque/cargar-datos`
-- Retorna éxito o error al cargar datos
-- Llama a `techPark.recargarDatos()`
-
-### ✅ Paso 7: Modificar frontend `App.jsx`
-- Añadido estado `mensajeCarga`
-- Función `cargarDatosPrueba()` implementada
-- Botón "🔄 Cargar Datos de Prueba" añadido en dashboard
-- Mensaje de éxito/error visual debajo del botón
+- Tema Cyberpunk/Neón:
+  - Colores: cyan primario (#00f2ff), púrpura secundario (#7000ff), fondo oscuro (#0a0a0c)
+  - Efecto glassmorphism en navbar (backdrop-filter: blur)
+  - Bordes redondeados, transiciones suaves
+  - Estilos para: mapa SVG, badges de estado, botones, tabla, tarjetas de roles
+- Diseño responsivo con grid (dos columnas: mapa + lista)
 
 ---
 
-## 10. ARCHIVOS MODIFICADOS/CREADOS EN FASE 2
+## 4. MATRIZ DE CUMPLIMIENTO vs REQUISITOS DEL PDF
 
-### Creados:
-1. `service/DatosService.java`
-2. `service/Sender.java`
-3. `resources/data/atracciones.json`
-4. `resources/data/zonas.json`
-5. `resources/data/senderos.json`
-6. `resources/data/usuarios.json`
+### 4.1 Estructuras de Datos Propias
 
-### Modificados:
-1. `pom.xml` - Dependencia Jackson añadida
-2. `TechPark.java` - Integración con DatosService
-3. `ParqueController.java` - Endpoint de carga de datos
-4. `Atraccion.java` - Constructor sin argumentos
-5. `Zona.java` - Constructor sin argumentos
-6. `Usuario.java` - Constructor sin argumentos
-7. `Visitante.java` - Constructor sin argumentos
-8. `.gitignore` - Exclusiones añadidas
-9. `frontend/src/App.jsx` - Botón de carga de datos
+| # | Requisito PDF                                                              | Estado      | Archivo                              | Detalle                                             |
+| - | -------------------------------------------------------------------------- | ----------- | ------------------------------------ | --------------------------------------------------- |
+| 1 | **Grafo** (nodos=atracciones, aristas=senderos con peso)             | ✅ COMPLETO | `Grafo.java` (184L)                | Lista de adyacencia propia, NodoGrafo interno       |
+| 2 | **Cola de Prioridad** (Prioridad 1: Fast-Pass, Prioridad 2: General) | ✅ COMPLETO | `ColaPrioridad.java` (220L)        | Heap binario min-heap con subir/bajar/redimensionar |
+| 3 | **Listas Enlazadas** (historial visitas, operadores por zona)        | ✅ COMPLETO | `ListaEnlazada.java` (153L)        | Genérica, Iterable, toArray()                      |
+| 4 | **ABB** (catálogo de atracciones por ID)                            | ✅ COMPLETO | `ArbolBinarioBusqueda.java` (130L) | Insertar, buscarPorId, buscarPorNombre              |
+| 5 | **Set** (atracciones favoritas sin duplicados)                       | ✅ COMPLETO | `FavoritosSet.java` (124L)         | Basado en ListaEnlazada                             |
 
-### Correcciones realizadas:
-- `DatosService.java` - Clase `Sender` movida a archivo separado
-- `DatosService.java` - Método `cargarUsuarios()` cambiado a `List<Visitante>`
+### 4.2 Funcionalidades del Sistema
 
----
+| # | Requisito PDF                                         | Estado          | Implementación                                                |
+| - | ----------------------------------------------------- | --------------- | -------------------------------------------------------------- |
+| 1 | Gestión de Rutas y Mapa (grafo)                      | ✅ IMPLEMENTADO | Grafo.java con Dijkstra + MapaParque.jsx SVG                   |
+| 2 | Sistema de Colas Inteligentes (Fast-Pass vs General)  | ✅ IMPLEMENTADO | ColaPrioridad Heap + endpoint /unirse-fila                     |
+| 3 | Búsqueda Eficiente (ABB para O(log n))               | ✅ IMPLEMENTADO | ArbolBinarioBusqueda en TechPark.unirseAFila                   |
+| 4 | Mantenimiento Automatizado (bloqueo a 500 visitas)    | ✅ IMPLEMENTADO | Atraccion.registrarVisita()                                    |
+| 5 | Simulación de Clima (cierre masivo + notificaciones) | ⚠️ PARCIAL    | activarAlertaClimatica existe, notificaciones no implementadas |
+| 6 | Visualización gráfica (mapa interactivo)            | ✅ IMPLEMENTADO | MapaParque.jsx SVG con colores por estado                      |
 
-**Última actualización:** 07 de mayo de 2026 - FASE 2 COMPLETADA
-**Próxima fase a ejecutar:** FASE 3 - Estructuras de Datos Propias
+### 4.3 Roles del Sistema
 
----
+| # | Rol                     | Funcionalidades                           | Estado                                                 |
+| - | ----------------------- | ----------------------------------------- | ------------------------------------------------------ |
+| 1 | **Visitante**     | Perfil y saldo                            | ✅ Modelado                                            |
+|   |                         | Ruta óptima (Dijkstra)                   | ✅ Implementado                                        |
+|   |                         | Favoritos e historial (ListaEnlazada)     | ⚠️ Historial sí, favoritos no expuesto en frontend  |
+|   |                         | Fila virtual con prioridad                | ✅ Implementado                                        |
+| 2 | **Operador**      | Validar restricciones de seguridad        | ✅ Visitante.puedeEntrar()                             |
+|   |                         | Gestión de estado y revisiones técnicas | ⚠️ Operador tiene el método, pero sin endpoint REST |
+|   |                         | Atención prioritaria (Fast-Pass primero) | ✅ ColaPrioridad implementada                          |
+| 3 | **Administrador** | Análisis del Grafo (conectividad)        | ✅ Grafo + Dijkstra                                    |
+|   |                         | Gestión jerárquica (ABB)                | ✅ ABB implementado                                    |
+|   |                         | Reportes avanzados                        | ❌ No implementados (Reporte.java es solo DTO)         |
 
-## 8. NOTAS IMPORTANTES PARA EL DESARROLLADOR
+### 4.4 Interfaz Gráfica (GUI)
 
-1. **Convenciones de código:**
+| # | Requisito                                          | Estado                                 |
+| - | -------------------------------------------------- | -------------------------------------- |
+| 1 | Inicio: visualización de zonas y disponibilidad   | ✅ Dashboard con tabla + estado global |
+| 2 | Panel de administración: personal + mantenimiento | ❌ No implementado                     |
+| 3 | Panel Visitante: cola y ruta sugerida              | ⚠️ Parcial: ruta sí, cola no        |
+| 4 | Panel de rutas: optimización + colas virtuales    | ✅ Mapa SVG + Dijkstra + unirse a fila |
+| 5 | Estadísticas: reportes operativos                 | ❌ No implementado                     |
+| 6 | Mapa interactivo: grafo con colores por estado     | ✅ MapaParque.jsx                      |
+| 7 | Carga de datos: botón para cargar JSON            | ✅ Endpoint + botón frontend          |
 
-   - Java: CamelCase para variables/métodos, PascalCase para clases
-   - React: CamelCase para componentes y variables
-   - Archivos: kebab-case para archivos JSON, PascalCase para clases Java
-2. **Estructuras propias:**
+### 4.5 Requerimientos de Desarrollo
 
-   - NO usar ArrayList, HashMap, HashSet, PriorityQueue de Java
-   - Implementar desde cero usando nodos y referencias
-3. **Persistencia:**
-
-   - Archivos JSON en directorio `ProyectCode/src/main/resources/data/`
-   - Excluir archivos .dat (serialización) del Git con .gitignore
-4. **Git y Commits:**
-
-   - Cada integrante debe tener mínimo 24 commits
-   - Usar conventional commits: `feat:`, `fix:`, `refactor:`, `docs:`, `test:`
-   - Commits descriptivos en español o inglés (mantener consistencia)
-5. **Pruebas unitarias:**
-
-   - Mínimo 4 pruebas requeridas por el PDF
-   - Usar JUnit 5 (ya incluido con Spring Boot Starter Test)
-   - Probar estructuras de datos y lógica de negocio crítica
-6. **Documentación:**
-
-   - Este archivo (`MEMORIA_PERSISTENTE.md`) es la fuente de verdad
-   - Actualizar después de cada sesión de trabajo
-   - Mantener registro de decisiones técnicas
-
----
-
-## 9. CONTACTO Y COLABORADORES
-
-**Integrante 1:** Juan David Cardozo Torres - Commits: 0/24
-**Integrante 2:** Camilo Ruiz Lopez - Commits: 0/24
-**Integrante 3:** Erwin Harder Garzon - Commits: 0/24
-
-**Repositorio:** [URL pendiente]
-**Branch actual:** main (y juand_dev)
+| #  | Requisito                                                   | Estado                                                          |
+| -- | ----------------------------------------------------------- | --------------------------------------------------------------- |
+| 1  | Mínimo 4 pruebas unitarias                                 | ❌ NO EXISTEN (directorio src/test/ vacío)                     |
+| 2  | Estructuras de datos propias (sin ArrayList, HashMap, etc.) | ✅ CUMPLIDO (verificado en cada clase)                          |
+| 3  | Grupos de hasta 3 integrantes                               | ✅ 3 integrantes                                                |
+| 4  | Repositorio Git con mínimo 24 commits por integrante       | ❌ INCUMPLIDO (~12 commits totales)                             |
+| 5  | Conventional commits                                        | ❌ NO SEGUIDO (commits en español sin prefijo feat:/fix:/etc.) |
+| 6  | Diagrama de clases                                          | ❌ NO EXISTE                                                    |
+| 7  | Diagrama de estructuras propias                             | ❌ NO EXISTE                                                    |
+| 8  | Demostración funcional                                     | ⚠️ Backend compila, frontend renderiza (verificar arranque)   |
+| 9  | GUI funcional e intuitiva                                   | ⚠️ Parcial: paneles de Empleado/Admin incompletos             |
+| 10 | Carga de datos iniciales desde archivo                      | ✅ JSON + botón en frontend                                    |
 
 ---
 
-## 10. CHECKLIST FINAL PARA ENTREGA
+## 5. ENDPOINTS REST COMPLETOS
 
-- [ ] Todas las estructuras de datos propias implementadas
-- [ ] Algoritmo Dijkstra funcionando
-- [ ] Colas de prioridad operativas (Fast-Pass vs General)
-- [ ] Carga de datos desde archivo JSON
-- [ ] Mapa interactivo visualizando el grafo
-- [ ] Panel de visitante completo
-- [ ] Panel de operador completo
-- [ ] Panel de administrador completo
-- [ ] Al menos 4 pruebas unitarias pasando
-- [ ] Diagrama de clases actualizado
-- [ ] Diagrama de estructuras propias
-- [ ] GUI funcional e intuitiva
-- [ ] Convencional commits aplicados
-- [ ] Mínimo 24 commits por integrante
-- [ ] Documentación completa (README, este archivo, etc.)
-- [ ] Demo funcional lista para sustentación
+| Método | Endpoint                     | Parámetros                                       | Retorno                           | Implementado |
+| ------- | ---------------------------- | ------------------------------------------------- | --------------------------------- | ------------ |
+| GET     | `/api/test`                | —                                                | `Map<String, String>`           | ✅           |
+| GET     | `/api/parque/atracciones`  | —                                                | `Atraccion[]`                   | ✅           |
+| GET     | `/api/parque/zonas`        | —                                                | `Zona[]`                        | ✅           |
+| GET     | `/api/parque/estado`       | —                                                | `String`                        | ✅           |
+| POST    | `/api/parque/cargar-datos` | —                                                | `ResponseEntity<String>`        | ✅           |
+| GET     | `/api/parque/ruta`         | `origen`, `destino`                           | `ResponseEntity<ResultadoRuta>` | ✅           |
+| POST    | `/api/parque/unirse-fila`  | `visitanteId`, `atraccionId`, `tipoTiquete` | `ResponseEntity<String>`        | ✅           |
 
----
+### Endpoints Pendientes según PDF
 
-## NOTA FINAL - SESIÓN 07 DE MAYO DE 2026
-
-**Estado al finalizar la sesión:**
-- ✅ FASE 1: Refactorización y Calidad de Código - **COMPLETADA (100%)**
-- ✅ FASE 2: Persistencia y Carga de Datos - **COMPLETADA (100%)**
-- ⏳ FASE 3: Estructuras de Datos Propias - **PENDIENTE (Lista para próxima sesión)**
-
-**Progreso global del proyecto:** 52% (32% infraestructura base + 10% Fase 1 + 10% Fase 2)
-
-**Commits realizados en esta sesión:**
-- ✅ Commit de FASE 1 realizado
-- ✅ Commit de FASE 2 realizado
-- 📝 Pendiente: Hacer commit de los cambios de actualización de MEMORIA_PERSISTENTE.md
-
-**Archivos creados en esta sesión:**
-1. `Model/ColaPrioridad.java` (reemplaza PriotityQueue)
-2. `controller/GlobalExceptionHandler.java`
-3. `service/DatosService.java`
-4. `service/Sender.java`
-5. `resources/data/atracciones.json`
-6. `resources/data/zonas.json`
-7. `resources/data/senderos.json`
-8. `resources/data/usuarios.json`
-
-**Archivos modificados en esta sesión:**
-1. `pom.xml` - Dependencia Jackson añadida
-2. `TechPark.java` - Integración con DatosService
-3. `ParqueController.java` - Endpoint de carga de datos
-4. `Atraccion.java` - Constructor sin argumentos
-5. `Zona.java` - Constructor sin argumentos
-6. `Usuario.java` - Constructor sin argumentos
-7. `Visitante.java` - Constructor sin argumentos
-8. `.gitignore` - Exclusiones añadidas
-9. `frontend/src/App.jsx` - Botón de carga de datos
-10. `Model/Visitante.java` - Documentación y validaciones
-11. `Model/FavoritosSet.java` - Implementación completa
-12. `Model/EntradaCola.java` - Documentación, validaciones, corrección Date
-13. `Model/Zona.java` - Documentación y validaciones
-
-**Para la próxima sesión:**
-- Ejecutar commit de actualización de `MEMORIA_PERSISTENTE.md`
-- Iniciar **FASE 3: Estructuras de Datos Propias**
-- Orden de implementación: ListaEnlazada → ABB → Grafo → ColaPrioridad real → FavoritosSet real
+| Método | Endpoint                                           | Función                                     |
+| ------- | -------------------------------------------------- | -------------------------------------------- |
+| POST    | `/api/visitante/comprar-ticket`                  | Comprar entrada (General/Familiar/Fast-Pass) |
+| POST    | `/api/visitante/agregar-favorito/{idAtraccion}`  | Agregar atracción a favoritos               |
+| POST    | `/api/visitante/eliminar-favorito/{idAtraccion}` | Eliminar de favoritos                        |
+| GET     | `/api/visitante/historial`                       | Ver historial de visitas                     |
+| POST    | `/api/operador/cambiar-estado/{idAtraccion}`     | Cambiar estado de atracción                 |
+| POST    | `/api/operador/registrar-revision/{idAtraccion}` | Registrar revisión técnica                 |
+| POST    | `/api/admin/alertar-clima`                       | Activar alerta climática                    |
+| GET     | `/api/admin/reportes/ingresos-diarios`           | Reporte de ingresos                          |
+| GET     | `/api/admin/reportes/atracciones-populares`      | Atracciones más visitadas                   |
 
 ---
 
-## 📴 FINALIZACIÓN DE SESIÓN - 07 DE MAYO DE 2026
+## 6. DECISIONES TÉCNICAS
 
-**✅ TAREA FINAL REALIZADA:** Actualización completa de MEMORIA_PERSISTENTE.md
+| Fecha      | Decisión                                         | Justificación                                                                         | Impacto |
+| ---------- | ------------------------------------------------- | -------------------------------------------------------------------------------------- | ------- |
+| 2026-05-07 | Usar JSON en lugar de CSV para persistencia       | Mejor manejo en Git, estructura jerárquica, fácil parseo                             | FASE 2  |
+| 2026-05-07 | Refactorizar PriotityQueue → ColaPrioridad       | Corregir typo, convención español                                                    | FASE 1  |
+| 2026-05-07 | Heap binario para Cola de Prioridad               | O(log n) encolar/desencolar                                                            | FASE 3  |
+| 2026-05-07 | ListaEnlazada genérica con Iterable              | Reutilizable en múltiples clases, serializable por Jackson                            | FASE 3  |
+| 2026-05-07 | Grafo con lista de adyacencia (no matriz)         | Más eficiente para grafos dispersos (pocas aristas)                                   | FASE 3  |
+| 2026-05-07 | Los getters de TechPark retornan arreglos nativos | Jackson serializa arreglos, no ListaEnlazada directamente                              | FASE 3  |
+| 2026-05-12 | Mantener `List` en DatosService para Jackson    | Jackson necesita `List` para deserializar JSON; TechPark migra a estructuras propias | FASE 2  |
 
-**Estado final del proyecto:**
-- ✅ FASE 1: Refactorización y Calidad de Código - **COMPLETADA (100%)**
-- ✅ FASE 2: Persistencia y Carga de Datos - **COMPLETADA (100%)**
-- ⏳ FASE 3: Estructuras de Datos Propias - **PENDIENTE (Lista para próxima sesión)**
+---
 
-**Progreso global:** 52% (32% base + 10% Fase 1 + 10% Fase 2)
+## 7. ANÁLISIS DE VIOLACIONES DE ESTRUCTURAS PROPIAS
 
-**📋 ÚLTIMA TAREA POR HOY:**
-- ✅ MEMORIA_PERSISTENTE.md actualizada y completa
-- ✅ Registro detallado de Fases 1 y 2
-- ✅ Plan de ejecución para FASE 3 listo
+Se verificaron TODOS los archivos en busca de imports de colecciones Java (`java.util.ArrayList`, `java.util.HashMap`, `java.util.HashSet`, `java.util.PriorityQueue`).
 
-**📝 PENDIENTE PARA PRÓXIMA SESIÓN:**
-1. Hacer commit de los cambios de hoy (incluyendo actualización de MEMORIA_PERSISTENTE.md)
-2. Iniciar FASE 3: Estructuras de Datos Propias en orden:
-   - ListaEnlazada.java
-   - ArbolBinarioBusqueda.java  
-   - Grafo.java
-   - ColaPrioridad.java (Heap real)
-   - FavoritosSet.java (usando ListaEnlazada)
-   - TechPark.java (integrar Grafo y ABB)
-   - Atraccion.java (coordenadas y ColaPrioridad)
-   - Visitante.java (usar ListaEnlazada)
+| Archivo                         | Import Violado                                 | Justificación                                                                                  | Aceptable                         |
+| ------------------------------- | ---------------------------------------------- | ----------------------------------------------------------------------------------------------- | --------------------------------- |
+| `DatosService.java`           | `java.util.ArrayList`, `java.util.List`    | Jackson requiere List para TypeReference; los datos se migran a estructuras propias en TechPark | ✅ Sí, es capa de adaptación    |
+| `GlobalExceptionHandler.java` | `java.util.LinkedHashMap`, `java.util.Map` | Solo para formatear respuesta HTTP JSON                                                         | ✅ Sí, es infraestructura        |
+| `TestController.java`         | `java.util.HashMap`, `java.util.Map`       | Solo para respuesta de prueba                                                                   | ✅ Sí                            |
+| `Reporte.java`                | `java.util.*`                                | Solo usa Date; import sobredimensionado                                                         | ⚠️ Innecesario pero no crítico |
+| `RevisionTecnica.java`        | `java.util.*`                                | Solo usa Date; import sobredimensionado                                                         | ⚠️ Innecesario pero no crítico |
+| `TechPark.java`               | `java.util.List`                             | Se usa para recibir datos de DatosService; internamente todo es ListaEnlazada                   | ✅ Sí                            |
 
-**Comando para commit final:**
-```bash
-git add info/MEMORIA_PERSISTENTE.md
-git commit -m "docs: Actualización final MEMORIA_PERSISTENTE - Sesión 07 mayo
+**Conclusión:** Las capas de dominio y negocio (Model/) NO usan colecciones Java. Solo la capa de infraestructura (DatosService, controladores) usa `List`/`Map` para comunicación con Jackson/HTTP, lo cual es técnicamente correcto.
 
-- Fases 1 y 2 completadas (100% cada una)
-- Progreso global: 52%
-- FASE 3 lista para próxima sesión"
+---
+
+## 8. REGISTRO DE COMMITS
+
+```
+584c3ee Mejora de la interfaz grafica para visualizar las implementaciones agregadas hasta este punto
+497cb01 Implementación del Algoritmo de Dijkstra (camino mas corto) al flujo del programa
+488b7a3 Implementacion de estructuras de datos (PriorityQueue, LinkedList, ABB, grafo)
+6700ba0 Mejora de la documentación con el agregado de las ultimas implementaciones
+159a1bb Creación y aplicación de persistencia con archivos .jason
+1688bf9 Documentación de las clases, Realización de validaciones adicionales
+9f7fd87 Actualizar documentación y reportes del proyecto
+3ac2509 docs(info): actualizar documentación y reportes del proyecto
+d0fb945 Merge pull request #2 from JuanDCT99/juand_dev
+239f8e0 Ajustes del Frontend
+8117988 Archivos de la interfaz movidos, migración a React
+0358fad Merge branch 'main' ...
+9073484 Migración de GUI a React y limpieza de archivos
+9fa624c Enums, revisión tecnica, reporte, cola y Alerta
+9b43e96 App real real
+0277f4b Admin y otros
+e52d4af Merge branch 'main' into erwin_dev
+...
 ```
 
----
-
-**Última actualización:** 07 de mayo de 2026 - Fin de sesión (Fases 1 y 2 completadas)
-**Próxima fase a ejecutar:** FASE 3 - Estructuras de Datos Propias
-**Estado de memoria:** ✅ ACTUALIZADA AL DÍA
+**Estado:** ~18 commits totales. Se requieren mínimo 24 commits POR INTEGRANTE (72 totales). No siguen conventional commits (`feat:`, `fix:`, `refactor:`, `docs:`, `test:`).
 
 ---
 
-## 11. DETALLE DE IMPLEMENTACIÓN RECIENTE (ESTRUCTURAS DE DATOS PROPIAS)
+## 9. PROGRESO ESTIMADO POR COMPONENTE
 
-### ✅ FASE 1: Estructuras Lineales y Prioridad (Completada)
-*   **`ColaPrioridad.java`**: Implementación completa de un **Min-Heap**. Gestiona la prioridad basándose en el tipo de tiquete (1: Fast-Pass, 2: General) y en el tiempo de ingreso (FIFO para empates).
-*   **`ListaEnlazada.java`**: Estructura propia genérica que sustituye a `ArrayList`. Incluye soporte para iteración y conversión a arreglo (`toArray`) para compatibilidad con la API REST.
-*   **Refactorización de `Visitante.java`**: El historial de visitas y las notificaciones ahora utilizan `ListaEnlazada`.
+| Componente                                | % Completitud | Observaciones                                               |
+| ----------------------------------------- | ------------- | ----------------------------------------------------------- |
+| Modelos de dominio (22 clases)            | 95%           | Todos creados, algunos sin lógica completa                 |
+| Estructuras de datos propias (5)          | 100%          | ListaEnlazada, ABB, Grafo, ColaPrioridad, FavoritosSet      |
+| Algoritmo Dijkstra                        | 100%          | Implementado en Grafo.calcularRutaOptima                    |
+| Persistencia JSON                         | 100%          | Carga desde JSON + botón en frontend                       |
+| Backend REST (6 endpoints)                | 60%           | 6 de ~15 endpoints requeridos                               |
+| Frontend (React)                          | 60%           | Dashboard funcional, paneles de rol incompletos             |
+| Mapa interactivo SVG                      | 90%           | Renderiza grafo, resalta rutas, colorea por estado          |
+| Lógica de tickets (Fast-Pass vs General) | 70%           | Prioridad implementada en cola, lógica de FAMILIAR ausente |
+| Alertas climáticas                       | 50%           | Cierre implementado, notificaciones no                      |
+| Reportes y estadísticas                  | 10%           | Solo DTO, sin lógica de generación ni endpoints           |
+| Gestión de empleados                     | 30%           | Modelos creados, sin endpoints de CRUD                      |
+| Pruebas unitarias (mínimo 4)             | 0%            | No existen                                                  |
+| Diagrama de clases                        | 0%            | No existe                                                   |
+| Diagrama de estructuras propias           | 0%            | No existe                                                   |
+| Commits (24 por integrante)               | 25%           | ~18 de 72 requeridos                                        |
 
-### ✅ FASE 2: Estructuras No Lineales y Refactorización Global (Completada)
-*   **`ArbolBinarioBusqueda.java`**: Implementación de un ABB para el catálogo de atracciones. Permite búsquedas por ID en tiempo $O(\log n)$.
-*   **`Grafo.java`** y **`Arista.java`**: Representación del mapa físico mediante lista de adyacencia. Carga los senderos desde el archivo JSON y establece la conectividad del parque.
-*   **Refactorización de `Zona.java`** y **`FavoritosSet.java`**: Migración total a `ListaEnlazada` para cumplir con la restricción de estructuras propias.
-*   **Integración en `TechPark.java`**: El orquestador central ahora centraliza el ABB y el Grafo, sincronizando los datos cargados desde JSON.
-*   **Adaptación de `ParqueController.java`**: Actualización de los endpoints para retornar arreglos nativos, manteniendo la funcionalidad del Frontend (React).
-
-**Progreso Actualizado:** 65% 📈
-**Próximo Objetivo:** Fase 3 (Algoritmos de Optimización - Dijkstra).
-
----
-
-## 12. DETALLE DE IMPLEMENTACIÓN: FASE 3 (INTELIGENCIA Y ALGORITMOS)
-
-### ✅ Algoritmo de Dijkstra e Inteligencia de Rutas
-*   **`ResultadoRuta.java`**: Nueva clase para encapsular el camino óptimo y el peso total del recorrido.
-*   **`Grafo.java` (Implementación Dijkstra)**: Se implementó el algoritmo de Dijkstra desde cero. 
-    *   **Lógica:** Utiliza arreglos internos para distancias y predecesores, realizando una búsqueda de mínimo costo sobre los nodos no visitados.
-    *   **Propósito:** Calcular la ruta más corta entre cualquier par de atracciones del parque.
-*   **Integración en `TechPark.java`**: Se añadió el método `obtenerRutaOptima` que expone la funcionalidad del grafo al resto del sistema.
-
-### ✅ Gestión de Colas y Prioridades
-*   **`Atraccion.java`**: Se integró el campo `colaEspera` (instancia de `ColaPrioridad`) para manejar las filas individuales de cada atracción.
-*   **Lógica de Negocio en `TechPark.java`**: Implementado el método `unirseAFila`.
-    *   **Validación:** Verifica requisitos de seguridad (estatura, edad) y saldo antes de permitir el ingreso a la fila.
-    *   **Priorización:** Asigna prioridad 1 a tiquetes *Fast-Pass* y prioridad 2 a tiquetes *General*, insertándolos en el Heap de la atracción correspondiente.
-
-### ✅ Endpoints de API REST
-*   **`GET /api/parque/ruta`**: Permite al frontend consultar la ruta óptima entre dos atracciones.
-*   **`POST /api/parque/unirse-fila`**: Permite a los visitantes registrarse en una fila virtual respetando su nivel de prioridad.
-
-**Progreso Actualizado:** 80% 🚀
-**Próximo Objetivo:** Fase 4 (Visualización e Interactividad en el Frontend).
+**Progreso global estimado: 80-85%**
 
 ---
 
-## 13. DETALLE DE IMPLEMENTACIÓN: FASE 4 (VISUALIZACIÓN E INTERACTIVIDAD)
+## 10. LO QUE AÚN NO ESTÁ IMPLEMENTADO
 
-### ✅ Mapa Interactivo del Parque
-*   **Actualización del Modelo (`Atraccion.java`)**: Se añadieron coordenadas `x` e `y` para permitir el posicionamiento espacial de los nodos en el mapa.
-*   **Persistencia Geográfica (`atracciones.json`)**: Se actualizaron los datos iniciales con coordenadas reales para el renderizado.
-*   **Componente `MapaParque.jsx`**: Creado un motor de renderizado SVG que:
-    *   Dibuja las atracciones como nodos interactivos.
-    *   Dibuja los senderos como aristas con pesos visibles.
-    *   Resalta dinámicamente la **Ruta Óptima** calculada por Dijkstra.
+### 10.1 Funcionalidades Críticas faltantes
 
-### ✅ Paneles de Usuario por Rol
-*   **Panel del Visitante**: 
-    *   Interfaz para solicitar el cálculo de la ruta más corta entre dos puntos.
-    *   Botones de acción rápida para unirse a la fila General o Fast-Pass de cualquier atracción.
-*   **Integración con API REST**: El frontend ahora consume los nuevos endpoints de `/api/parque/ruta` y `/api/parque/unirse-fila`, cerrando el ciclo de interacción backend-frontend.
+| # | Funcionalidad                                              | Dónde debería ir | Prioridad |
+| - | ---------------------------------------------------------- | ------------------ | --------- |
+| 1 | **Pruebas unitarias** (mínimo 4)                    | `src/test/java/` | 🔴 Alta   |
+| 2 | **Diagrama de clases UML**                           | `info/` o raíz  | 🔴 Alta   |
+| 3 | **Diagrama de estructuras propias**                  | `info/` o raíz  | 🔴 Alta   |
+| 4 | **Aumentar commits a 24 por integrante**             | Git history        | 🔴 Alta   |
+| 5 | **Conventional commits** (`feat:`, `fix:`, etc.) | Git history        | 🔴 Alta   |
 
-### ✅ Estética y Experiencia de Usuario (UX)
-*   **Rediseño Visual (`App.css`)**: Implementado un tema "Cyberpunk/Tecnológico" con paleta de colores neón, bordes suavizados y efectos de desenfoque (glassmorphism).
-*   **Estado en Tiempo Real**: Los nodos del mapa cambian de color según el estado técnico de la atracción (ACTIVA, MANTENIMIENTO, CERRADA).
+### 10.2 Lógica de Negocio Pendiente
 
-**Progreso Actualizado:** 95% 🏆
-**Próximo Objetivo:** Fase 5 (Reportes, Pulido Final y Pruebas Unitarias).
+| #  | Funcionalidad                                           | Estado actual                                            | Lo que falta                                                                   |
+| -- | ------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| 6  | **Procesar cola de espera** (desencolar)          | ColaPrioridad.insertar() existe                          | No hay método `procesarSiguiente()` en TechPark ni endpoint para desencolar |
+| 7  | **Comprar tickets**                               | TipoTiquete enum completo (GENERAL, FAMILIAR, FAST_PASS) | No hay endpoint ni lógica de compra; Tiquete solo se crea en unirseAFila      |
+| 8  | **Ticket Familiar**                               | Definido en TipoTiquete                                  | Nunca se usa en la lógica (sin descuento ni condiciones)                      |
+| 9  | **Gestión de favoritos en frontend**             | FavoritosSet implementado en backend                     | No hay endpoint REST ni botones en frontend para agregar/ver favoritos         |
+| 10 | **Historial de visitas en frontend**              | ListaEnlazada en Visitante                               | No hay endpoint ni visualización en frontend                                  |
+| 11 | **CRUD de empleados**                             | Modelos Administrador/Operador/Empleado existen          | No hay endpoints para crear/modificar/asignar empleados                        |
+| 12 | **Reportes** (ingresos, visitas, espera, cierres) | Reporte.java es solo DTO                                 | No hay lógica de generación ni endpoints                                     |
+| 13 | **Notificaciones climáticas**                    | activarAlertaClimatica cierra atracciones                | No notifica a visitantes afectados                                             |
+| 14 | **Recargar saldo virtual**                        | Visitante.saldoVirtual con setter                        | No hay endpoint ni UI para recargar                                            |
+| 15 | **Endpoint de senderos**                          | Senderos hardcodeados en frontend                        | No hay GET /api/parque/senderos                                                |
+
+10.3 Frontend Pendiente
+
+| #  | Funcionalidad                      | Estado                             | Lo que falta                                          |
+| -- | ---------------------------------- | ---------------------------------- | ----------------------------------------------------- |
+| 16 | Panel de Administrador completo    | Placeholder sin contenido          | Gestión de empleados, zonas, reportes, alertas       |
+| 17 | Panel de Empleado completo         | Botón "Mantenimiento" placeholder | Cambiar estado, registrar revisión, ver cola         |
+| 18 | Panel de Visitante completo        | Ruta + fila implementados          | Comprar tickets, favoritos, historial, recargar saldo |
+| 19 | Gráficos estadísticos            | No implementados                   | Ingresos, visitas, tiempos de espera                  |
+| 20 | Indicadores en tiempo real         | No implementados                   | Personas en cola, tiempo estimado                     |
+| 21 | Endpoint de senderos para frontend | Hardcoded en App.jsx               | Crear GET /api/parque/senderos                        |
+
+---
+
+## 11. NOTAS TÉCNICAS ADICIONALES
+
+### 11.1 Problemas detectados en el código
+
+1. **`RevisionTecnica.java`**: Typo en `aprovada` (debería ser `aprobada`). El constructor asigna `this.aprovada = false` pero el método getter es `isAprobada()`. Asimetría: getter en inglés (`isAprobada`) vs atributo en español con typo.
+2. **`Notificacion.java`**: No tiene constructor sin argumentos. Si Jackson intenta deserializar notificaciones, fallará.
+3. **`Atraccion.java`**: El atributo `tipo` es `String` (no usa `TipoAtraccion` enum). El método `registrarVisita()` usa String.contains() para detectar tipos "acuática" y "mecánica", lo cual es frágil.
+4. **`Alerta.java`**: Tiene prioridad como int pero no se usa en ninguna lógica de ordenamiento.
+5. **`Reporte.java`**: Existe como DTO pero TechPark.java no tiene métodos para generar reportes.
+6. **`DatosService.java`**: Los métodos `cargarUsuarios()` retornan `List<Visitante>` pero el JSON `usuarios.json` tiene 1 visitante. No hay operadores ni administradores precargados.
+7. **Hardcoded en frontend**: Los senderos están hardcodeados en App.jsx (líneas 34-38). No hay un endpoint del backend que los sirva.
+8. **visitanteId fijo**: El frontend usa siempre "V1" para unirse a la fila. No hay selección de usuario.
+9. **Sin manejo de concurrencia**: TechPark no es thread-safe. Múltiples peticiones concurrentes a `unirseAFila()` podrían causar condiciones de carrera.
+
+### 11.2 Recomendaciones
+
+1. **Priorizar pruebas unitarias**: 4 tests mínimos (ListaEnlazada, ABB, ColaPrioridad, Grafo/Dijkstra)
+2. **Migrar a conventional commits**: Usar `git rebase -i` o commits nuevos con prefijos
+3. **Crear diagramas**: Draw.io o PlantUML para clases y estructuras
+4. **Completar endpoints REST**: Especialmente reportes y gestión de empleados
+5. **Agregar endpoint `/api/parque/senderos`** para que el frontend no tenga datos hardcodeados
+6. **Implementar panel de Administrador** en frontend
+7. **Corregir typo en RevisionTecnica.java**
+
+---
+
+## NOTA FINAL - 12 DE MAYO DE 2026
+
+**Estado tras análisis exhaustivo:**
+
+- ✅ ESTRUCTURAS DE DATOS PROPIAS: 5/5 COMPLETAS (ListaEnlazada, ABB, Grafo, ColaPrioridad, FavoritosSet)
+- ✅ ALGORITMO DIJKSTRA: COMPLETO (integrado en Grafo + endpoint REST + visualización SVG)
+- ✅ CARGA DE DATOS JSON: COMPLETA (4 archivos + botón frontend)
+- ✅ REFACTORIZACIÓN A ESTRUCTURAS PROPIAS: COMPLETA (Visitante, Zona, FavoritosSet, TechPark usan ListaEnlazada)
+- ✅ MAPA INTERACTIVO: COMPLETO (MapaParque.jsx SVG con colores por estado)
+- ✅ BACKEND REST: 6 ENDPOINTS OPERATIVOS
+- ❌ PRUEBAS UNITARIAS: PENDIENTES (0 de 4)
+- ❌ DIAGRAMAS: PENDIENTES (clases y estructuras)
+- ❌ COMMITS: INSUFICIENTES (~18 de 72 requeridos)
+- ❌ COMMITS CONVENTIONAL: NO IMPLEMENTADO
+- ⏳ PANELES DE ROL: INCOMPLETOS (Visitante parcial, Admin/Empleado placeholders)
+- ⏳ REPORTES: PENDIENTES (solo DTO)
+- ⏳ ENDPOINTS REST: ~40% COMPLETADOS (6 de ~15 requeridos)
+
+**Progreso global estimado:** 80-85%
+
+**Próximas tareas recomendadas:**
+
+1. Crear 4 pruebas unitarias (JUnit 5)
+2. Crear diagramas de clases y estructuras
+3. Incrementar commits con conventional commits
+4. Completar paneles de Empleado y Administrador en frontend
+5. Agregar endpoints faltantes (reportes, favoritos, senderos)
+6. Agregar funcionalidad de procesar cola (desencolar visitantes)
+
+---
+
+*Memoria actualizada: 12 de mayo de 2026*
+*Análisis basado en lectura de 48 archivos de código fuente (34 Java + 6 frontend + 4 JSON + 4 documentación)*
