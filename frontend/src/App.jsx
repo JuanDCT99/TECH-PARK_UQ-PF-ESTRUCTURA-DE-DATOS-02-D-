@@ -19,6 +19,8 @@ function App() {
   const [usuarios, setUsuarios] = useState([])
   const [selectedUser, setSelectedUser] = useState(null)
   const [mensajeProcesar, setMensajeProcesar] = useState('')
+  const [mensajeTicket, setMensajeTicket] = useState('')
+  const [misTiquetes, setMisTiquetes] = useState([])
 
   const fetchDatosBase = () => {
     fetch('http://localhost:8080/api/parque/atracciones')
@@ -94,6 +96,28 @@ function App() {
       .catch(err => setMensajeProcesar('❌ Error: ' + err));
   }
 
+  const fetchMisTiquetes = () => {
+    const vid = selectedUser || 'V1'
+    fetch(`http://localhost:8080/api/parque/mis-tiquetes?visitanteId=${vid}`)
+      .then(res => res.json())
+      .then(data => setMisTiquetes(data))
+      .catch(err => console.error("Error cargando tiquetes:", err))
+  }
+
+  const comprarTicket = (tipo) => {
+    const vid = selectedUser || 'V1'
+    setMensajeTicket('Procesando...');
+    fetch(`http://localhost:8080/api/parque/comprar-ticket?visitanteId=${vid}&tipoTiquete=${tipo}`, {
+      method: 'POST'
+    })
+      .then(res => res.text())
+      .then(data => {
+        setMensajeTicket(data);
+        fetchMisTiquetes();
+      })
+      .catch(err => setMensajeTicket('❌ Error: ' + err));
+  }
+
   const fetchReportes = () => {
     fetch('http://localhost:8080/api/parque/reportes/diario')
       .then(res => res.json())
@@ -114,6 +138,12 @@ function App() {
       }
     }
   }, [view, selectedRole])
+
+  useEffect(() => {
+    if (view === 'dashboard' && selectedRole === 'Visitante' && selectedUser) {
+      fetchMisTiquetes();
+    }
+  }, [view, selectedRole, selectedUser])
 
   const handleStart = () => {
     setView('role-selection')
@@ -279,6 +309,64 @@ function App() {
           <div className="procesar-mensaje">
             {mensajeProcesar}
           </div>
+        )}
+
+        {selectedRole === 'Visitante' && selectedUser && (
+          <section className="tickets-section">
+            <h2>🎫 Comprar Tiquete</h2>
+            <div className="ticket-grid">
+              <div className="ticket-card" onClick={() => comprarTicket('GENERAL')}>
+                <h3>General</h3>
+                <p className="ticket-price">$20,000</p>
+                <p className="ticket-desc">Acceso estándar al parque</p>
+                <button className="btn-action">Comprar</button>
+              </div>
+              <div className="ticket-card" onClick={() => comprarTicket('FAST_PASS')}>
+                <h3>Fast-Pass</h3>
+                <p className="ticket-price">$50,000</p>
+                <p className="ticket-desc">Acceso prioritario a filas</p>
+                <button className="btn-action">Comprar</button>
+              </div>
+              <div className="ticket-card" onClick={() => comprarTicket('FAMILIAR')}>
+                <h3>Familiar</h3>
+                <p className="ticket-price">$45,000</p>
+                <p className="ticket-desc">Descuento para grupos (hasta 4 pers.)</p>
+                <button className="btn-action">Comprar</button>
+              </div>
+            </div>
+            {mensajeTicket && (
+              <div className={`ticket-mensaje ${mensajeTicket.includes('✅') ? 'exito' : 'error'}`}>
+                {mensajeTicket}
+              </div>
+            )}
+            {misTiquetes.length > 0 && (
+              <div className="mis-tiquetes">
+                <h3>Mis Tiquetes</h3>
+                <div className="table-wrapper">
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Tipo</th>
+                        <th>Precio</th>
+                        <th>Descripción</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {misTiquetes.map(t => (
+                        <tr key={t.id}>
+                          <td><small>{t.id}</small></td>
+                          <td><strong>{t.tipo}</strong></td>
+                          <td>${t.precio.toLocaleString()}</td>
+                          <td>{t.descripcion}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </section>
         )}
 
         {selectedRole === 'Administrador' && reporteDiario && (

@@ -6,6 +6,8 @@ import co.edu.uniquindio.techpark.Model.Zona;
 import co.edu.uniquindio.techpark.Model.ResultadoRuta;
 import co.edu.uniquindio.techpark.Model.Reporte;
 import co.edu.uniquindio.techpark.Model.Usuario;
+import co.edu.uniquindio.techpark.Model.Tiquete;
+import co.edu.uniquindio.techpark.Model.TipoTiquete;
 import co.edu.uniquindio.techpark.service.ReporteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -78,7 +80,7 @@ public class ParqueController {
                                               @RequestParam String atraccionId, 
                                               @RequestParam String tipoTiquete) {
         try {
-            co.edu.uniquindio.techpark.Model.TipoTiquete tipo = co.edu.uniquindio.techpark.Model.TipoTiquete.valueOf(tipoTiquete.toUpperCase());
+            TipoTiquete tipo = TipoTiquete.valueOf(tipoTiquete.toUpperCase());
             String mensaje = techPark.unirseAFila(visitanteId, atraccionId, tipo);
             return ResponseEntity.ok(mensaje);
         } catch (IllegalArgumentException e) {
@@ -95,6 +97,24 @@ public class ParqueController {
     public ResponseEntity<String> procesarFila(@RequestParam String atraccionId) {
         String mensaje = techPark.procesarSiguiente(atraccionId);
         return ResponseEntity.ok(mensaje);
+    }
+
+    @PostMapping("/comprar-ticket")
+    public ResponseEntity<String> comprarTicket(@RequestParam String visitanteId,
+                                                 @RequestParam String tipoTiquete) {
+        try {
+            TipoTiquete tipo = TipoTiquete.valueOf(tipoTiquete.toUpperCase());
+            String mensaje = techPark.comprarTicket(visitanteId, tipo);
+            return ResponseEntity.ok(mensaje);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("❌ Tipo de tiquete inválido.");
+        }
+    }
+
+    @GetMapping("/mis-tiquetes")
+    public ResponseEntity<Tiquete[]> getMisTiquetes(@RequestParam String visitanteId) {
+        Tiquete[] tiquetes = techPark.getTiquetesVisitante(visitanteId);
+        return ResponseEntity.ok(tiquetes);
     }
 
     @GetMapping("/reportes/diario")

@@ -24,6 +24,9 @@ public class TechPark {
     // Nuevas estructuras propias (Fase 2)
     private ArbolBinarioBusqueda catalogoAtracciones;
     private Grafo mapaParque;
+
+    // Tickets emitidos
+    private ListaEnlazada<Tiquete> tiquetesEmitidos;
     
     @Autowired
     private DatosService datosService;
@@ -38,6 +41,7 @@ public class TechPark {
         this.todasLasAtracciones = new ListaEnlazada<>();
         this.catalogoAtracciones = new ArbolBinarioBusqueda();
         this.mapaParque = new Grafo();
+        this.tiquetesEmitidos = new ListaEnlazada<>();
     }
 
     /**
@@ -367,6 +371,83 @@ public class TechPark {
         return "✅ " + visitante.getNombre() + " ingresó a " + atraccion.getNombre()
             + " | Prioridad: " + (entrada.getPrioridad() == 1 ? "Fast-Pass" : "General")
             + " | Saldo restante: $" + visitante.getSaldoVirtual();
+    }
+
+    /**
+     * Busca un visitante por su ID en la lista de usuarios.
+     */
+    private Visitante buscarVisitantePorId(String visitanteId) {
+        for (Usuario u : usuarios) {
+            if (u.getId().equals(visitanteId) && u instanceof Visitante) {
+                return (Visitante) u;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Compra un ticket para un visitante según el tipo seleccionado.
+     * Precios: GENERAL=$20,000, FAST_PASS=$50,000, FAMILIAR=$45,000.
+     * FAMILIAR requiere edad >= 18 (adulto responsable).
+     * 
+     * @param visitanteId ID del visitante
+     * @param tipo Tipo de tiquete
+     * @return Mensaje de confirmación o error
+     */
+    public String comprarTicket(String visitanteId, TipoTiquete tipo) {
+        Visitante visitante = buscarVisitantePorId(visitanteId);
+        if (visitante == null) return "❌ Error: Visitante no encontrado.";
+
+        int precio;
+        String descripcion;
+
+        switch (tipo) {
+            case FAST_PASS:
+                precio = 50000;
+                descripcion = "Fast-Pass: acceso prioritario a filas";
+                break;
+            case FAMILIAR:
+                if (visitante.getEdad() < 18) {
+                    return "⚠️ El tiquete Familiar requiere un adulto responsable (edad >= 18).";
+                }
+                precio = 45000;
+                descripcion = "Familiar: descuento para grupos (hasta 4 personas)";
+                break;
+            default: // GENERAL
+                precio = 20000;
+                descripcion = "General: acceso estándar al parque";
+                break;
+        }
+
+        if (visitante.getSaldoVirtual() < precio) {
+            return "⚠️ Saldo insuficiente. Tienes $" + visitante.getSaldoVirtual()
+                + " y el tiquete " + tipo + " cuesta $" + precio + ".";
+        }
+
+        visitante.setSaldoVirtual(visitante.getSaldoVirtual() - precio);
+        Tiquete tiquete = new Tiquete(
+            "TKT-" + System.currentTimeMillis(), tipo, precio, descripcion, visitante
+        );
+        tiquetesEmitidos.agregar(tiquete);
+
+        return "✅ " + visitante.getNombre() + " compró tiquete " + tipo
+            + " ($" + precio + "). Saldo restante: $" + visitante.getSaldoVirtual();
+    }
+
+    /**
+     * Obtiene los tiquetes comprados por un visitante.
+     * 
+     * @param visitanteId ID del visitante
+     * @return Arreglo de tiquetes del visitante
+     */
+    public Tiquete[] getTiquetesVisitante(String visitanteId) {
+        ListaEnlazada<Tiquete> resultado = new ListaEnlazada<>();
+        for (Tiquete t : tiquetesEmitidos) {
+            if (t.getPropietario().getId().equals(visitanteId)) {
+                resultado.agregar(t);
+            }
+        }
+        return resultado.toArray(Tiquete.class);
     }
 
     /**
