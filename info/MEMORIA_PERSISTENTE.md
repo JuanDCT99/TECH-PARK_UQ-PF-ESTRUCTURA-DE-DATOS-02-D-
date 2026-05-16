@@ -398,6 +398,7 @@ TECH-PARK_UQ-PF-ESTRUCTURA-DE-DATOS-02-D-/
 | 🆕 GET  | `/api/parque/reportes/diario`   | —                                                | `ResponseEntity<Reporte>`       | Reporte diario del parque           |
 | 🆕 GET  | `/api/parque/reportes/populares` | —                                                | `ResponseEntity<Atraccion[]>`   | Atracciones más visitadas           |
 | 🆕 GET  | `/api/parque/usuarios`        | —                                                | `Usuario[]`                   | Lista de usuarios/visitantes        |
+| 🆕 POST | `/api/parque/procesar-fila`   | `atraccionId`                                  | `ResponseEntity<String>`        | Desencolar siguiente visitante      |
 
 **`ReporteService.java`** (59 líneas — NUEVO)
 
@@ -633,6 +634,7 @@ NOTAS SOBRE TechPark.java:
 | GET     | `/api/parque/reportes/diario`   | —                                                | `ResponseEntity<Reporte>`       | ✅ 🆕       |
 | GET     | `/api/parque/reportes/populares` | —                                                | `ResponseEntity<Atraccion[]>`   | ✅ 🆕       |
 | GET     | `/api/parque/usuarios`        | —                                                | `Usuario[]`                   | ✅ 🆕       |
+| POST    | `/api/parque/procesar-fila` | `atraccionId`                                  | `ResponseEntity<String>`       | ✅ 🆕       |
 
 ### Endpoints Pendientes según PDF
 
@@ -716,7 +718,7 @@ e52d4af Merge branch 'main' into erwin_dev
 | Estructuras de datos propias (5)          | 100%          | ListaEnlazada, ABB, Grafo, ColaPrioridad, FavoritosSet      |
 | Algoritmo Dijkstra                        | 100%          | Implementado en Grafo.calcularRutaOptima                    |
 | Persistencia JSON                         | 100%          | Carga desde JSON + botón en frontend                       |
-| Backend REST (9 endpoints)                | 68%           | 9 de ~15 endpoints requeridos                               |
+| Backend REST (10 endpoints)               | 70%           | 10 de ~15 endpoints requeridos                              |
 | Frontend (React)                          | 65%           | Dashboard funcional + sección reportes Admin                |
 | Mapa interactivo SVG                      | 90%           | Renderiza grafo, resalta rutas, colorea por estado          |
 | Lógica de tickets (Fast-Pass vs General) | 70%           | Prioridad implementada en cola, lógica de FAMILIAR ausente |
@@ -748,7 +750,7 @@ e52d4af Merge branch 'main' into erwin_dev
 
 | #  | Funcionalidad                                           | Estado actual                                            | Lo que falta                                                                   |
 | -- | ------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| 6  | **Procesar cola de espera** (desencolar)          | ColaPrioridad.insertar() existe                          | No hay método `procesarSiguiente()` en TechPark ni endpoint para desencolar |
+| 6  | **Procesar cola de espera** (desencolar)          | ✅ `procesarSiguiente()` en TechPark + endpoint POST `/procesar-fila` + frontend Empleado | —                                                                          |
 | 7  | **Comprar tickets**                               | TipoTiquete enum completo (GENERAL, FAMILIAR, FAST_PASS) | No hay endpoint ni lógica de compra; Tiquete solo se crea en unirseAFila      |
 | 8  | **Ticket Familiar**                               | Definido en TipoTiquete                                  | Nunca se usa en la lógica (sin descuento ni condiciones)                      |
 | 9  | **Gestión de favoritos en frontend**             | FavoritosSet implementado en backend                     | No hay endpoint REST ni botones en frontend para agregar/ver favoritos         |
@@ -764,7 +766,7 @@ e52d4af Merge branch 'main' into erwin_dev
 | #  | Funcionalidad                      | Estado                             | Lo que falta                                          |
 | -- | ---------------------------------- | ---------------------------------- | ----------------------------------------------------- |
 | 16 | Panel de Administrador completo    | Sección reportes implementada     | Gestión de empleados, zonas, alertas pendientes       |
-| 17 | Panel de Empleado completo         | Botón "Mantenimiento" placeholder | Cambiar estado, registrar revisión, ver cola         |
+| 17 | Panel de Empleado completo         | Ver cola + Procesar Siguiente implementados | Registrar mantenimiento/revisión pendiente           |
 | 18 | Panel de Visitante completo        | Ruta + fila implementados          | Comprar tickets, favoritos, historial, recargar saldo |
 | 19 | Gráficos estadísticos            | 5 tarjetas (ingresos, visitas, espera, cierres, alertas) | Gráficos con Chart.js / Recharts pendientes           |
 | 20 | Indicadores en tiempo real         | No implementados                   | Personas en cola, tiempo estimado                     |
@@ -809,6 +811,7 @@ e52d4af Merge branch 'main' into erwin_dev
 - ✅ MAPA INTERACTIVO: COMPLETO (MapaParque.jsx SVG con colores por estado)
 - ✅ BACKEND REST: 8 ENDPOINTS OPERATIVOS
 - ✅ **REPORTES Y ESTADÍSTICAS: COMPLETO** (ReporteService + 2 endpoints + frontend Admin)
+- ✅ **GESTIÓN DE COLAS: COMPLETO** (procesarSiguiente + endpoint + frontend Empleado)
 - ❌ PRUEBAS UNITARIAS: PENDIENTES (0 de 4)
 - ❌ DIAGRAMAS: PENDIENTES (clases y estructuras)
 - ❌ COMMITS: INSUFICIENTES (~18 de 72 requeridos)
@@ -818,9 +821,9 @@ e52d4af Merge branch 'main' into erwin_dev
 
 **Progreso global estimado:** 85-90%
 
-**Próximas tareas recomendadas (FASE 2 en adelante):**
+**Próximas tareas recomendadas (FASE 3 en adelante):**
 
-1. FASE 2: Gestión de Colas — endpoint `procesarSiguiente()` para desencolar
+1. ✅ ~~FASE 2: Gestión de Colas — endpoint `procesarSiguiente()` para desencolar~~
 2. FASE 3: Tickets — endpoint `comprarTicket()` + lógica Familiar
 3. FASE 4: Favoritos — endpoints REST + frontend
 4. FASE 5: Frontend — completar paneles de Empleado y Visitante

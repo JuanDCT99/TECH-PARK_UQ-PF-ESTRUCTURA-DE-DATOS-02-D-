@@ -91,6 +91,12 @@ public class ParqueController {
         return techPark.getUsuarios();
     }
 
+    @PostMapping("/procesar-fila")
+    public ResponseEntity<String> procesarFila(@RequestParam String atraccionId) {
+        String mensaje = techPark.procesarSiguiente(atraccionId);
+        return ResponseEntity.ok(mensaje);
+    }
+
     @GetMapping("/reportes/diario")
     public ResponseEntity<Reporte> getReporteDiario() {
         Reporte reporte = reporteService.generarReporteDiario(techPark.getListaAtracciones());

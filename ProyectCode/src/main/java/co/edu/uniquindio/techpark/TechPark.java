@@ -343,6 +343,33 @@ public class TechPark {
     }
 
     /**
+     * Procesa al siguiente visitante en la cola de una atracción.
+     * Lo desencola, descuenta su saldo y registra la visita.
+     * 
+     * @param atraccionId ID de la atracción
+     * @return Mensaje con el resultado del procesamiento
+     */
+    public String procesarSiguiente(String atraccionId) {
+        Atraccion atraccion = catalogoAtracciones.buscarPorId(atraccionId);
+        if (atraccion == null) return "❌ Error: Atracción no encontrada.";
+
+        ColaPrioridad cola = atraccion.getColaEspera();
+        if (cola == null || cola.isEmpty()) {
+            return "⚠️ La cola de " + atraccion.getNombre() + " está vacía.";
+        }
+
+        EntradaCola entrada = cola.eliminar();
+        if (entrada == null) return "⚠️ No hay visitantes en la cola.";
+
+        Visitante visitante = entrada.getVisitante();
+        visitante.entrarAAtraccion(atraccion);
+
+        return "✅ " + visitante.getNombre() + " ingresó a " + atraccion.getNombre()
+            + " | Prioridad: " + (entrada.getPrioridad() == 1 ? "Fast-Pass" : "General")
+            + " | Saldo restante: $" + visitante.getSaldoVirtual();
+    }
+
+    /**
      * Obtiene el arreglo de zonas del parque.
      * 
      * @return Arreglo de zonas

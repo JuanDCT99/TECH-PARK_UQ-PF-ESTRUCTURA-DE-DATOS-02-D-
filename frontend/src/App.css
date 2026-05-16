@@ -333,3 +333,32 @@ body {
   outline: none;
   border-color: var(--primary-color);
 }
+
+/* COLA Y PROCESAR */
+.action-buttons {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.cola-badge {
+  background: #222;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.procesar-mensaje {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid var(--success);
+  border-radius: 8px;
+  color: var(--success);
+  font-weight: bold;
+  text-align: center;
+}

@@ -18,6 +18,7 @@ function App() {
   const [populares, setPopulares] = useState([])
   const [usuarios, setUsuarios] = useState([])
   const [selectedUser, setSelectedUser] = useState(null)
+  const [mensajeProcesar, setMensajeProcesar] = useState('')
 
   const fetchDatosBase = () => {
     fetch('http://localhost:8080/api/parque/atracciones')
@@ -78,6 +79,19 @@ function App() {
       .then(res => res.text())
       .then(data => alert(data))
       .catch(err => alert("Error: " + err));
+  }
+
+  const procesarFila = (atraccionId) => {
+    setMensajeProcesar('Procesando...');
+    fetch(`http://localhost:8080/api/parque/procesar-fila?atraccionId=${atraccionId}`, {
+      method: 'POST'
+    })
+      .then(res => res.text())
+      .then(data => {
+        setMensajeProcesar(data);
+        fetchDatosBase();
+      })
+      .catch(err => setMensajeProcesar('❌ Error: ' + err));
   }
 
   const fetchReportes = () => {
@@ -245,7 +259,12 @@ function App() {
                           </div>
                         )}
                         {selectedRole === 'Empleado' && (
-                          <button className="btn-mini">Mantenimiento</button>
+                          <div className="action-buttons">
+                            <span className="cola-badge">{atr.colaSize} en cola</span>
+                            <button className="btn-mini fast" onClick={() => procesarFila(atr.id)}>
+                              Procesar Siguiente
+                            </button>
+                          </div>
                         )}
                       </td>
                     </tr>
@@ -255,6 +274,12 @@ function App() {
             </div>
           </section>
         </div>
+
+        {selectedRole === 'Empleado' && mensajeProcesar && (
+          <div className="procesar-mensaje">
+            {mensajeProcesar}
+          </div>
+        )}
 
         {selectedRole === 'Administrador' && reporteDiario && (
           <section className="reports-section">
