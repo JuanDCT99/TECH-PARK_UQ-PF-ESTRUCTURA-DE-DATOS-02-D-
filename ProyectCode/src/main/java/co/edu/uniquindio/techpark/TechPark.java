@@ -362,5 +362,13 @@ public class TechPark {
     public Atraccion[] getTodasLasAtracciones() {
         return todasLasAtracciones.toArray(Atraccion.class);
     }
+
+    public ListaEnlazada<Atraccion> getListaAtracciones() {
+        return todasLasAtracciones;
+    }
+
+    public ListaEnlazada<Zona> getListaZonas() {
+        return zonas;
+    }
 }
 
