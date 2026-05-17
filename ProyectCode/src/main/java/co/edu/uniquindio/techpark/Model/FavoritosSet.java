@@ -1,15 +1,7 @@
 package co.edu.uniquindio.techpark.Model;
 
-/**
- * Implementación de un Set (Conjunto) para gestionar las atracciones favoritas
- * de un visitante del parque TECH-PARK UQ.
- * 
- * Esta estructura garantiza que no haya atracciones duplicadas en la lista de favoritos.
- * Es una estructura propia que utiliza ListaEnlazada propia y NO colecciones de Java.
- * 
- * @author TECH-PARK UQ Team
- * @version 1.0
- */
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class FavoritosSet {
     private Visitante visitante;
     private ListaEnlazada<Atraccion> favoritos;
@@ -29,6 +21,7 @@ public class FavoritosSet {
      * 
      * @return Visitante
      */
+    @JsonIgnore
     public Visitante getVisitante() {
         return visitante;
     }
