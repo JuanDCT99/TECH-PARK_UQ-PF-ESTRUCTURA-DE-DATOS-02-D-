@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react'
 import './App.css'
-import bienvenidosImg from './assets/Bienvenidos.png'
-import rolImg from './assets/Rol.png'
 import MapaParque from './components/MapaParque'
 
 function App() {
@@ -27,6 +25,7 @@ function App() {
   const [montoRecarga, setMontoRecarga] = useState(10000)
   const [mensajeRecarga, setMensajeRecarga] = useState('')
   const [mensajeMant, setMensajeMant] = useState('')
+  const [visitorTab, setVisitorTab] = useState('tickets')
 
   const fetchDatosBase = () => {
     fetch('http://localhost:8080/api/parque/atracciones')
@@ -216,7 +215,7 @@ function App() {
 
   if (view === 'welcome') {
     return (
-      <div className="welcome-container" style={{ backgroundImage: `url(${bienvenidosImg})` }}>
+      <div className="welcome-container">
         <div className="overlay">
           <div className="content">
             <h1 className="title">TECH-PARK UQ</h1>
@@ -232,7 +231,7 @@ function App() {
 
   if (view === 'role-selection') {
     return (
-      <div className="role-container" style={{ backgroundImage: `url(${rolImg})` }}>
+      <div className="role-container">
         <div className="overlay">
           <div className="content">
             <h2 className="title">Selecciona tu Rol</h2>
@@ -392,133 +391,181 @@ function App() {
         )}
 
         {selectedRole === 'Visitante' && selectedUser && (
-          <section className="tickets-section">
-            <h2>🎫 Comprar Tiquete</h2>
-            <div className="ticket-grid">
-              <div className="ticket-card" onClick={() => comprarTicket('GENERAL')}>
-                <h3>General</h3>
-                <p className="ticket-price">$20,000</p>
-                <p className="ticket-desc">Acceso estándar al parque</p>
-                <button className="btn-action">Comprar</button>
-              </div>
-              <div className="ticket-card" onClick={() => comprarTicket('FAST_PASS')}>
-                <h3>Fast-Pass</h3>
-                <p className="ticket-price">$50,000</p>
-                <p className="ticket-desc">Acceso prioritario a filas</p>
-                <button className="btn-action">Comprar</button>
-              </div>
-              <div className="ticket-card" onClick={() => comprarTicket('FAMILIAR')}>
-                <h3>Familiar</h3>
-                <p className="ticket-price">$45,000</p>
-                <p className="ticket-desc">Descuento para grupos (hasta 4 pers.)</p>
-                <button className="btn-action">Comprar</button>
-              </div>
+          <>
+            <div className="tab-bar">
+              <button className={`tab-btn ${visitorTab === 'tickets' ? 'active' : ''}`}
+                onClick={() => setVisitorTab('tickets')}>
+                🎫 Tickets
+              </button>
+              <button className={`tab-btn ${visitorTab === 'perfil' ? 'active' : ''}`}
+                onClick={() => setVisitorTab('perfil')}>
+                ⭐ Mi Perfil
+              </button>
             </div>
-            {mensajeTicket && (
-              <div className={`ticket-mensaje ${mensajeTicket.includes('✅') ? 'exito' : 'error'}`}>
-                {mensajeTicket}
-              </div>
-            )}
-            {misTiquetes.length > 0 && (
-              <div className="mis-tiquetes">
-                <h3>Mis Tiquetes</h3>
-                <div className="table-wrapper">
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th>Tipo</th>
-                        <th>Precio</th>
-                        <th>Descripción</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {misTiquetes.map(t => (
-                        <tr key={t.id}>
-                          <td><small>{t.id}</small></td>
-                          <td><strong>{t.tipo}</strong></td>
-                          <td>${t.precio.toLocaleString()}</td>
-                          <td>{t.descripcion}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-            {mensajeFav && (
-              <div className={`ticket-mensaje ${mensajeFav.includes('✅') ? 'exito' : 'error'}`}>
-                {mensajeFav}
-              </div>
-            )}
-            {favoritos.length > 0 && (
-              <div className="mis-tiquetes">
-                <h3>⭐ Mis Favoritos</h3>
-                <div className="table-wrapper">
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>Atracción</th>
-                        <th>Tipo</th>
-                        <th>Estado</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {favoritos.map(f => (
-                        <tr key={f.id}>
-                          <td><strong>{f.nombre}</strong></td>
-                          <td>{f.tipo}</td>
-                          <td><span className={`badge estado-${f.estado.toLowerCase()}`}>{f.estado}</span></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-            <div className="recarga-section">
-              <h3>💰 Recargar Saldo</h3>
-              <div className="recarga-controls">
-                <select value={montoRecarga} onChange={(e) => setMontoRecarga(Number(e.target.value))}>
-                  <option value={10000}>$10,000</option>
-                  <option value={20000}>$20,000</option>
-                  <option value={50000}>$50,000</option>
-                  <option value={100000}>$100,000</option>
-                </select>
-                <button className="btn-action" onClick={recargarSaldo}>Recargar</button>
-              </div>
-              {mensajeRecarga && (
-                <div className={`ticket-mensaje ${mensajeRecarga.includes('✅') ? 'exito' : 'error'}`}>
-                  {mensajeRecarga}
-                </div>
+
+            <div className="tab-content">
+              {visitorTab === 'tickets' && (
+                <>
+                  <div className="section-card">
+                    <h3 className="section-title">🎫 Comprar Tiquete</h3>
+                    <div className="ticket-grid">
+                      <div className="ticket-card" onClick={() => comprarTicket('GENERAL')}>
+                        <h3>General</h3>
+                        <p className="ticket-price">$20,000</p>
+                        <p className="ticket-desc">Acceso estándar al parque</p>
+                        <button className="btn-action">Comprar</button>
+                      </div>
+                      <div className="ticket-card" onClick={() => comprarTicket('FAST_PASS')}>
+                        <h3>Fast-Pass</h3>
+                        <p className="ticket-price">$50,000</p>
+                        <p className="ticket-desc">Acceso prioritario a filas</p>
+                        <button className="btn-action">Comprar</button>
+                      </div>
+                      <div className="ticket-card" onClick={() => comprarTicket('FAMILIAR')}>
+                        <h3>Familiar</h3>
+                        <p className="ticket-price">$45,000</p>
+                        <p className="ticket-desc">Descuento para grupos (hasta 4 pers.)</p>
+                        <button className="btn-action">Comprar</button>
+                      </div>
+                    </div>
+                    {mensajeTicket && (
+                      <div className={`ticket-mensaje ${mensajeTicket.includes('✅') ? 'exito' : 'error'}`}>
+                        {mensajeTicket}
+                      </div>
+                    )}
+                  </div>
+
+                  {misTiquetes.length > 0 && (
+                    <div className="section-card">
+                      <h3>🎟️ Mis Tiquetes</h3>
+                      <div className="table-wrapper">
+                        <table className="data-table">
+                          <thead>
+                            <tr>
+                              <th>ID</th>
+                              <th>Tipo</th>
+                              <th>Precio</th>
+                              <th>Descripción</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {misTiquetes.map(t => (
+                              <tr key={t.id}>
+                                <td><small>{t.id}</small></td>
+                                <td><strong>{t.tipo}</strong></td>
+                                <td>${t.precio.toLocaleString()}</td>
+                                <td>{t.descripcion}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="section-card">
+                    <h3>💰 Recargar Saldo</h3>
+                    <div className="recarga-section">
+                      <div className="recarga-controls">
+                        <select value={montoRecarga} onChange={(e) => setMontoRecarga(Number(e.target.value))}>
+                          <option value={10000}>$10,000</option>
+                          <option value={20000}>$20,000</option>
+                          <option value={50000}>$50,000</option>
+                          <option value={100000}>$100,000</option>
+                        </select>
+                        <button className="btn-action" onClick={recargarSaldo}>Recargar</button>
+                      </div>
+                      {mensajeRecarga && (
+                        <div className={`ticket-mensaje ${mensajeRecarga.includes('✅') ? 'exito' : 'error'}`}>
+                          {mensajeRecarga}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {visitorTab === 'perfil' && (
+                <>
+                  {favoritos.length > 0 ? (
+                    <div className="section-card">
+                      <h3>⭐ Mis Favoritos</h3>
+                      {mensajeFav && (
+                        <div className={`ticket-mensaje ${mensajeFav.includes('✅') ? 'exito' : 'error'}`}>
+                          {mensajeFav}
+                        </div>
+                      )}
+                      <div className="table-wrapper">
+                        <table className="data-table">
+                          <thead>
+                            <tr>
+                              <th>Atracción</th>
+                              <th>Tipo</th>
+                              <th>Estado</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {favoritos.map(f => (
+                              <tr key={f.id}>
+                                <td><strong>{f.nombre}</strong></td>
+                                <td>{f.tipo}</td>
+                                <td><span className={`badge estado-${f.estado.toLowerCase()}`}>{f.estado}</span></td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="section-card">
+                      <h3>⭐ Mis Favoritos</h3>
+                      {mensajeFav && (
+                        <div className={`ticket-mensaje ${mensajeFav.includes('✅') ? 'exito' : 'error'}`}>
+                          {mensajeFav}
+                        </div>
+                      )}
+                      <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                        No tienes favoritos aún. Ve a la pestaña 🗺️ Parque y haz clic en 🤍 para agregar.
+                      </p>
+                    </div>
+                  )}
+
+                  {historial.length > 0 ? (
+                    <div className="section-card">
+                      <h3>📋 Historial de Visitas</h3>
+                      <div className="table-wrapper">
+                        <table className="data-table">
+                          <thead>
+                            <tr>
+                              <th>Atracción</th>
+                              <th>Tipo</th>
+                              <th>Estado</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {historial.map(h => (
+                              <tr key={h.id}>
+                                <td><strong>{h.nombre}</strong></td>
+                                <td>{h.tipo}</td>
+                                <td><span className={`badge estado-${h.estado.toLowerCase()}`}>{h.estado}</span></td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="section-card">
+                      <h3>📋 Historial de Visitas</h3>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                        No hay visitas registradas. Pídele a un Empleado que procese tu fila.
+                      </p>
+                    </div>
+                  )}
+                </>
               )}
             </div>
-            {historial.length > 0 && (
-              <div className="mis-tiquetes">
-                <h3>📋 Historial de Visitas</h3>
-                <div className="table-wrapper">
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>Atracción</th>
-                        <th>Tipo</th>
-                        <th>Estado</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {historial.map(h => (
-                        <tr key={h.id}>
-                          <td><strong>{h.nombre}</strong></td>
-                          <td>{h.tipo}</td>
-                          <td><span className={`badge estado-${h.estado.toLowerCase()}`}>{h.estado}</span></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </section>
+          </>
         )}
 
         {selectedRole === 'Administrador' && reporteDiario && (
