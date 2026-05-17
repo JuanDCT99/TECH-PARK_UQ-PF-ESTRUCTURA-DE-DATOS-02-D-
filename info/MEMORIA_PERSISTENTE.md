@@ -398,6 +398,12 @@ TECH-PARK_UQ-PF-ESTRUCTURA-DE-DATOS-02-D-/
 | 🆕 GET  | `/api/parque/reportes/diario`   | —                                                | `ResponseEntity<Reporte>`       | Reporte diario del parque           |
 | 🆕 GET  | `/api/parque/reportes/populares` | —                                                | `ResponseEntity<Atraccion[]>`   | Atracciones más visitadas           |
 | 🆕 GET  | `/api/parque/usuarios`        | —                                                | `Usuario[]`                   | Lista de usuarios/visitantes        |
+| 🆕 POST | `/api/parque/procesar-fila`   | `atraccionId`                                  | `ResponseEntity<String>`        | Desencolar siguiente visitante      |
+| 🆕 POST | `/api/parque/comprar-ticket`  | `visitanteId`, `tipoTiquete`                 | `ResponseEntity<String>`        | Comprar tiquete (GENERAL/FAST_PASS/FAMILIAR) |
+| 🆕 GET  | `/api/parque/mis-tiquetes`    | `visitanteId`                                  | `Tiquete[]`                   | Listar tiquetes del visitante       |
+| 🆕 POST | `/api/parque/agregar-favorito`| `visitanteId`, `atraccionId`                 | `ResponseEntity<String>`        | Agregar atracción a favoritos       |
+| 🆕 POST | `/api/parque/eliminar-favorito`| `visitanteId`, `atraccionId`                | `ResponseEntity<String>`        | Eliminar atracción de favoritos     |
+| 🆕 GET  | `/api/parque/mis-favoritos`   | `visitanteId`                                  | `Atraccion[]`                 | Listar favoritos del visitante      |
 
 **`ReporteService.java`** (59 líneas — NUEVO)
 
@@ -633,6 +639,12 @@ NOTAS SOBRE TechPark.java:
 | GET     | `/api/parque/reportes/diario`   | —                                                | `ResponseEntity<Reporte>`       | ✅ 🆕       |
 | GET     | `/api/parque/reportes/populares` | —                                                | `ResponseEntity<Atraccion[]>`   | ✅ 🆕       |
 | GET     | `/api/parque/usuarios`        | —                                                | `Usuario[]`                   | ✅ 🆕       |
+| POST    | `/api/parque/procesar-fila` | `atraccionId`                                  | `ResponseEntity<String>`       | ✅ 🆕       |
+| POST    | `/api/parque/comprar-ticket` | `visitanteId`, `tipoTiquete`                | `ResponseEntity<String>`       | ✅ 🆕       |
+| GET     | `/api/parque/mis-tiquetes`   | `visitanteId`                                  | `Tiquete[]`                   | ✅ 🆕       |
+| POST    | `/api/parque/agregar-favorito` | `visitanteId`, `atraccionId`               | `ResponseEntity<String>`      | ✅ 🆕       |
+| POST    | `/api/parque/eliminar-favorito`| `visitanteId`, `atraccionId`               | `ResponseEntity<String>`      | ✅ 🆕       |
+| GET     | `/api/parque/mis-favoritos`  | `visitanteId`                                  | `Atraccion[]`                | ✅ 🆕       |
 
 ### Endpoints Pendientes según PDF
 
@@ -716,7 +728,7 @@ e52d4af Merge branch 'main' into erwin_dev
 | Estructuras de datos propias (5)          | 100%          | ListaEnlazada, ABB, Grafo, ColaPrioridad, FavoritosSet      |
 | Algoritmo Dijkstra                        | 100%          | Implementado en Grafo.calcularRutaOptima                    |
 | Persistencia JSON                         | 100%          | Carga desde JSON + botón en frontend                       |
-| Backend REST (9 endpoints)                | 68%           | 9 de ~15 endpoints requeridos                               |
+| Backend REST (15 endpoints)               | 85%           | 15 de ~15 endpoints requeridos                              |
 | Frontend (React)                          | 65%           | Dashboard funcional + sección reportes Admin                |
 | Mapa interactivo SVG                      | 90%           | Renderiza grafo, resalta rutas, colorea por estado          |
 | Lógica de tickets (Fast-Pass vs General) | 70%           | Prioridad implementada en cola, lógica de FAMILIAR ausente |
@@ -748,10 +760,10 @@ e52d4af Merge branch 'main' into erwin_dev
 
 | #  | Funcionalidad                                           | Estado actual                                            | Lo que falta                                                                   |
 | -- | ------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| 6  | **Procesar cola de espera** (desencolar)          | ColaPrioridad.insertar() existe                          | No hay método `procesarSiguiente()` en TechPark ni endpoint para desencolar |
-| 7  | **Comprar tickets**                               | TipoTiquete enum completo (GENERAL, FAMILIAR, FAST_PASS) | No hay endpoint ni lógica de compra; Tiquete solo se crea en unirseAFila      |
-| 8  | **Ticket Familiar**                               | Definido en TipoTiquete                                  | Nunca se usa en la lógica (sin descuento ni condiciones)                      |
-| 9  | **Gestión de favoritos en frontend**             | FavoritosSet implementado en backend                     | No hay endpoint REST ni botones en frontend para agregar/ver favoritos         |
+| 6  | **Procesar cola de espera** (desencolar)          | ✅ `procesarSiguiente()` en TechPark + endpoint POST `/procesar-fila` + frontend Empleado | —                                                                          |
+| 7  | **Comprar tickets**                               | ✅ `comprarTicket()` + endpoint + frontend                  | —                                                                             |
+| 8  | **Ticket Familiar**                               | ✅ Implementado (edad >= 18, $45,000, descuento grupal)   | —                                                                             |
+| 9  | **Gestión de favoritos**             | ✅ 3 endpoints REST + botón ❤️ en frontend + sección Mis Favoritos | —                                                                             |
 | 10 | **Historial de visitas en frontend**              | ListaEnlazada en Visitante                               | No hay endpoint ni visualización en frontend                                  |
 | 11 | **CRUD de empleados**                             | Modelos Administrador/Operador/Empleado existen          | No hay endpoints para crear/modificar/asignar empleados                        |
 | 12 | **Reportes** (ingresos, visitas, espera, cierres) | ✅ ReporteService.java completo + 2 endpoints              | Frontend: gráficos dinámicos (Chart.js) pendientes                           |
@@ -764,8 +776,8 @@ e52d4af Merge branch 'main' into erwin_dev
 | #  | Funcionalidad                      | Estado                             | Lo que falta                                          |
 | -- | ---------------------------------- | ---------------------------------- | ----------------------------------------------------- |
 | 16 | Panel de Administrador completo    | Sección reportes implementada     | Gestión de empleados, zonas, alertas pendientes       |
-| 17 | Panel de Empleado completo         | Botón "Mantenimiento" placeholder | Cambiar estado, registrar revisión, ver cola         |
-| 18 | Panel de Visitante completo        | Ruta + fila implementados          | Comprar tickets, favoritos, historial, recargar saldo |
+| 17 | Panel de Empleado completo         | Ver cola + Procesar Siguiente implementados | Registrar mantenimiento/revisión pendiente           |
+| 18 | Panel de Visitante completo        | Ruta + fila + tiquete + favoritos implementados | Historial, recargar saldo                          |
 | 19 | Gráficos estadísticos            | 5 tarjetas (ingresos, visitas, espera, cierres, alertas) | Gráficos con Chart.js / Recharts pendientes           |
 | 20 | Indicadores en tiempo real         | No implementados                   | Personas en cola, tiempo estimado                     |
 | 21 | Endpoint de senderos para frontend | Hardcoded en App.jsx               | Crear GET /api/parque/senderos                        |
@@ -809,6 +821,9 @@ e52d4af Merge branch 'main' into erwin_dev
 - ✅ MAPA INTERACTIVO: COMPLETO (MapaParque.jsx SVG con colores por estado)
 - ✅ BACKEND REST: 8 ENDPOINTS OPERATIVOS
 - ✅ **REPORTES Y ESTADÍSTICAS: COMPLETO** (ReporteService + 2 endpoints + frontend Admin)
+- ✅ **GESTIÓN DE COLAS: COMPLETO** (procesarSiguiente + endpoint + frontend Empleado)
+- ✅ **COMPRA DE TICKETS: COMPLETO** (comprarTicket + 2 endpoints + frontend Visitante + lógica Familiar)
+- ✅ **FAVORITOS: COMPLETO** (3 endpoints + botón ❤️ en frontend + sección Mis Favoritos)
 - ❌ PRUEBAS UNITARIAS: PENDIENTES (0 de 4)
 - ❌ DIAGRAMAS: PENDIENTES (clases y estructuras)
 - ❌ COMMITS: INSUFICIENTES (~18 de 72 requeridos)
@@ -818,12 +833,12 @@ e52d4af Merge branch 'main' into erwin_dev
 
 **Progreso global estimado:** 85-90%
 
-**Próximas tareas recomendadas (FASE 2 en adelante):**
+**Próximas tareas recomendadas (FASE 3 en adelante):**
 
-1. FASE 2: Gestión de Colas — endpoint `procesarSiguiente()` para desencolar
-2. FASE 3: Tickets — endpoint `comprarTicket()` + lógica Familiar
-3. FASE 4: Favoritos — endpoints REST + frontend
-4. FASE 5: Frontend — completar paneles de Empleado y Visitante
+1. ✅ ~~FASE 2: Gestión de Colas — endpoint `procesarSiguiente()` para desencolar~~
+2. ✅ ~~FASE 3: Tickets — endpoint `comprarTicket()` + lógica Familiar~~
+3. ✅ ~~FASE 4: Favoritos — endpoints REST + frontend~~
+4. FASE 5: Frontend — historial de visitas, recargar saldo, panel Empleado
 5. FASE 6: Pruebas unitarias (mínimo 4 con JUnit 5)
 6. FASE 7: Diagramas de clases y estructuras
 

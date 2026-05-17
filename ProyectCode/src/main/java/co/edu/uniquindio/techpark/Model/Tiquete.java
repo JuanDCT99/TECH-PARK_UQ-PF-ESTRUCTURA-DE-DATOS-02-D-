@@ -1,5 +1,6 @@
 package co.edu.uniquindio.techpark.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 
 public class Tiquete {
@@ -51,6 +52,7 @@ public class Tiquete {
         this.descripcion = descripcion;
     }
 
+    @JsonIgnore
     public Visitante getPropietario() {
         return propietario;
     }

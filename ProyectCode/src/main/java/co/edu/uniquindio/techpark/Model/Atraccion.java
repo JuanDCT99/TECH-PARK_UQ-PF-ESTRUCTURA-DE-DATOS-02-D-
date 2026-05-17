@@ -1,5 +1,7 @@
 package co.edu.uniquindio.techpark.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * Representa una atracción del parque TECH-PARK UQ.
  * Posee lógica de mantenimiento automático y gestión de colas de prioridad.
@@ -80,8 +82,13 @@ public class Atraccion {
     public int getTiempoEspera() { return tiempoEspera; }
     public void setTiempoEspera(int tiempoEspera) { this.tiempoEspera = tiempoEspera; }
 
+    @JsonIgnore
     public ColaPrioridad getColaEspera() { return colaEspera; }
     public void setColaEspera(ColaPrioridad colaEspera) { this.colaEspera = colaEspera; }
+
+    public int getColaSize() {
+        return colaEspera != null ? colaEspera.size() : 0;
+    }
 
     public String getMotivoCierre() { return motivoCierre; }
     public void setMotivoCierre(String motivoCierre) { this.motivoCierre = motivoCierre; }

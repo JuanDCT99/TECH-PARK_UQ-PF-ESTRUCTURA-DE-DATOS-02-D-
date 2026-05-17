@@ -24,6 +24,9 @@ public class TechPark {
     // Nuevas estructuras propias (Fase 2)
     private ArbolBinarioBusqueda catalogoAtracciones;
     private Grafo mapaParque;
+
+    // Tickets emitidos
+    private ListaEnlazada<Tiquete> tiquetesEmitidos;
     
     @Autowired
     private DatosService datosService;
@@ -38,6 +41,7 @@ public class TechPark {
         this.todasLasAtracciones = new ListaEnlazada<>();
         this.catalogoAtracciones = new ArbolBinarioBusqueda();
         this.mapaParque = new Grafo();
+        this.tiquetesEmitidos = new ListaEnlazada<>();
     }
 
     /**
@@ -340,6 +344,164 @@ public class TechPark {
         if (capacidadTotal == 0) return true; // Si no hay zonas, el parque está "vacío"
 
         return totalVisitantes < capacidadTotal;
+    }
+
+    /**
+     * Procesa al siguiente visitante en la cola de una atracción.
+     * Lo desencola, descuenta su saldo y registra la visita.
+     * 
+     * @param atraccionId ID de la atracción
+     * @return Mensaje con el resultado del procesamiento
+     */
+    public String procesarSiguiente(String atraccionId) {
+        Atraccion atraccion = catalogoAtracciones.buscarPorId(atraccionId);
+        if (atraccion == null) return "❌ Error: Atracción no encontrada.";
+
+        ColaPrioridad cola = atraccion.getColaEspera();
+        if (cola == null || cola.isEmpty()) {
+            return "⚠️ La cola de " + atraccion.getNombre() + " está vacía.";
+        }
+
+        EntradaCola entrada = cola.eliminar();
+        if (entrada == null) return "⚠️ No hay visitantes en la cola.";
+
+        Visitante visitante = entrada.getVisitante();
+        visitante.entrarAAtraccion(atraccion);
+
+        return "✅ " + visitante.getNombre() + " ingresó a " + atraccion.getNombre()
+            + " | Prioridad: " + (entrada.getPrioridad() == 1 ? "Fast-Pass" : "General")
+            + " | Saldo restante: $" + visitante.getSaldoVirtual();
+    }
+
+    /**
+     * Busca un visitante por su ID en la lista de usuarios.
+     */
+    private Visitante buscarVisitantePorId(String visitanteId) {
+        for (Usuario u : usuarios) {
+            if (u.getId().equals(visitanteId) && u instanceof Visitante) {
+                return (Visitante) u;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Compra un ticket para un visitante según el tipo seleccionado.
+     * Precios: GENERAL=$20,000, FAST_PASS=$50,000, FAMILIAR=$45,000.
+     * FAMILIAR requiere edad >= 18 (adulto responsable).
+     * 
+     * @param visitanteId ID del visitante
+     * @param tipo Tipo de tiquete
+     * @return Mensaje de confirmación o error
+     */
+    public String comprarTicket(String visitanteId, TipoTiquete tipo) {
+        Visitante visitante = buscarVisitantePorId(visitanteId);
+        if (visitante == null) return "❌ Error: Visitante no encontrado.";
+
+        int precio;
+        String descripcion;
+
+        switch (tipo) {
+            case FAST_PASS:
+                precio = 50000;
+                descripcion = "Fast-Pass: acceso prioritario a filas";
+                break;
+            case FAMILIAR:
+                if (visitante.getEdad() < 18) {
+                    return "⚠️ El tiquete Familiar requiere un adulto responsable (edad >= 18).";
+                }
+                precio = 45000;
+                descripcion = "Familiar: descuento para grupos (hasta 4 personas)";
+                break;
+            default: // GENERAL
+                precio = 20000;
+                descripcion = "General: acceso estándar al parque";
+                break;
+        }
+
+        if (visitante.getSaldoVirtual() < precio) {
+            return "⚠️ Saldo insuficiente. Tienes $" + visitante.getSaldoVirtual()
+                + " y el tiquete " + tipo + " cuesta $" + precio + ".";
+        }
+
+        visitante.setSaldoVirtual(visitante.getSaldoVirtual() - precio);
+        Tiquete tiquete = new Tiquete(
+            "TKT-" + System.currentTimeMillis(), tipo, precio, descripcion, visitante
+        );
+        tiquetesEmitidos.agregar(tiquete);
+
+        return "✅ " + visitante.getNombre() + " compró tiquete " + tipo
+            + " ($" + precio + "). Saldo restante: $" + visitante.getSaldoVirtual();
+    }
+
+    /**
+     * Obtiene los tiquetes comprados por un visitante.
+     * 
+     * @param visitanteId ID del visitante
+     * @return Arreglo de tiquetes del visitante
+     */
+    public Tiquete[] getTiquetesVisitante(String visitanteId) {
+        ListaEnlazada<Tiquete> resultado = new ListaEnlazada<>();
+        for (Tiquete t : tiquetesEmitidos) {
+            if (t.getPropietario().getId().equals(visitanteId)) {
+                resultado.agregar(t);
+            }
+        }
+        return resultado.toArray(Tiquete.class);
+    }
+
+    /**
+     * Agrega una atracción a los favoritos de un visitante.
+     * 
+     * @param visitanteId ID del visitante
+     * @param atraccionId ID de la atracción
+     * @return Mensaje de confirmación o error
+     */
+    public String agregarFavorito(String visitanteId, String atraccionId) {
+        Visitante visitante = buscarVisitantePorId(visitanteId);
+        if (visitante == null) return "❌ Error: Visitante no encontrado.";
+
+        Atraccion atraccion = catalogoAtracciones.buscarPorId(atraccionId);
+        if (atraccion == null) return "❌ Error: Atracción no encontrada.";
+
+        boolean agregado = visitante.getFavoritos().agregarFavorito(atraccion);
+        if (!agregado) {
+            return "⚠️ " + atraccion.getNombre() + " ya está en tus favoritos.";
+        }
+        return "✅ " + atraccion.getNombre() + " agregada a favoritos.";
+    }
+
+    /**
+     * Elimina una atracción de los favoritos de un visitante.
+     * 
+     * @param visitanteId ID del visitante
+     * @param atraccionId ID de la atracción
+     * @return Mensaje de confirmación o error
+     */
+    public String eliminarFavorito(String visitanteId, String atraccionId) {
+        Visitante visitante = buscarVisitantePorId(visitanteId);
+        if (visitante == null) return "❌ Error: Visitante no encontrado.";
+
+        Atraccion atraccion = catalogoAtracciones.buscarPorId(atraccionId);
+        if (atraccion == null) return "❌ Error: Atracción no encontrada.";
+
+        boolean eliminado = visitante.getFavoritos().eliminarFavorito(atraccion);
+        if (!eliminado) {
+            return "⚠️ " + atraccion.getNombre() + " no está en tus favoritos.";
+        }
+        return "✅ " + atraccion.getNombre() + " eliminada de favoritos.";
+    }
+
+    /**
+     * Obtiene las atracciones favoritas de un visitante.
+     * 
+     * @param visitanteId ID del visitante
+     * @return Arreglo de atracciones favoritas
+     */
+    public Atraccion[] getFavoritos(String visitanteId) {
+        Visitante visitante = buscarVisitantePorId(visitanteId);
+        if (visitante == null) return new Atraccion[0];
+        return visitante.getFavoritos().obtenerFavoritos().toArray(Atraccion.class);
     }
 
     /**
