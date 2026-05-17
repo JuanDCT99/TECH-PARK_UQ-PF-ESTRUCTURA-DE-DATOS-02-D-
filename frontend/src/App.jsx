@@ -21,6 +21,8 @@ function App() {
   const [mensajeProcesar, setMensajeProcesar] = useState('')
   const [mensajeTicket, setMensajeTicket] = useState('')
   const [misTiquetes, setMisTiquetes] = useState([])
+  const [favoritos, setFavoritos] = useState([])
+  const [mensajeFav, setMensajeFav] = useState('')
 
   const fetchDatosBase = () => {
     fetch('http://localhost:8080/api/parque/atracciones')
@@ -96,6 +98,28 @@ function App() {
       .catch(err => setMensajeProcesar('❌ Error: ' + err));
   }
 
+  const fetchFavoritos = () => {
+    const vid = selectedUser || 'V1'
+    fetch(`http://localhost:8080/api/parque/mis-favoritos?visitanteId=${vid}`)
+      .then(res => res.json())
+      .then(data => setFavoritos(data))
+      .catch(err => console.error("Error cargando favoritos:", err))
+  }
+
+  const toggleFavorito = (atraccionId, esFavorito) => {
+    const vid = selectedUser || 'V1'
+    const accion = esFavorito ? 'eliminar-favorito' : 'agregar-favorito'
+    fetch(`http://localhost:8080/api/parque/${accion}?visitanteId=${vid}&atraccionId=${atraccionId}`, {
+      method: 'POST'
+    })
+      .then(res => res.text())
+      .then(data => {
+        setMensajeFav(data)
+        fetchFavoritos()
+      })
+      .catch(err => setMensajeFav('❌ Error: ' + err))
+  }
+
   const fetchMisTiquetes = () => {
     const vid = selectedUser || 'V1'
     fetch(`http://localhost:8080/api/parque/mis-tiquetes?visitanteId=${vid}`)
@@ -142,6 +166,7 @@ function App() {
   useEffect(() => {
     if (view === 'dashboard' && selectedRole === 'Visitante' && selectedUser) {
       fetchMisTiquetes();
+      fetchFavoritos();
     }
   }, [view, selectedRole, selectedUser])
 
@@ -284,6 +309,12 @@ function App() {
                       <td>
                         {selectedRole === 'Visitante' && (
                           <div className="action-buttons">
+                            <button
+                              className={`btn-mini fav ${favoritos.some(f => f.id === atr.id) ? 'active' : ''}`}
+                              onClick={() => toggleFavorito(atr.id, favoritos.some(f => f.id === atr.id))}
+                            >
+                              {favoritos.some(f => f.id === atr.id) ? '❤️' : '🤍'}
+                            </button>
                             <button className="btn-mini fast" onClick={() => unirseAFila(atr.id, 'FAST_PASS')}>FastPass</button>
                             <button className="btn-mini" onClick={() => unirseAFila(atr.id, 'GENERAL')}>Fila</button>
                           </div>
@@ -359,6 +390,36 @@ function App() {
                           <td><strong>{t.tipo}</strong></td>
                           <td>${t.precio.toLocaleString()}</td>
                           <td>{t.descripcion}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+            {mensajeFav && (
+              <div className={`ticket-mensaje ${mensajeFav.includes('✅') ? 'exito' : 'error'}`}>
+                {mensajeFav}
+              </div>
+            )}
+            {favoritos.length > 0 && (
+              <div className="mis-tiquetes">
+                <h3>⭐ Mis Favoritos</h3>
+                <div className="table-wrapper">
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Atracción</th>
+                        <th>Tipo</th>
+                        <th>Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {favoritos.map(f => (
+                        <tr key={f.id}>
+                          <td><strong>{f.nombre}</strong></td>
+                          <td>{f.tipo}</td>
+                          <td><span className={`badge estado-${f.estado.toLowerCase()}`}>{f.estado}</span></td>
                         </tr>
                       ))}
                     </tbody>

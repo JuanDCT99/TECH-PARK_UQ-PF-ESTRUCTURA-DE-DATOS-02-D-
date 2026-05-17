@@ -451,6 +451,60 @@ public class TechPark {
     }
 
     /**
+     * Agrega una atracción a los favoritos de un visitante.
+     * 
+     * @param visitanteId ID del visitante
+     * @param atraccionId ID de la atracción
+     * @return Mensaje de confirmación o error
+     */
+    public String agregarFavorito(String visitanteId, String atraccionId) {
+        Visitante visitante = buscarVisitantePorId(visitanteId);
+        if (visitante == null) return "❌ Error: Visitante no encontrado.";
+
+        Atraccion atraccion = catalogoAtracciones.buscarPorId(atraccionId);
+        if (atraccion == null) return "❌ Error: Atracción no encontrada.";
+
+        boolean agregado = visitante.getFavoritos().agregarFavorito(atraccion);
+        if (!agregado) {
+            return "⚠️ " + atraccion.getNombre() + " ya está en tus favoritos.";
+        }
+        return "✅ " + atraccion.getNombre() + " agregada a favoritos.";
+    }
+
+    /**
+     * Elimina una atracción de los favoritos de un visitante.
+     * 
+     * @param visitanteId ID del visitante
+     * @param atraccionId ID de la atracción
+     * @return Mensaje de confirmación o error
+     */
+    public String eliminarFavorito(String visitanteId, String atraccionId) {
+        Visitante visitante = buscarVisitantePorId(visitanteId);
+        if (visitante == null) return "❌ Error: Visitante no encontrado.";
+
+        Atraccion atraccion = catalogoAtracciones.buscarPorId(atraccionId);
+        if (atraccion == null) return "❌ Error: Atracción no encontrada.";
+
+        boolean eliminado = visitante.getFavoritos().eliminarFavorito(atraccion);
+        if (!eliminado) {
+            return "⚠️ " + atraccion.getNombre() + " no está en tus favoritos.";
+        }
+        return "✅ " + atraccion.getNombre() + " eliminada de favoritos.";
+    }
+
+    /**
+     * Obtiene las atracciones favoritas de un visitante.
+     * 
+     * @param visitanteId ID del visitante
+     * @return Arreglo de atracciones favoritas
+     */
+    public Atraccion[] getFavoritos(String visitanteId) {
+        Visitante visitante = buscarVisitantePorId(visitanteId);
+        if (visitante == null) return new Atraccion[0];
+        return visitante.getFavoritos().obtenerFavoritos().toArray(Atraccion.class);
+    }
+
+    /**
      * Obtiene el arreglo de zonas del parque.
      * 
      * @return Arreglo de zonas

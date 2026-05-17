@@ -117,6 +117,26 @@ public class ParqueController {
         return ResponseEntity.ok(tiquetes);
     }
 
+    @PostMapping("/agregar-favorito")
+    public ResponseEntity<String> agregarFavorito(@RequestParam String visitanteId,
+                                                   @RequestParam String atraccionId) {
+        String mensaje = techPark.agregarFavorito(visitanteId, atraccionId);
+        return ResponseEntity.ok(mensaje);
+    }
+
+    @PostMapping("/eliminar-favorito")
+    public ResponseEntity<String> eliminarFavorito(@RequestParam String visitanteId,
+                                                    @RequestParam String atraccionId) {
+        String mensaje = techPark.eliminarFavorito(visitanteId, atraccionId);
+        return ResponseEntity.ok(mensaje);
+    }
+
+    @GetMapping("/mis-favoritos")
+    public ResponseEntity<Atraccion[]> getMisFavoritos(@RequestParam String visitanteId) {
+        Atraccion[] favoritas = techPark.getFavoritos(visitanteId);
+        return ResponseEntity.ok(favoritas);
+    }
+
     @GetMapping("/reportes/diario")
     public ResponseEntity<Reporte> getReporteDiario() {
         Reporte reporte = reporteService.generarReporteDiario(techPark.getListaAtracciones());
