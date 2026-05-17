@@ -505,6 +505,68 @@ public class TechPark {
     }
 
     /**
+     * Obtiene el historial de visitas de un visitante.
+     * 
+     * @param visitanteId ID del visitante
+     * @return Arreglo de atracciones visitadas
+     */
+    public Atraccion[] getHistorial(String visitanteId) {
+        Visitante visitante = buscarVisitantePorId(visitanteId);
+        if (visitante == null) return new Atraccion[0];
+        return visitante.getHistorialVisitas().toArray(Atraccion.class);
+    }
+
+    /**
+     * Recarga el saldo virtual de un visitante.
+     * 
+     * @param visitanteId ID del visitante
+     * @param monto Monto a recargar
+     * @return Mensaje de confirmación o error
+     */
+    public String recargarSaldo(String visitanteId, int monto) {
+        Visitante visitante = buscarVisitantePorId(visitanteId);
+        if (visitante == null) return "❌ Error: Visitante no encontrado.";
+        if (monto <= 0) return "⚠️ El monto debe ser positivo.";
+
+        visitante.setSaldoVirtual(visitante.getSaldoVirtual() + monto);
+        return "✅ Recarga exitosa. Nuevo saldo: $" + visitante.getSaldoVirtual();
+    }
+
+    /**
+     * Inicia mantenimiento en una atracción.
+     * 
+     * @param atraccionId ID de la atracción
+     * @return Mensaje de confirmación o error
+     */
+    public String iniciarMantenimiento(String atraccionId) {
+        Atraccion atraccion = catalogoAtracciones.buscarPorId(atraccionId);
+        if (atraccion == null) return "❌ Error: Atracción no encontrada.";
+
+        atraccion.setEstado(EstadoAtraccion.EN_MANTENIMIENTO);
+        atraccion.setMotivoCierre("Mantenimiento programado por operador");
+        return "✅ " + atraccion.getNombre() + " marcada como EN MANTENIMIENTO.";
+    }
+
+    /**
+     * Registra una revisión técnica satisfactoria en una atracción.
+     * Vuelve a activar la atracción y reinicia el contador de visitas.
+     * 
+     * @param atraccionId ID de la atracción
+     * @return Mensaje de confirmación o error
+     */
+    public String registrarRevision(String atraccionId) {
+        Atraccion atraccion = catalogoAtracciones.buscarPorId(atraccionId);
+        if (atraccion == null) return "❌ Error: Atracción no encontrada.";
+
+        if (atraccion.getEstado() != EstadoAtraccion.EN_MANTENIMIENTO) {
+            return "⚠️ " + atraccion.getNombre() + " no está en mantenimiento.";
+        }
+
+        atraccion.registrarRevisionTecnica();
+        return "✅ Revisión técnica completada. " + atraccion.getNombre() + " está ACTIVA nuevamente.";
+    }
+
+    /**
      * Obtiene el arreglo de zonas del parque.
      * 
      * @return Arreglo de zonas
