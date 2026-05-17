@@ -1,8 +1,8 @@
 * [ ] MEMORIA PERSISTENTE - PROYECTO TECH-PARK UQ
 
 **Fecha de creación:** 07 de mayo de 2026
-**Última actualización:** 16 de mayo de 2026 - FASE 1 IMPLEMENTADA (Reportes y Estadísticas)
-**Estado del proyecto:** 85-90% de avance estimado
+**Última actualización:** 16 de mayo de 2026 - FASE 6 IMPLEMENTADA (Pruebas unitarias JUnit 5)
+**Estado del proyecto:** ~95% de avance estimado
 **Modo actual:** BUILD
 
 ---
@@ -139,7 +139,7 @@ TECH-PARK_UQ-PF-ESTRUCTURA-DE-DATOS-02-D-/
 │       │       ├── senderos.json          # 3 aristas (17 líneas)
 │       │       └── usuarios.json          # 1 visitante de prueba (13 líneas)
 │       │
-│       └── test/                          # ❌ VACÍO - Sin pruebas unitarias
+│       └── test/                          # ✅ 21 tests (ListaEnlazada, ColaPrioridad, ABB, Grafo)
 │
 ├── info/                                  # 8 documentos de documentación
 │   ├── MEMORIA_PERSISTENTE.md             # ESTE ARCHIVO
@@ -404,6 +404,9 @@ TECH-PARK_UQ-PF-ESTRUCTURA-DE-DATOS-02-D-/
 | 🆕 POST | `/api/parque/agregar-favorito`| `visitanteId`, `atraccionId`                 | `ResponseEntity<String>`        | Agregar atracción a favoritos       |
 | 🆕 POST | `/api/parque/eliminar-favorito`| `visitanteId`, `atraccionId`                | `ResponseEntity<String>`        | Eliminar atracción de favoritos     |
 | 🆕 GET  | `/api/parque/mis-favoritos`   | `visitanteId`                                  | `Atraccion[]`                 | Listar favoritos del visitante      |
+| 🆕 GET  | `/api/parque/historial`      | `visitanteId`                                  | `Atraccion[]`                 | Historial de visitas del visitante  |
+| 🆕 POST | `/api/parque/recargar-saldo` | `visitanteId`, `monto`                        | `ResponseEntity<String>`        | Recargar saldo virtual              |
+| 🆕 POST | `/api/parque/mantenimiento`  | `atraccionId`, `accion`                      | `ResponseEntity<String>`        | Iniciar/revisar mantenimiento       |
 
 **`ReporteService.java`** (59 líneas — NUEVO)
 
@@ -612,7 +615,7 @@ NOTAS SOBRE TechPark.java:
 
 | #  | Requisito                                                   | Estado                                                          |
 | -- | ----------------------------------------------------------- | --------------------------------------------------------------- |
-| 1  | Mínimo 4 pruebas unitarias                                 | ❌ NO EXISTEN (directorio src/test/ vacío)                     |
+| 1  | Mínimo 4 pruebas unitarias                                 | ✅ 21 tests en 4 clases (ListaEnlazada, ColaPrioridad, ABB, Grafo) |
 | 2  | Estructuras de datos propias (sin ArrayList, HashMap, etc.) | ✅ CUMPLIDO (verificado en cada clase)                          |
 | 3  | Grupos de hasta 3 integrantes                               | ✅ 3 integrantes                                                |
 | 4  | Repositorio Git con mínimo 24 commits por integrante       | ❌ INCUMPLIDO (~12 commits totales)                             |
@@ -645,6 +648,9 @@ NOTAS SOBRE TechPark.java:
 | POST    | `/api/parque/agregar-favorito` | `visitanteId`, `atraccionId`               | `ResponseEntity<String>`      | ✅ 🆕       |
 | POST    | `/api/parque/eliminar-favorito`| `visitanteId`, `atraccionId`               | `ResponseEntity<String>`      | ✅ 🆕       |
 | GET     | `/api/parque/mis-favoritos`  | `visitanteId`                                  | `Atraccion[]`                | ✅ 🆕       |
+| GET     | `/api/parque/historial`    | `visitanteId`                                  | `Atraccion[]`                | ✅ 🆕       |
+| POST    | `/api/parque/recargar-saldo`| `visitanteId`, `monto`                       | `ResponseEntity<String>`      | ✅ 🆕       |
+| POST    | `/api/parque/mantenimiento` | `atraccionId`, `accion`                     | `ResponseEntity<String>`      | ✅ 🆕       |
 
 ### Endpoints Pendientes según PDF
 
@@ -728,14 +734,14 @@ e52d4af Merge branch 'main' into erwin_dev
 | Estructuras de datos propias (5)          | 100%          | ListaEnlazada, ABB, Grafo, ColaPrioridad, FavoritosSet      |
 | Algoritmo Dijkstra                        | 100%          | Implementado en Grafo.calcularRutaOptima                    |
 | Persistencia JSON                         | 100%          | Carga desde JSON + botón en frontend                       |
-| Backend REST (15 endpoints)               | 85%           | 15 de ~15 endpoints requeridos                              |
+| Backend REST (18 endpoints)               | 95%           | 18 de ~15+ endpoints requeridos                             |
 | Frontend (React)                          | 65%           | Dashboard funcional + sección reportes Admin                |
 | Mapa interactivo SVG                      | 90%           | Renderiza grafo, resalta rutas, colorea por estado          |
 | Lógica de tickets (Fast-Pass vs General) | 70%           | Prioridad implementada en cola, lógica de FAMILIAR ausente |
 | Alertas climáticas                       | 50%           | Cierre implementado, notificaciones no                      |
 | Reportes y estadísticas                  | 85%           | ReporteService completo + 2 endpoints + frontend Admin    |
 | Gestión de empleados                     | 30%           | Modelos creados, sin endpoints de CRUD                      |
-| Pruebas unitarias (mínimo 4)             | 0%            | No existen                                                  |
+| Pruebas unitarias (mínimo 4)             | 100%          | 21 tests en 4 clases (ListaEnlazada(6), ColaPrioridad(5), ABB(5), Grafo(5)) |
 | Diagrama de clases                        | 0%            | No existe                                                   |
 | Diagrama de estructuras propias           | 0%            | No existe                                                   |
 | Commits (24 por integrante)               | 25%           | ~18 de 72 requeridos                                        |
@@ -750,7 +756,7 @@ e52d4af Merge branch 'main' into erwin_dev
 
 | # | Funcionalidad                                              | Dónde debería ir | Prioridad |
 | - | ---------------------------------------------------------- | ------------------ | --------- |
-| 1 | **Pruebas unitarias** (mínimo 4)                    | `src/test/java/` | 🔴 Alta   |
+| 1 | **Pruebas unitarias** (mínimo 4)                    | `src/test/java/` | ✅ Hecho   |
 | 2 | **Diagrama de clases UML**                           | `info/` o raíz  | 🔴 Alta   |
 | 3 | **Diagrama de estructuras propias**                  | `info/` o raíz  | 🔴 Alta   |
 | 4 | **Aumentar commits a 24 por integrante**             | Git history        | 🔴 Alta   |
@@ -764,11 +770,11 @@ e52d4af Merge branch 'main' into erwin_dev
 | 7  | **Comprar tickets**                               | ✅ `comprarTicket()` + endpoint + frontend                  | —                                                                             |
 | 8  | **Ticket Familiar**                               | ✅ Implementado (edad >= 18, $45,000, descuento grupal)   | —                                                                             |
 | 9  | **Gestión de favoritos**             | ✅ 3 endpoints REST + botón ❤️ en frontend + sección Mis Favoritos | —                                                                             |
-| 10 | **Historial de visitas en frontend**              | ListaEnlazada en Visitante                               | No hay endpoint ni visualización en frontend                                  |
+| 10 | **Historial de visitas**              | ✅ Endpoint + sección frontend en Visitante                 | —                                                                             |
 | 11 | **CRUD de empleados**                             | Modelos Administrador/Operador/Empleado existen          | No hay endpoints para crear/modificar/asignar empleados                        |
 | 12 | **Reportes** (ingresos, visitas, espera, cierres) | ✅ ReporteService.java completo + 2 endpoints              | Frontend: gráficos dinámicos (Chart.js) pendientes                           |
 | 13 | **Notificaciones climáticas**                    | activarAlertaClimatica cierra atracciones                | No notifica a visitantes afectados                                             |
-| 14 | **Recargar saldo virtual**                        | Visitante.saldoVirtual con setter                        | No hay endpoint ni UI para recargar                                            |
+| 14 | **Recargar saldo virtual**                        | ✅ Endpoint + frontend con selector de montos              | —                                                                             |
 | 15 | **Endpoint de senderos**                          | Senderos hardcodeados en frontend                        | No hay GET /api/parque/senderos                                                |
 
 10.3 Frontend Pendiente
@@ -776,8 +782,8 @@ e52d4af Merge branch 'main' into erwin_dev
 | #  | Funcionalidad                      | Estado                             | Lo que falta                                          |
 | -- | ---------------------------------- | ---------------------------------- | ----------------------------------------------------- |
 | 16 | Panel de Administrador completo    | Sección reportes implementada     | Gestión de empleados, zonas, alertas pendientes       |
-| 17 | Panel de Empleado completo         | Ver cola + Procesar Siguiente implementados | Registrar mantenimiento/revisión pendiente           |
-| 18 | Panel de Visitante completo        | Ruta + fila + tiquete + favoritos implementados | Historial, recargar saldo                          |
+| 17 | Panel de Empleado completo         | ✅ Cola + Procesar + Mantenimiento + Revisión implementados | —                                                                             |
+| 18 | Panel de Visitante completo        | ✅ Ruta + fila + tiquete + favoritos + historial + recarga | —                                                                             |
 | 19 | Gráficos estadísticos            | 5 tarjetas (ingresos, visitas, espera, cierres, alertas) | Gráficos con Chart.js / Recharts pendientes           |
 | 20 | Indicadores en tiempo real         | No implementados                   | Personas en cola, tiempo estimado                     |
 | 21 | Endpoint de senderos para frontend | Hardcoded en App.jsx               | Crear GET /api/parque/senderos                        |
@@ -800,7 +806,7 @@ e52d4af Merge branch 'main' into erwin_dev
 
 ### 11.2 Recomendaciones
 
-1. **Priorizar pruebas unitarias**: 4 tests mínimos (ListaEnlazada, ABB, ColaPrioridad, Grafo/Dijkstra)
+1. ~~**Priorizar pruebas unitarias**: 4 tests mínimos (ListaEnlazada, ABB, ColaPrioridad, Grafo/Dijkstra)~~ ✅ Completado
 2. **Migrar a conventional commits**: Usar `git rebase -i` o commits nuevos con prefijos
 3. **Crear diagramas**: Draw.io o PlantUML para clases y estructuras
 4. **Completar endpoints REST**: ~~Reportes~~ ✅ hechos. Pendientes: gestión de empleados, favoritos, tickets
@@ -824,6 +830,9 @@ e52d4af Merge branch 'main' into erwin_dev
 - ✅ **GESTIÓN DE COLAS: COMPLETO** (procesarSiguiente + endpoint + frontend Empleado)
 - ✅ **COMPRA DE TICKETS: COMPLETO** (comprarTicket + 2 endpoints + frontend Visitante + lógica Familiar)
 - ✅ **FAVORITOS: COMPLETO** (3 endpoints + botón ❤️ en frontend + sección Mis Favoritos)
+- ✅ **HISTORIAL DE VISITAS: COMPLETO** (endpoint + frontend Visitante)
+- ✅ **RECARGA DE SALDO: COMPLETO** (endpoint + frontend con selector de montos)
+- ✅ **PANEL EMPLEADO: COMPLETO** (cola, procesar, mantenimiento, revisión)
 - ❌ PRUEBAS UNITARIAS: PENDIENTES (0 de 4)
 - ❌ DIAGRAMAS: PENDIENTES (clases y estructuras)
 - ❌ COMMITS: INSUFICIENTES (~18 de 72 requeridos)
@@ -838,8 +847,8 @@ e52d4af Merge branch 'main' into erwin_dev
 1. ✅ ~~FASE 2: Gestión de Colas — endpoint `procesarSiguiente()` para desencolar~~
 2. ✅ ~~FASE 3: Tickets — endpoint `comprarTicket()` + lógica Familiar~~
 3. ✅ ~~FASE 4: Favoritos — endpoints REST + frontend~~
-4. FASE 5: Frontend — historial de visitas, recargar saldo, panel Empleado
-5. FASE 6: Pruebas unitarias (mínimo 4 con JUnit 5)
+4. ✅ ~~FASE 5: Frontend — historial de visitas, recargar saldo, panel Empleado~~
+5. ✅ ~~FASE 6: Pruebas unitarias (21 tests con JUnit 5)~~
 6. FASE 7: Diagramas de clases y estructuras
 
 ---

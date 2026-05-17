@@ -137,6 +137,36 @@ public class ParqueController {
         return ResponseEntity.ok(favoritas);
     }
 
+    @GetMapping("/historial")
+    public ResponseEntity<Atraccion[]> getHistorial(@RequestParam String visitanteId) {
+        Atraccion[] historial = techPark.getHistorial(visitanteId);
+        return ResponseEntity.ok(historial);
+    }
+
+    @PostMapping("/recargar-saldo")
+    public ResponseEntity<String> recargarSaldo(@RequestParam String visitanteId,
+                                                 @RequestParam int monto) {
+        String mensaje = techPark.recargarSaldo(visitanteId, monto);
+        return ResponseEntity.ok(mensaje);
+    }
+
+    @PostMapping("/mantenimiento")
+    public ResponseEntity<String> mantenimiento(@RequestParam String atraccionId,
+                                                 @RequestParam String accion) {
+        String mensaje;
+        switch (accion) {
+            case "iniciar":
+                mensaje = techPark.iniciarMantenimiento(atraccionId);
+                break;
+            case "revisar":
+                mensaje = techPark.registrarRevision(atraccionId);
+                break;
+            default:
+                return ResponseEntity.badRequest().body("❌ Acción inválida. Use 'iniciar' o 'revisar'.");
+        }
+        return ResponseEntity.ok(mensaje);
+    }
+
     @GetMapping("/reportes/diario")
     public ResponseEntity<Reporte> getReporteDiario() {
         Reporte reporte = reporteService.generarReporteDiario(techPark.getListaAtracciones());

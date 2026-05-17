@@ -23,6 +23,10 @@ function App() {
   const [misTiquetes, setMisTiquetes] = useState([])
   const [favoritos, setFavoritos] = useState([])
   const [mensajeFav, setMensajeFav] = useState('')
+  const [historial, setHistorial] = useState([])
+  const [montoRecarga, setMontoRecarga] = useState(10000)
+  const [mensajeRecarga, setMensajeRecarga] = useState('')
+  const [mensajeMant, setMensajeMant] = useState('')
 
   const fetchDatosBase = () => {
     fetch('http://localhost:8080/api/parque/atracciones')
@@ -106,6 +110,36 @@ function App() {
       .catch(err => console.error("Error cargando favoritos:", err))
   }
 
+  const fetchHistorial = () => {
+    const vid = selectedUser || 'V1'
+    fetch(`http://localhost:8080/api/parque/historial?visitanteId=${vid}`)
+      .then(res => res.json())
+      .then(data => setHistorial(data))
+      .catch(err => console.error("Error cargando historial:", err))
+  }
+
+  const recargarSaldo = () => {
+    const vid = selectedUser || 'V1'
+    fetch(`http://localhost:8080/api/parque/recargar-saldo?visitanteId=${vid}&monto=${montoRecarga}`, {
+      method: 'POST'
+    })
+      .then(res => res.text())
+      .then(data => setMensajeRecarga(data))
+      .catch(err => setMensajeRecarga('❌ Error: ' + err))
+  }
+
+  const toggleMantenimiento = (atraccionId, accion) => {
+    fetch(`http://localhost:8080/api/parque/mantenimiento?atraccionId=${atraccionId}&accion=${accion}`, {
+      method: 'POST'
+    })
+      .then(res => res.text())
+      .then(data => {
+        setMensajeMant(data)
+        fetchDatosBase()
+      })
+      .catch(err => setMensajeMant('❌ Error: ' + err))
+  }
+
   const toggleFavorito = (atraccionId, esFavorito) => {
     const vid = selectedUser || 'V1'
     const accion = esFavorito ? 'eliminar-favorito' : 'agregar-favorito'
@@ -167,6 +201,7 @@ function App() {
     if (view === 'dashboard' && selectedRole === 'Visitante' && selectedUser) {
       fetchMisTiquetes();
       fetchFavoritos();
+      fetchHistorial();
     }
   }, [view, selectedRole, selectedUser])
 
@@ -323,8 +358,17 @@ function App() {
                           <div className="action-buttons">
                             <span className="cola-badge">{atr.colaSize} en cola</span>
                             <button className="btn-mini fast" onClick={() => procesarFila(atr.id)}>
-                              Procesar Siguiente
+                              Procesar
                             </button>
+                            {atr.estado === 'ACTIVA' ? (
+                              <button className="btn-mini warn" onClick={() => toggleMantenimiento(atr.id, 'iniciar')}>
+                                Mantenimiento
+                              </button>
+                            ) : atr.estado === 'EN_MANTENIMIENTO' ? (
+                              <button className="btn-mini success" onClick={() => toggleMantenimiento(atr.id, 'revisar')}>
+                                Revisar
+                              </button>
+                            ) : null}
                           </div>
                         )}
                       </td>
@@ -339,6 +383,11 @@ function App() {
         {selectedRole === 'Empleado' && mensajeProcesar && (
           <div className="procesar-mensaje">
             {mensajeProcesar}
+          </div>
+        )}
+        {selectedRole === 'Empleado' && mensajeMant && (
+          <div className={`procesar-mensaje ${mensajeMant.includes('✅') ? '' : ''}`}>
+            {mensajeMant}
           </div>
         )}
 
@@ -420,6 +469,48 @@ function App() {
                           <td><strong>{f.nombre}</strong></td>
                           <td>{f.tipo}</td>
                           <td><span className={`badge estado-${f.estado.toLowerCase()}`}>{f.estado}</span></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+            <div className="recarga-section">
+              <h3>💰 Recargar Saldo</h3>
+              <div className="recarga-controls">
+                <select value={montoRecarga} onChange={(e) => setMontoRecarga(Number(e.target.value))}>
+                  <option value={10000}>$10,000</option>
+                  <option value={20000}>$20,000</option>
+                  <option value={50000}>$50,000</option>
+                  <option value={100000}>$100,000</option>
+                </select>
+                <button className="btn-action" onClick={recargarSaldo}>Recargar</button>
+              </div>
+              {mensajeRecarga && (
+                <div className={`ticket-mensaje ${mensajeRecarga.includes('✅') ? 'exito' : 'error'}`}>
+                  {mensajeRecarga}
+                </div>
+              )}
+            </div>
+            {historial.length > 0 && (
+              <div className="mis-tiquetes">
+                <h3>📋 Historial de Visitas</h3>
+                <div className="table-wrapper">
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Atracción</th>
+                        <th>Tipo</th>
+                        <th>Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {historial.map(h => (
+                        <tr key={h.id}>
+                          <td><strong>{h.nombre}</strong></td>
+                          <td>{h.tipo}</td>
+                          <td><span className={`badge estado-${h.estado.toLowerCase()}`}>{h.estado}</span></td>
                         </tr>
                       ))}
                     </tbody>
