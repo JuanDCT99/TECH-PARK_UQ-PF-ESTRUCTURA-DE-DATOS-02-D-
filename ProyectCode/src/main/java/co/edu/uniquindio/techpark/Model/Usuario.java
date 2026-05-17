@@ -1,13 +1,21 @@
 package co.edu.uniquindio.techpark.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 
 public class Usuario {
     private String id;
     private String nombre;
     private String correo;
+    @JsonIgnore
     private String contrasena;
     private LocalDateTime fechaRegistro;
+
+    /**
+     * Constructor sin argumentos necesario para deserialización JSON con Jackson.
+     */
+    public Usuario() {
+    }
 
     public Usuario(String id, String nombre, String correo, String contrasena, LocalDateTime fechaRegistro) {
         this.id = id;

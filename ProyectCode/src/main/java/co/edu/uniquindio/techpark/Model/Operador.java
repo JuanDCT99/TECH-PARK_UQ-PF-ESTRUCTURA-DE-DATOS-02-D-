@@ -33,7 +33,7 @@ public class Operador extends Empleado {
      * Solo puede hacerlo si la atracción pertenece a su zona asignada.
      */
     public void registrarRevisionTecnica(Atraccion atraccion) {
-        if (zonaAsignada != null && zonaAsignada.getListaAtracciones().contains(atraccion)) {
+        if (zonaAsignada != null && zonaAsignada.getListaAtracciones().contiene(atraccion)) {
             atraccion.registrarRevisionTecnica();
             System.out.println("Revisión técnica registrada por " + getNombre() + " para " + atraccion.getNombre());
         } else {

@@ -1,0 +1,35 @@
+[
+  {
+    "id": "V1",
+    "nombre": "Juan Pérez",
+    "documento": "12345678",
+    "correo": "juan@email.com",
+    "contrasena": "1234",
+    "edad": 25,
+    "estatura": 1.75,
+    "saldoVirtual": 50000,
+    "tipo": "VISITANTE"
+  },
+  {
+    "id": "V2",
+    "nombre": "María García",
+    "documento": "87654321",
+    "correo": "maria@email.com",
+    "contrasena": "1234",
+    "edad": 22,
+    "estatura": 1.65,
+    "saldoVirtual": 75000,
+    "tipo": "VISITANTE"
+  },
+  {
+    "id": "V3",
+    "nombre": "Carlos López",
+    "documento": "11223344",
+    "correo": "carlos@email.com",
+    "contrasena": "1234",
+    "edad": 30,
+    "estatura": 1.80,
+    "saldoVirtual": 30000,
+    "tipo": "VISITANTE"
+  }
+]
