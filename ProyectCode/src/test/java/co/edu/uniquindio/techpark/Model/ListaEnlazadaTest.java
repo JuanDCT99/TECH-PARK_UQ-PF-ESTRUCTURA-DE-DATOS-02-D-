@@ -2,8 +2,6 @@ package co.edu.uniquindio.techpark.Model;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
-import java.util.NoSuchElementException;
-
 class ListaEnlazadaTest {
 
     @Test
