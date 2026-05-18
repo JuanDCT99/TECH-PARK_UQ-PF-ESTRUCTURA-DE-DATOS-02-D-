@@ -1,5 +1,4 @@
 import React from 'react';
-
 /**
  * Componente MapaParque: Visualiza el Grafo del parque usando SVG.
  * 
@@ -8,7 +7,7 @@ import React from 'react';
  * @param {Object} rutaResaltada - Resultado de Dijkstra (camino de IDs y peso)
  * @param {Function} onNodoClick - Función al hacer click en una atracción
  */
-const MapaParque = ({ atracciones, senderos, rutaResaltada, onNodoClick }) => {
+export function MapaParque({ atracciones, senderos, rutaResaltada, onNodoClick }) {
   const width = 500;
   const height = 400;
 
@@ -83,5 +82,4 @@ const MapaParque = ({ atracciones, senderos, rutaResaltada, onNodoClick }) => {
     </div>
   );
 };
-
 export default MapaParque;
