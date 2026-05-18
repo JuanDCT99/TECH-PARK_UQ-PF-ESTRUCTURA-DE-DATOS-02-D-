@@ -1,5 +1,4 @@
 package co.edu.uniquindio.techpark.service;
-
 /**
  * Clase auxiliar para mapear senderos desde JSON (para Grafo - Fase 3).
  * Representa una arista en el grafo: conexión entre dos atracciones.
