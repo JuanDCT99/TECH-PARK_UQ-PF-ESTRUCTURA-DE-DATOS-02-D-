@@ -61,8 +61,18 @@ public class Tiquete {
         this.propietario = propietario;
     }
 
+    
+
     @Override
     public String toString() {
         return "Tiquete [ID=" + id + ", Tipo=" + tipo + ", Propietario=" + propietario.getCorreo() + "]";
+    }
+
+    public LocalDateTime getFechaCompra() {
+        return fechaCompra;
+    }
+
+    public void setFechaCompra(LocalDateTime fechaCompra) {
+        this.fechaCompra = fechaCompra;
     }
 }
