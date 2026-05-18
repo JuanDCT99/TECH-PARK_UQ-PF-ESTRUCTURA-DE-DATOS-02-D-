@@ -1,20 +1,18 @@
-package co.edu.uniquindio.techpark.controller;
+package co.edu.uniquindio.techpark.Controller;
 
 import co.edu.uniquindio.techpark.TechPark;
 import co.edu.uniquindio.techpark.Model.Atraccion;
 import co.edu.uniquindio.techpark.Model.Zona;
+import co.edu.uniquindio.techpark.service.ReporteService;
 import co.edu.uniquindio.techpark.Model.ResultadoRuta;
 import co.edu.uniquindio.techpark.Model.Reporte;
 import co.edu.uniquindio.techpark.Model.Usuario;
 import co.edu.uniquindio.techpark.Model.Tiquete;
 import co.edu.uniquindio.techpark.Model.TipoTiquete;
-import co.edu.uniquindio.techpark.service.ReporteService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/parque")

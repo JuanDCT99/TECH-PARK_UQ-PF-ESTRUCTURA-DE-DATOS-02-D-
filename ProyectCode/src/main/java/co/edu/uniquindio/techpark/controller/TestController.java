@@ -1,4 +1,4 @@
-package co.edu.uniquindio.techpark.controller;
+package co.edu.uniquindio.techpark.Controller;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;

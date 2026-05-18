@@ -1,4 +1,4 @@
-package co.edu.uniquindio.techpark.controller;
+package co.edu.uniquindio.techpark.Controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
