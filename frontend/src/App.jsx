@@ -26,6 +26,8 @@ function App() {
   const [mensajeRecarga, setMensajeRecarga] = useState('')
   const [mensajeMant, setMensajeMant] = useState('')
   const [visitorTab, setVisitorTab] = useState('tickets')
+  const [empleadoTab, setEmpleadoTab] = useState('colas')
+  const [adminTab, setAdminTab] = useState('reportes')
 
   const fetchDatosBase = () => {
     fetch('http://localhost:8080/api/parque/atracciones')
@@ -379,15 +381,121 @@ function App() {
           </section>
         </div>
 
-        {selectedRole === 'Empleado' && mensajeProcesar && (
-          <div className="procesar-mensaje">
-            {mensajeProcesar}
-          </div>
-        )}
-        {selectedRole === 'Empleado' && mensajeMant && (
-          <div className={`procesar-mensaje ${mensajeMant.includes('✅') ? '' : ''}`}>
-            {mensajeMant}
-          </div>
+        {selectedRole === 'Empleado' && (
+          <>
+            <div className="tab-bar">
+              <button className={`tab-btn ${empleadoTab === 'colas' ? 'active' : ''}`}
+                onClick={() => setEmpleadoTab('colas')}>
+                🎢 Gestión de Colas
+              </button>
+              <button className={`tab-btn ${empleadoTab === 'mantenimiento' ? 'active' : ''}`}
+                onClick={() => setEmpleadoTab('mantenimiento')}>
+                🔧 Mantenimiento
+              </button>
+            </div>
+
+            <div className="tab-content">
+              {empleadoTab === 'colas' && (
+                <div className="section-card">
+                  <h3>🎢 Colas de Espera</h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '0.8rem' }}>
+                    Atención prioritaria: Fast-Pass sale primero que General.
+                  </p>
+                  {mensajeProcesar && (
+                    <div className={`ticket-mensaje ${mensajeProcesar.includes('✅') || !mensajeProcesar.includes('Error') ? 'exito' : 'error'}`}>
+                      {mensajeProcesar}
+                    </div>
+                  )}
+                  <div className="table-wrapper">
+                    <table className="data-table">
+                      <thead>
+                        <tr>
+                          <th>Atracción</th>
+                          <th>Estado</th>
+                          <th>En Cola</th>
+                          <th>Acción</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {atracciones.filter(a => a.colaSize > 0).length === 0 ? (
+                          <tr>
+                            <td colSpan={4} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '1.5rem' }}>
+                              No hay visitantes en cola en este momento.
+                            </td>
+                          </tr>
+                        ) : (
+                          atracciones.filter(a => a.colaSize > 0).map(atr => (
+                            <tr key={atr.id}>
+                              <td><strong>{atr.nombre}</strong><br/><small>{atr.tipo}</small></td>
+                              <td>
+                                <span className={`badge estado-${atr.estado.toLowerCase()}`}>{atr.estado}</span>
+                              </td>
+                              <td><span className="cola-badge">{atr.colaSize}</span></td>
+                              <td>
+                                <button className="btn-mini fast" onClick={() => procesarFila(atr.id)}>
+                                  Procesar Siguiente
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {empleadoTab === 'mantenimiento' && (
+                <div className="section-card">
+                  <h3>🔧 Mantenimiento de Atracciones</h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '0.8rem' }}>
+                    Las atracciones se bloquean automáticamente tras 500 visitas.
+                  </p>
+                  {mensajeMant && (
+                    <div className={`ticket-mensaje ${mensajeMant.includes('✅') ? 'exito' : 'error'}`}>
+                      {mensajeMant}
+                    </div>
+                  )}
+                  <div className="table-wrapper">
+                    <table className="data-table">
+                      <thead>
+                        <tr>
+                          <th>Atracción</th>
+                          <th>Estado</th>
+                          <th>Visitas</th>
+                          <th>Acción</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {atracciones.map(atr => (
+                          <tr key={atr.id}>
+                            <td><strong>{atr.nombre}</strong><br/><small>{atr.tipo}</small></td>
+                            <td>
+                              <span className={`badge estado-${atr.estado.toLowerCase()}`}>{atr.estado}</span>
+                            </td>
+                            <td>{atr.contadorVisitantes || 0}</td>
+                            <td>
+                              {atr.estado === 'ACTIVA' ? (
+                                <button className="btn-mini warn" onClick={() => toggleMantenimiento(atr.id, 'iniciar')}>
+                                  Iniciar Mantenimiento
+                                </button>
+                              ) : atr.estado === 'EN_MANTENIMIENTO' ? (
+                                <button className="btn-mini success" onClick={() => toggleMantenimiento(atr.id, 'revisar')}>
+                                  Revisar y Reactivar
+                                </button>
+                              ) : (
+                                <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>No disponible</span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
         )}
 
         {selectedRole === 'Visitante' && selectedUser && (
@@ -568,60 +676,107 @@ function App() {
           </>
         )}
 
-        {selectedRole === 'Administrador' && reporteDiario && (
-          <section className="reports-section">
-            <h2>📊 Reportes del Parque</h2>
-            <div className="stats-grid">
-              <div className="stat-card">
-                <span className="stat-value">${reporteDiario.ingresosDiarios.toLocaleString()}</span>
-                <span className="stat-label">Ingresos Diarios</span>
-              </div>
-              <div className="stat-card">
-                <span className="stat-value">{reporteDiario.totalVisitantes}</span>
-                <span className="stat-label">Visitantes Totales</span>
-              </div>
-              <div className="stat-card">
-                <span className="stat-value">{reporteDiario.tiempoPromEspera.toFixed(1)} min</span>
-                <span className="stat-label">Tiempo Prom. Espera</span>
-              </div>
-              <div className="stat-card">
-                <span className="stat-value">{reporteDiario.cierresClima}</span>
-                <span className="stat-label">Cierres por Clima</span>
-              </div>
-              <div className="stat-card">
-                <span className="stat-value">{reporteDiario.alertasMantenimiento}</span>
-                <span className="stat-label">Alertas Mantenimiento</span>
-              </div>
+        {selectedRole === 'Administrador' && (
+          <>
+            <div className="tab-bar">
+              <button className={`tab-btn ${adminTab === 'reportes' ? 'active' : ''}`}
+                onClick={() => setAdminTab('reportes')}>
+                📊 Reportes
+              </button>
+              <button className={`tab-btn ${adminTab === 'gestion' ? 'active' : ''}`}
+                onClick={() => setAdminTab('gestion')}>
+                🔐 Gestión
+              </button>
             </div>
 
-            {populares.length > 0 && (
-              <div className="popular-section">
-                <h3>🏆 Atracciones Más Visitadas</h3>
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Atracción</th>
-                      <th>Tipo</th>
-                      <th>Visitas</th>
-                      <th>Ingresos Generados</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {populares.map((atr, idx) => (
-                      <tr key={atr.id}>
-                        <td>{idx + 1}</td>
-                        <td><strong>{atr.nombre}</strong></td>
-                        <td>{atr.tipo}</td>
-                        <td>{atr.contadorVisitantes}</td>
-                        <td>${(atr.contadorVisitantes * atr.costoAdicional).toLocaleString()}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
+            <div className="tab-content">
+              {adminTab === 'reportes' && reporteDiario && (
+                <div className="reports-section">
+                  <div className="stats-grid">
+                    <div className="stat-card">
+                      <span className="stat-value">${reporteDiario.ingresosDiarios.toLocaleString()}</span>
+                      <span className="stat-label">Ingresos Diarios</span>
+                    </div>
+                    <div className="stat-card">
+                      <span className="stat-value">{reporteDiario.totalVisitantes}</span>
+                      <span className="stat-label">Visitantes Totales</span>
+                    </div>
+                    <div className="stat-card">
+                      <span className="stat-value">{reporteDiario.tiempoPromEspera.toFixed(1)} min</span>
+                      <span className="stat-label">Tiempo Prom. Espera</span>
+                    </div>
+                    <div className="stat-card">
+                      <span className="stat-value">{reporteDiario.cierresClima}</span>
+                      <span className="stat-label">Cierres por Clima</span>
+                    </div>
+                    <div className="stat-card">
+                      <span className="stat-value">{reporteDiario.alertasMantenimiento}</span>
+                      <span className="stat-label">Alertas Mantenimiento</span>
+                    </div>
+                  </div>
+
+                  {populares.length > 0 && (
+                    <div className="popular-section" style={{ marginTop: '1.5rem' }}>
+                      <h3>🏆 Atracciones Más Visitadas</h3>
+                      <div className="table-wrapper">
+                        <table className="data-table">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Atracción</th>
+                              <th>Tipo</th>
+                              <th>Visitas</th>
+                              <th>Ingresos</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {populares.map((atr, idx) => (
+                              <tr key={atr.id}>
+                                <td>{idx + 1}</td>
+                                <td><strong>{atr.nombre}</strong></td>
+                                <td>{atr.tipo}</td>
+                                <td>{atr.contadorVisitantes}</td>
+                                <td>${(atr.contadorVisitantes * atr.costoAdicional).toLocaleString()}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {adminTab === 'reportes' && !reporteDiario && (
+                <div className="section-card">
+                  <h3>📊 Reportes del Parque</h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                    Cargando reportes... Si el problema persiste, haz clic en 🔄 Sincronizar Datos.
+                  </p>
+                </div>
+              )}
+
+              {adminTab === 'gestion' && (
+                <div className="section-card">
+                  <h3>🔐 Gestión del Parque</h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1rem' }}>
+                    Panel de administración — próximamente: gestión de empleados, zonas y alertas climáticas.
+                  </p>
+                  <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap' }}>
+                    <button className="btn-action" disabled style={{ opacity: 0.6, cursor: 'not-allowed' }}>
+                      👥 Gestionar Empleados
+                    </button>
+                    <button className="btn-action" disabled style={{ opacity: 0.6, cursor: 'not-allowed' }}>
+                      🗺️ Gestionar Zonas
+                    </button>
+                    <button className="btn-action" disabled style={{ opacity: 0.6, cursor: 'not-allowed' }}>
+                      🌤️ Alertas Climáticas
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
         )}
       </main>
     </div>
