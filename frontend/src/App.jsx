@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
 import './App.css'
 import MapaParque from './components/MapaParque'
+import { LoginView } from './components/LoginView'
+import { RegistroView } from './components/RegistroView'
 
 function App() {
-  const [view, setView] = useState('welcome') // 'welcome', 'role-selection', 'dashboard'
+  const [view, setView] = useState('welcome') // 'welcome', 'role-selection', 'login', 'registro', 'dashboard'
   const [selectedRole, setSelectedRole] = useState(null)
+  const [usuario, setUsuario] = useState(null)
   const [atracciones, setAtracciones] = useState([])
   const [senderos, setSenderos] = useState([])
   const [estadoParque, setEstadoParque] = useState('CARGANDO...')
@@ -206,13 +209,19 @@ function App() {
     }
   }, [view, selectedRole, selectedUser])
 
+  useEffect(() => {
+    if (usuario?.id && view === 'dashboard') {
+      setSelectedUser(usuario.id);
+    }
+  }, [usuario, view])
+
   const handleStart = () => {
     setView('role-selection')
   }
 
   const handleRoleSelect = (role) => {
     setSelectedRole(role)
-    setView('dashboard')
+    setView('login')
   }
 
   if (view === 'welcome') {
@@ -263,11 +272,37 @@ function App() {
     )
   }
 
+  if (view === 'login') {
+    return (
+      <LoginView
+        rolSeleccionado={selectedRole}
+        alIniciarSesion={(data) => {
+          setUsuario(data);
+          setView('dashboard');
+        }}
+        alCambiarDeVista={setView}
+      />
+    )
+  }
+
+  if (view === 'registro') {
+    return (
+      <RegistroView
+        rolSeleccionado={selectedRole}
+        alCambiarDeVista={setView}
+      />
+    )
+  }
+
   return (
     <div className="dashboard-container">
       <nav className="navbar">
-        <h2>TECH-PARK | {selectedRole}</h2>
-        <button className="btn-logout" onClick={() => setView('role-selection')}>Cerrar Sesión</button>
+        <h2>TECH-PARK | {usuario?.nombre || selectedRole}</h2>
+        <button className="btn-logout" onClick={() => {
+          fetch('http://localhost:8080/api/auth/logout', { method: 'POST' }).catch(() => {});
+          setUsuario(null);
+          setView('role-selection');
+        }}>Cerrar Sesión</button>
       </nav>
       
       <main className="main-content">

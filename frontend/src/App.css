@@ -32,6 +32,188 @@ body {
   overflow-x: hidden;
 }
 
+/* ==========================================
+   AUTH - LOGIN / REGISTRO
+   ========================================== */
+
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #FFF0E8 0%, #FFF5F0 50%, #F0F8FF 100%);
+  padding: 2rem;
+}
+
+.auth-card {
+  background: var(--card-bg);
+  border-radius: 20px;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 440px;
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-hover);
+  animation: cardEntrance 0.5s ease-out;
+}
+
+@keyframes cardEntrance {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.auth-emoji {
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.auth-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-align: center;
+  color: var(--text-main);
+  margin-bottom: 0.3rem;
+}
+
+.auth-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.auth-role-badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+.auth-role-badge.role-visitante { background: #E8F0FF; color: #4A7AB0; }
+.auth-role-badge.role-empleado { background: #FFF0E8; color: #B07040; }
+.auth-role-badge.role-administrador { background: #F0E8FF; color: #7A4AB0; }
+
+.auth-error {
+  background: #FFE8E8;
+  border: 1px solid var(--danger);
+  color: #B05050;
+  padding: 0.7rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.auth-msg {
+  padding: 0.7rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.auth-msg.exito { background: #E8F5E8; border: 1px solid var(--success); color: #4A8A4A; }
+.auth-msg.error { background: #FFE8E8; border: 1px solid var(--danger); color: #B05050; }
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.35rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border-radius: 10px;
+  border: 1.5px solid var(--card-border);
+  background: #FFFAF8;
+  font-size: 0.9rem;
+  color: var(--text-main);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  border-color: #FF9F43;
+  box-shadow: 0 0 0 3px rgba(255, 159, 67, 0.15);
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+.auth-submit {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 25px;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+
+.auth-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.auth-submit.role-visitante {
+  background: linear-gradient(135deg, #74B9FF, #48DBFB);
+}
+
+.auth-submit.role-empleado {
+  background: linear-gradient(135deg, #FF9F43, #FECA57);
+}
+
+.auth-submit.role-administrador {
+  background: linear-gradient(135deg, #A29BFE, #FF6B9D);
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 1.2rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.auth-link {
+  background: none;
+  border: none;
+  color: #FF6B6B;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+.auth-link.back {
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin-top: 1rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
 /* LAYOUT PRINCIPAL */
 .dashboard-container {
   display: flex;
@@ -62,6 +244,9 @@ body {
   flex: 1;
   padding: 1.5rem 2rem;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .dashboard-header {
@@ -71,6 +256,8 @@ body {
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
   gap: 0.75rem;
+  max-width: 1200px;
+  width: 100%;
 }
 
 .dashboard-header h1 {
@@ -89,6 +276,8 @@ body {
   display: grid;
   grid-template-columns: 1.2fr 1fr;
   gap: 1.5rem;
+  max-width: 1200px;
+  width: 100%;
 }
 
 .card {
@@ -109,6 +298,8 @@ body {
   padding: 0.35rem;
   border: 1px solid var(--card-border);
   box-shadow: var(--shadow-soft);
+  max-width: 1200px;
+  width: 100%;
 }
 
 .tab-btn {
@@ -140,6 +331,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  max-width: 1200px;
+  width: 100%;
 }
 
 /* MAPA SVG */
@@ -689,6 +882,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  max-width: 1200px;
+  width: 100%;
 }
 
 .stats-grid {
