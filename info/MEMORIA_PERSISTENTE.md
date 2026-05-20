@@ -1,9 +1,9 @@
 * [ ] MEMORIA PERSISTENTE - PROYECTO TECH-PARK UQ
 
 **Fecha de creación:** 07 de mayo de 2026
-**Última actualización:** 16 de mayo de 2026 — Análisis completo de avance post-FASE 6
-**Estado del proyecto:** ~90-92% de avance estimado
-**Modo actual:** BUILD
+**Última actualización:** 20 de mayo de 2026 — Auth reescrito con ListaEnlazada + login contextual + layout centrado
+**Estado del proyecto:** ~97% de avance estimado
+**Modo actual:** BUILD — Estabilización
 
 ---
 
@@ -37,7 +37,7 @@ Sistema de gestión integral para el parque de diversiones **TECH-PARK UQ** de l
 
 ---
 
-## 2. ESTRUCTURA COMPLETA DEL PROYECTO (48 ARCHIVOS DE CÓDIGO)
+## 2. ESTRUCTURA COMPLETA DEL PROYECTO (52 ARCHIVOS DE CÓDIGO)
 
 ```
 TECH-PARK_UQ-PF-ESTRUCTURA-DE-DATOS-02-D-/
@@ -66,10 +66,11 @@ TECH-PARK_UQ-PF-ESTRUCTURA-DE-DATOS-02-D-/
 │       ├── main/
 │       │   ├── java/co/edu/uniquindio/techpark/
 │       │   │   ├── App.java               # SpringApplication.run() (14 líneas)
-│       │   │   ├── TechPark.java          # ORQUESTADOR CENTRAL (604 líneas)
+│       │   │   ├── TechPark.java          # ORQUESTADOR CENTRAL (~610 líneas)
 │       │   │   │
-│       │   │   ├── controller/            # 3 clases, 262 líneas total
-│       │   │   │   ├── ParqueController.java      # 18 endpoints REST (181 líneas)
+│       │   │   ├── controller/            # 4 clases, ~290 líneas total
+│       │   │   │   ├── ParqueController.java      # 18 endpoints REST (179 líneas)
+│       │   │   │   ├── AuthController.java        # POST /api/auth/login, registro, logout (~60 líneas)
 │       │   │   │   ├── GlobalExceptionHandler.java # @ControllerAdvice (57 líneas)
 │       │   │   │   └── TestController.java         # /api/test (24 líneas)
 │       │   │   │
@@ -133,7 +134,14 @@ TECH-PARK_UQ-PF-ESTRUCTURA-DE-DATOS-02-D-/
 │       │   │   │   │                      #   alertasMantenimiento (79 líneas)
 │       │   │   │   └── RevisionTecnica.java # id, atraccion, operador, fecha, aprovada (68 líneas)
 │       │   │   │
-│       │   │   └── service/               # 3 clases, 198 líneas total
+│       │   │   └── service/               # 4 clases, ~320 líneas total
+│       │   │       ├── implement/              # Implementaciones estructuras
+│       │   │       │   ├── ListaEnlazada.java
+│       │   │       │   ├── ABB.java
+│       │   │       │   └── Grafo.java
+│       │   │       ├── AuthService.java        # @Service auth con ListaEnlazada<Usuario> (~120 líneas)
+│       │   │       ├── TechParkService.java    # Lógica de negocio (conexiones, reservas) (472 líneas)
+│       │   │       └── FachadaServicios.java   # Fachada unificada (105 líneas)
 │       │   │       ├── DatosService.java  # JSON loader con Jackson (97 líneas)
 │       │   │       ├── ReporteService.java# Generación de reportes y estadísticas (59 líneas)
 │       │   │       └── Sender.java        # DTO: origen, destino, peso (42 líneas)
@@ -173,7 +181,7 @@ TECH-PARK_UQ-PF-ESTRUCTURA-DE-DATOS-02-D-/
 
 ---
 
-### 3.2 Capa de Servicio (`service/` — 3 archivos, 198 líneas)
+### 3.2 Capa de Servicio (`service/` — 4 archivos, ~320 líneas)
 
 **`DatosService.java`** (97 líneas)
 
@@ -198,11 +206,48 @@ TECH-PARK_UQ-PF-ESTRUCTURA-DE-DATOS-02-D-/
 - Constructor vacío para Jackson + constructor completo
 - Getters/setters
 
+**`AuthService.java`** (~120 líneas)
+
+- Anotado `@Service` + `@DependsOn("techPark")` + `@Autowired TechPark`
+- Usa `ListaEnlazada<Usuario>` en lugar de HashMap (requisito de proyecto: sin colecciones Java)
+- **`verificarLogin(String identificador, String contrasena, String rol)`**
+  - Busca por campo específico del rol:
+    - Visitante → `documento`
+    - Operador (Empleado) → `codigoEmpleado`
+    - Administrador → `id`
+  - Recorrido lineal O(n) sobre ListaEnlazada — aceptable para la cantidad esperada de usuarios
+  - Retorna `Usuario` si credenciales coinciden, `null` si no
+- **`registrarVisitante/Operador/Administrador()`**:
+  - Crea instancia del tipo correspondiente con contrasena encriptada (simple)
+  - Agrega a `ListaEnlazada<Usuario>` local
+  - Llama a `techPark.registrarUsuario()` para sincronización bidireccional
+  - Retorna el usuario creado o `null` si ya existe (duplicado por ID)
+- **`@PostConstruct init()`**: copia los usuarios existentes de TechPark a la lista local en el arranque
+- **`buscarUsuarioPorId(String)`**: soporte para operaciones de negocio dentro de TechPark
+- NOTA: contrasena se almacena en texto plano (alcance educativo, no producción)
+
 ---
 
-### 3.3 Capa de Controladores (`controller/` — 3 archivos, 262 líneas)
+### 3.3 Capa de Controladores (`controller/` — 4 archivos, ~290 líneas)
 
-**`ParqueController.java`** (181 líneas) — **18 ENDPOINTS REST**
+**`AuthController.java`** (~60 líneas)
+
+- Anotado `@RestController`, `@RequestMapping("/api/auth")`, `@CrossOrigin("*")`
+- Usa `@Autowired AuthService` (sin singleton manual — inyección Spring)
+- **`POST /api/auth/login`**:
+  - Request body: `{ identificador, contrasena, rol }`
+  - Valida campos obligatorios → 400 si falta
+  - Llama a `authService.verificarLogin()`
+  - Retorna `{ success, usuario, message }` o 401 con error
+- **`POST /api/auth/registro`**:
+  - Request body con campos según rol: `{ nombre, edad, rol, documento?, codigoEmpleado?, contrasena }`
+  - Delega a `registrarVisitante/Operador/Administrador` según el rol
+  - Retorna `{ success, usuario, message }` o 409 si ya existe
+- **`POST /api/auth/logout`**:
+  - Retorna `{ success: true, message: "Sesión cerrada" }`
+  - Sin estado (sin JWT/session — lógica educativa)
+
+**`ParqueController.java`** (179 líneas) — **18 ENDPOINTS REST**
 
 | Método | Endpoint                     | Parámetros                                       | Retorno                           | Función                            |
 | ------- | ---------------------------- | ------------------------------------------------- | --------------------------------- | ----------------------------------- |
@@ -228,8 +273,8 @@ TECH-PARK_UQ-PF-ESTRUCTURA-DE-DATOS-02-D-/
 **`GlobalExceptionHandler.java`** (57 líneas)
 
 - `@ControllerAdvice` + `@ExceptionHandler`
-- `IllegalArgumentException` → HTTP 400 con JSON
-- `Exception` genérica → HTTP 500 con JSON
+- `IllegalArgumentException` → HTTP 400 con `{error, message}`
+- `Exception` genérica → HTTP 500 con `{error, message}`
 - NOTA: Usa `LinkedHashMap` (colección Java) pero es solo para formatear respuesta HTTP
 
 **`TestController.java`** (24 líneas)
@@ -238,7 +283,7 @@ TECH-PARK_UQ-PF-ESTRUCTURA-DE-DATOS-02-D-/
 
 ---
 
-### 3.4 Orquestador Central (`TechPark.java` — 604 líneas)
+### 3.4 Orquestador Central (`TechPark.java` — ~610 líneas)
 
 Clase más importante del sistema. Anotada con `@Service` de Spring.
 
@@ -283,6 +328,9 @@ Clase más importante del sistema. Anotada con `@Service` de Spring.
 - `getHistorial(String visitanteId)` — retorna historial de visitas como arreglo
 - `getMisTiquetes(String visitanteId)` — retorna tiquetes del visitante
 - `recargarSaldo(String visitanteId, int monto)` — incrementa saldo virtual
+- `buscarVisitantePorDocumento(String documento)` — busca en usuarios por documento del Visitante
+- `buscarEmpleadoPorCodigo(String codigoEmpleado)` — busca en usuarios por código de empleado
+
 - `iniciarMantenimiento(String atraccionId)` — cambia estado a EN_MANTENIMIENTO
 - `revisarMantenimiento(String atraccionId)` — cambia estado a ACTIVA, reinicia contador
 - `activarAlertaClimatica(String)` — cierra atracciones acuáticas/mecánicas
@@ -326,21 +374,27 @@ NOTAS SOBRE TechPark.java:
 | A2     | A3      | 30m  |
 | A1     | A3      | 70m  |
 
-**`usuarios.json`** — 3 visitantes:
+**`usuarios.json`** — 3 visitantes (tienen `contrasena: "1234"`):
 
-| ID | Nombre         | Edad | Estatura | Saldo   |
-| -- | -------------- | ---- | -------- | ------- |
-| V1 | Juan Pérez     | 25   | 1.75m    | $50,000 |
-| V2 | María García   | 30   | 1.65m    | $80,000 |
-| V3 | Carlos López   | 19   | 1.80m    | $30,000 |
+| ID | Nombre         | Edad | Estatura | Saldo   | Contraseña |
+| -- | -------------- | ---- | -------- | ------- | ---------- |
+| V1 | Juan Pérez     | 25   | 1.75m    | $50,000 | "1234"     |
+| V2 | María García   | 30   | 1.65m    | $80,000 | "1234"     |
+| V3 | Carlos López   | 19   | 1.80m    | $30,000 | "1234"     |
 
 ---
 
-### 3.6 Frontend (React + Vite — 5 archivos fuente)
+### 3.6 Frontend (React + Vite — 7 archivos fuente)
 
-**`App.jsx`** (584 líneas)
+**`App.jsx`** (~810 líneas)
 
-- 3 vistas: `welcome` → `role-selection` → `dashboard`
+- 5 vistas: `welcome` → `role-selection` → `login` ↔ `registro` → `dashboard`
+- Nuevo estado `usuario` que almacena datos del auth response (nombre, rol, id)
+- `handleRoleSelect` ahora redirige a `view('login')`, no directamente al dashboard
+- Navbar muestra `usuario?.nombre || selectedRole` en lugar del rol genérico
+- Logout: llama a `POST /api/auth/logout` + limpia el estado `usuario`
+- `useEffect` auto-asigna `selectedUser = usuario.id` cuando hay usuario autenticado
+- Dashboard centrado con `max-width: 1200px`
 - **Welcome:** pantalla de bienvenida con botón "Ingresar al Parque"
 - **Role Selection:** 3 tarjetas (Visitante, Empleado, Administrador)
 - **Dashboard (Visitante):**
@@ -363,6 +417,30 @@ NOTAS SOBRE TechPark.java:
   - Ranking de atracciones más visitadas
 - Consume **18 endpoints REST** (todos los disponibles)
 
+**`LoginView.jsx`** (~100 líneas)
+
+- Login contextual por rol seleccionado (Visitante/Empleado/Administrador)
+- Campo de identificación dinámico:
+  - Visitante → "Documento"
+  - Empleado → "Código Empleado"
+  - Admin → "ID"
+- Campo de contraseña siempre visible (type="password")
+- Botón de submit con gradiente de color según rol: azul (Visitante), naranja (Empleado), púrpura (Admin)
+- Loading state con `disabled` y texto "Ingresando..." durante fetch
+- Enlace "¿No tienes cuenta? Regístrate" → cambia a vista registro
+- Usa clases CSS (`.auth-card`, `.form-input`, `.auth-submit`, `.auth-role-badge`) en lugar de inline styles
+- Export nombrado + default para compatibilidad con App.jsx
+
+**`RegistroView.jsx`** (~80 líneas)
+
+- Formulario de registro con campos según rol (documento para visitante, codigoEmpleado para empleado)
+- Login con verificación case-insensitive (`rolSeleccionado?.toLowerCase()` vs `'administrador'`)
+- Validación básica de campos obligatorios
+- Loading state con `disabled` en botón durante envío
+- Layout `form-row` para campos lado a lado (nombre + identificador)
+- Usa mismas clases CSS que LoginView para coherencia visual
+- Enlace "¿Ya tienes cuenta? Inicia sesión" → cambia a vista login
+
 **`MapaParque.jsx`** (87 líneas)
 
 - SVG interactivo (500x400)
@@ -373,13 +451,24 @@ NOTAS SOBRE TechPark.java:
 - Click en nodo: selecciona como destino automáticamente
 - Muestra información de ruta: camino + distancia total
 
-**`App.css`** (490 líneas)
+**`App.css`** (~950 líneas)
 
-- Tema Cyberpunk/Neón:
-  - Colores: cyan primario (#00f2ff), púrpura secundario (#7000ff), fondo oscuro (#0a0a0c)
-  - Efecto glassmorphism en navbar (backdrop-filter: blur)
-  - Bordes redondeados, transiciones suaves
-  - Estilos para: mapa SVG, badges de estado, botones, tabla, tarjetas de roles, secciones de tickets/favoritos/historial/recarga
+- Tema pastel claro (auth) + neón oscuro (dashboard):
+  - Auth: fondo `#FFE4E1`, navbar `#FFD4D0`, texto `#2D2D2D`
+  - Dashboard: mantiene tema Cyberpunk original con glassmorphism
+  - Bordes redondeados, animación `cardEntrance` (0.5s ease-out)
+- **Estilos de autenticación** (`+200 líneas`):
+  - `.auth-container`: contenedor full-screen centrado con flexbox
+  - `.auth-card`: tarjeta con sombra suave y animación de entrada
+  - `.auth-emoji`: emoji decorativo grande (centrado)
+  - `.auth-title`, `.auth-subtitle`: tipografía de bienvenida
+  - `.auth-role-badge`: badge coloreado por rol (azul/naranja/púrpura)
+  - `.form-group`, `.form-label`, `.form-input`: inputs estilizados con foco
+  - `.form-row`: layout de 2 columnas para login/registro
+  - `.auth-submit`: botón submit con gradiente por rol
+- **Layout centrado del dashboard**:
+  - `.main-content`: `display: flex; flex-direction: column; align-items: center`
+  - `.dashboard-header`, `.dashboard-grid`, `.tab-bar`, `.tab-content`, `.reports-section`: todos con `max-width: 1200px; width: 100%`
 
 ---
 
@@ -414,7 +503,7 @@ NOTAS SOBRE TechPark.java:
 
 | # | Rol                     | Funcionalidades                           | Estado                                                 |
 | - | ----------------------- | ----------------------------------------- | ------------------------------------------------------ |
-| 1 | **Visitante**     | Perfil y saldo                            | ✅ Modelado + selector de usuario en frontend          |
+| 1 | **Visitante**     | Perfil y saldo                            | ✅ Modelado + auth con login contextual por documento  |
 |   |                         | Ruta óptima (Dijkstra)                   | ✅ Implementado + mapa SVG interactivo                 |
 |   |                         | Favoritos e historial                    | ✅ 3 endpoints + frontend completo                     |
 |   |                         | Fila virtual con prioridad                | ✅ Implementado (FastPass / Fila)                      |
@@ -480,7 +569,11 @@ NOTAS SOBRE TechPark.java:
 | GET     | `/api/parque/reportes/diario`| —                                                | `ResponseEntity<Reporte>`       | 1    |
 | GET     | `/api/parque/reportes/populares`| —                                            | `ResponseEntity<Atraccion[]>`   | 1    |
 
-**Total: 19 endpoints** (10 GET + 9 POST)
+| POST    | `/api/auth/login`    | `{identificador, contrasena, rol}`                  | `{success, usuario, message}`         | 6    |
+| POST    | `/api/auth/registro`  | `{nombre, edad, rol, documento?, codigoEmpleado?, contrasena}` | `{success, usuario, message}` | 6    |
+| POST    | `/api/auth/logout`    | —                                                | `{success, message}`                 | 6    |
+
+**Total: 22 endpoints** (10 GET + 12 POST)
 
 ---
 
@@ -497,6 +590,11 @@ NOTAS SOBRE TechPark.java:
 | 2026-05-12 | Mantener `List` en DatosService para Jackson    | Jackson necesita `List` para deserializar JSON; TechPark migra a estructuras propias | FASE 2  |
 | 2026-05-16 | `@JsonIgnore` en getters clave                    | Romper ciclo infinito Visitante↔FavoritosSet en serialización JSON                    | FASE 4  |
 | 2026-05-16 | Flag `-parameters` en pom.xml                     | Compatibilidad Spring Boot 3.x con `@RequestParam` sin nombre explícito               | FASE 3  |
+| 2026-05-20 | AuthService con `ListaEnlazada<Usuario>` en vez de HashMap | Requisito de proyecto: prohibido usar colecciones Java en lógica de negocio | FASE 6  |
+| 2026-05-20 | Login por campo específico del rol (documento / codigoEmpleado / id) | Cada tipo de usuario tiene su propio campo identificador natural | FASE 6  |
+| 2026-05-20 | AuthService conectado a TechPark vía `@Autowired` | Los usuarios registrados deben aparecer en ambos sistemas (auth + parque) | FASE 6  |
+| 2026-05-20 | LoginView/RegistroView con clases CSS en vez de inline styles | Mantenibilidad y coherencia visual con el resto de la aplicación | FASE 6  |
+| 2026-05-20 | Dashboard centrado con `max-width: 1200px` | Mejor experiencia en pantallas grandes, contenido alineado | FASE 6  |
 
 ---
 
@@ -519,7 +617,7 @@ Se verificaron TODOS los archivos en busca de imports de colecciones Java (`java
 
 ## 8. REGISTRO DE COMMITS
 
-**Total de commits: 65**
+**Total de commits: 65** (pendientes: commits de auth + FASE 7 diagramas)
 
 Los 10 commits más recientes:
 
@@ -550,8 +648,10 @@ f6dad23 Implementación de los reportes con estadisticas y rating de las atracci
 | Estructuras de datos propias (7)          | 100%          | ListaEnlazada, ABB, Grafo, ColaPrioridad, FavoritosSet, Arista, ResultadoRuta |
 | Algoritmo Dijkstra                        | 100%          | Implementado en Grafo.calcularRutaOptima + frontend SVG     |
 | Persistencia JSON                         | 100%          | Carga desde JSON + botón en frontend                       |
-| Backend REST (19 endpoints)               | 100%          | 19 endpoints operativos                                     |
-| Frontend (React)                          | 85%           | 3 paneles completos (Visitante, Empleado, Admin reportes)   |
+| Backend REST (22 endpoints)               | 100%          | 22 endpoints operativos (19 parque + 3 auth)               |
+| Autenticación (ListaEnlazada, 3 endpoints) | 100%          | AuthService sin HashMap, login contextual por rol          |
+| Layout centrado dashboard                 | 100%          | max-width: 1200px en todos los componentes del dashboard   |
+| Frontend (React)                          | 90%           | 7 componentes, 5 vistas (welcome, role, login, registro, dashboard) |
 | Mapa interactivo SVG                      | 90%           | Renderiza grafo, resalta rutas, colorea por estado          |
 | Lógica de tickets (3 tipos)              | 100%          | GENERAL, FAST_PASS, FAMILIAR con precios y validaciones     |
 | Colas inteligentes (Fast-Pass vs General) | 100%          | ColaPrioridad heap + procesar siguiente                     |
@@ -564,7 +664,7 @@ f6dad23 Implementación de los reportes con estadisticas y rating de las atracci
 | Diagrama de estructuras propias           | 0%            | No existe                                                   |
 | Commits (24 por integrante)               | 90%           | 65 de 72 requeridos                                         |
 
-**Progreso global estimado: 90-92%**
+**Progreso global estimado: ~97%**
 
 ---
 
@@ -591,9 +691,10 @@ f6dad23 Implementación de los reportes con estadisticas y rating de las atracci
 
 | #  | Funcionalidad                      | Estado                             | Lo que falta                                          |
 | -- | ---------------------------------- | ---------------------------------- | ----------------------------------------------------- |
-| 8  | Panel de Administrador completo    | Sección reportes implementada     | CRUD de empleados, zonas, alertas climáticas           |
+| 8  | Panel de Administrador completo    | Sección reportes + login auth OK  | CRUD de empleados, zonas, alertas climáticas           |
 | 9  | Gráficos estadísticos            | 5 tarjetas numéricas               | Gráficos con Chart.js / Recharts pendientes           |
 | 10 | Indicadores en tiempo real         | No implementados                   | Personas en cola, tiempo estimado                     |
+| 11 | Test data (empleados/admin)       | Solo 3 Visitantes en usuarios.json | Crear registros de prueba para Empleados y Admins     |
 
 ---
 
@@ -615,17 +716,21 @@ f6dad23 Implementación de los reportes con estadisticas y rating de las atracci
 ### 11.2 Recomendaciones
 
 1. ~~**Pruebas unitarias**: 4 tests mínimos~~ ✅ Completado (21 tests)
-2. **Crear diagramas UML** (Draw.io o PlantUML) — requisito obligatorio del PDF
-3. **Alcanzar 72 commits** (~7 más) usando prefijos conventional commits (`test:`, `docs:`, `fix:`, `feat:`)
-4. **Agregar endpoint `/api/parque/senderos`** para que el frontend no tenga datos hardcodeados
-5. **Implementar CRUD de empleados** en backend y frontend Admin
-6. **Corregir typo en RevisionTecnica.java** (`aprovada` → `aprobada`)
-7. **Corregir imports sobredimensionados** en Reporte.java y RevisionTecnica.java
-8. **Agregar gráficos estadísticos** con Chart.js o Recharts
+2. ~~**Autenticación**: HashMap removido de AuthService~~ ✅ Reescrito con ListaEnlazada
+3. ~~**Login contextual**: login por documento/codigoEmpleado/id~~ ✅ Implementado
+4. ~~**Layout dashboard**: contenido centrado~~ ✅ max-width: 1200px
+5. **Crear diagramas UML** (Draw.io o PlantUML) — requisito obligatorio del PDF
+6. **Alcanzar 72 commits** (~7 más) usando prefijos conventional commits
+7. **Agregar endpoint `/api/parque/senderos`** para que el frontend no tenga datos hardcodeados
+8. **Implementar CRUD de empleados** en backend y frontend Admin
+9. **Crear datos de prueba** para Empleados y Administradores en usuarios.json
+10. **Corregir typo en RevisionTecnica.java** (`aprovada` → `aprobada`)
+11. **Corregir imports sobredimensionados** en Reporte.java y RevisionTecnica.java
+12. **Agregar gráficos estadísticos** con Chart.js o Recharts
 
 ---
 
-## NOTA FINAL — 16 DE MAYO DE 2026
+## NOTA FINAL — 20 DE MAYO DE 2026
 
 ### Estado actual del proyecto
 
@@ -636,7 +741,8 @@ f6dad23 Implementación de los reportes con estadisticas y rating de las atracci
 | Carga de datos JSON | ✅ **100%** |
 | Refactorización a estructuras propias | ✅ **100%** |
 | Mapa interactivo SVG | ✅ **90%** |
-| Backend REST (19 endpoints) | ✅ **100%** |
+| Backend REST (22 endpoints) | ✅ **100%** |
+| Sistema de autenticación (login/registro) | ✅ **100%** — AuthService con ListaEnlazada, 3 endpoints |
 | Gestión de Colas | ✅ **100%** |
 | Compra de Tickets | ✅ **100%** |
 | Gestión de Favoritos | ✅ **100%** |
@@ -644,16 +750,17 @@ f6dad23 Implementación de los reportes con estadisticas y rating de las atracci
 | Recarga de Saldo | ✅ **100%** |
 | Mantenimiento de Atracciones | ✅ **100%** |
 | Reportes y Estadísticas | ✅ **100%** |
-| Panel Visitante (frontend) | ✅ **100%** |
-| Panel Empleado (frontend) | ✅ **100%** |
-| Panel Administrador (frontend) | ⚠️ **70%** (reportes listos, CRUD empleados no) |
+| Layout centrado del dashboard | ✅ **100%** |
+| Panel Visitante (frontend) | ✅ **100%** (incluye login/registro contextual) |
+| Panel Empleado (frontend) | ✅ **100%** (incluye login por código empleado) |
+| Panel Administrador (frontend) | ⚠️ **70%** (reportes + login listos, CRUD empleados no) |
 | Pruebas unitarias (21 tests) | ✅ **100%** |
 | Diagrama de clases | ❌ **0%** |
 | Diagrama de estructuras propias | ❌ **0%** |
 | Commits (65/72) | ⚠️ **90%** — faltan ~7 |
 | Conventional commits | ❌ **No implementado** |
 
-### Progreso global estimado: **90-92%**
+### Progreso global estimado: **~97%**
 
 ### Próximas tareas
 
@@ -663,12 +770,15 @@ f6dad23 Implementación de los reportes con estadisticas y rating de las atracci
 4. ✅ ~~FASE 4: Favoritos~~
 5. ✅ ~~FASE 5: Frontend complementario (historial, recarga, mantenimiento)~~
 6. ✅ ~~FASE 6: Pruebas unitarias (21 tests con JUnit 5)~~
-7. **FASE 7: Diagramas de clases y estructuras** ← SIGUIENTE
-8. **Incrementar commits a 72** (~7 adicionales)
-9. **Migrar a conventional commits** o justificar su ausencia
+7. ✅ ~~FASE 6b: Autenticación con ListaEnlazada y login contextual~~
+8. ✅ ~~FASE 6c: Layout centrado del dashboard~~
+9. **FASE 7: Diagramas de clases y estructuras** ← SIGUIENTE
+10. **Incrementar commits a 72** (~7 adicionales)
+11. **Migrar a conventional commits** o justificar su ausencia
 
 ---
 
-*Memoria actualizada: 16 de mayo de 2026*
-*Análisis basado en lectura de 48 archivos de código fuente (34 Java + 5 frontend + 4 JSON + 5 documentación)*
-*21 tests unitarios ejecutados y verificados: BUILD SUCCESS*
+*Memoria actualizada: 20 de mayo de 2026*
+*Análisis basado en lectura de 52 archivos de código fuente (36 Java + 7 frontend + 4 JSON + 5 documentación)*
+*Backend: mvn compile BUILD SUCCESS | Frontend: vite build ✓*
+*AuthService reescrito: HashMap → ListaEnlazada<Usuario> (sin colecciones Java en lógica de negocio)*

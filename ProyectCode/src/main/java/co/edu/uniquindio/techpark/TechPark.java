@@ -385,6 +385,24 @@ public class TechPark {
         return null;
     }
 
+    public Visitante buscarVisitantePorDocumento(String documento) {
+        for (Usuario u : usuarios) {
+            if (u instanceof Visitante && ((Visitante) u).getDocumento().equals(documento)) {
+                return (Visitante) u;
+            }
+        }
+        return null;
+    }
+
+    public Empleado buscarEmpleadoPorCodigo(String codigoEmpleado) {
+        for (Usuario u : usuarios) {
+            if (u instanceof Empleado && ((Empleado) u).getCodigoEmpleado().equals(codigoEmpleado)) {
+                return (Empleado) u;
+            }
+        }
+        return null;
+    }
+
     /**
      * Compra un ticket para un visitante según el tipo seleccionado.
      * Precios: GENERAL=$20,000, FAST_PASS=$50,000, FAMILIAR=$45,000.
