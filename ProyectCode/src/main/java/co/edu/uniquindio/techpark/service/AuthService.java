@@ -18,6 +18,9 @@ public class AuthService {
     @Autowired
     private TechPark techPark;
 
+    @Autowired
+    private DatosService datosService;
+
     private ListaEnlazada<Usuario> usuariosRegistrados;
 
     public AuthService() {
@@ -37,35 +40,30 @@ public class AuthService {
             return null;
         }
 
-        for (Usuario u : usuariosRegistrados) {
-            String campoComparar = null;
+        String rolLower = rol.toLowerCase();
 
-            switch (rol.toLowerCase()) {
+        for (Usuario u : usuariosRegistrados) {
+            boolean tipoCorrecto = false;
+            switch (rolLower) {
                 case "visitante":
-                    if (u instanceof Visitante) {
-                        campoComparar = ((Visitante) u).getDocumento();
-                    }
+                    tipoCorrecto = u instanceof Visitante;
                     break;
                 case "operador":
                 case "empleado":
-                    if (u instanceof Operador) {
-                        campoComparar = ((Empleado) u).getCodigoEmpleado();
-                    }
+                    tipoCorrecto = u instanceof Operador;
                     break;
                 case "administrador":
-                    if (u instanceof Administrador) {
-                        campoComparar = u.getId();
-                    }
+                    tipoCorrecto = u instanceof Administrador;
                     break;
                 default:
                     return null;
             }
 
-            if (campoComparar != null && campoComparar.equals(identificador) && u.getContrasena().equals(contrasena)) {
+            if (tipoCorrecto && u.getId().equals(identificador) && u.getContrasena().equals(contrasena)) {
                 Map<String, Object> respuesta = new HashMap<>();
                 respuesta.put("id", u.getId());
                 respuesta.put("nombre", u.getNombre());
-                respuesta.put("rol", rol.toLowerCase());
+                respuesta.put("rol", rolLower);
                 if (u instanceof Visitante) {
                     respuesta.put("documento", ((Visitante) u).getDocumento());
                     respuesta.put("saldoVirtual", ((Visitante) u).getSaldoVirtual());
@@ -82,66 +80,48 @@ public class AuthService {
         return null;
     }
 
-    public boolean registrarVisitante(Map<String, Object> datos) {
+    public Map<String, Object> registrarVisitante(Map<String, Object> datos) {
         try {
+            String nuevoId = generarIdVisitante();
+            String nombre = (String) datos.get("nombre");
+            String documento = (String) datos.get("documento");
+            String contrasena = (String) datos.get("contrasena");
+            int edad = Integer.parseInt(datos.get("edad").toString());
+            float estatura = Float.parseFloat(datos.get("estatura").toString());
+
             Visitante nuevo = new Visitante(
-                (String) datos.get("id"),
-                (String) datos.get("nombre"),
-                (String) datos.get("documento"),
-                (String) datos.get("correo"),
-                (String) datos.get("contrasena"),
-                LocalDateTime.now(),
-                Integer.parseInt(datos.get("edad").toString()),
-                Float.parseFloat(datos.get("estatura").toString()),
-                Integer.parseInt(datos.get("saldoVirtual").toString())
+                nuevoId, nombre, documento, "", contrasena,
+                LocalDateTime.now(), edad, estatura, 0
             );
+
             usuariosRegistrados.agregar(nuevo);
             techPark.registrarUsuario(nuevo);
-            return true;
+            datosService.guardarUsuarios(usuariosRegistrados);
+
+            Map<String, Object> respuesta = new HashMap<>();
+            respuesta.put("success", true);
+            respuesta.put("id", nuevoId);
+            respuesta.put("nombre", nombre);
+            respuesta.put("mensaje", "Visitante " + nuevoId + " registrado exitosamente.");
+            return respuesta;
         } catch (Exception e) {
-            return false;
+            Map<String, Object> respuesta = new HashMap<>();
+            respuesta.put("success", false);
+            respuesta.put("mensaje", "Error al registrar: " + e.getMessage());
+            return respuesta;
         }
     }
 
-    public boolean registrarOperador(Map<String, Object> datos) {
-        try {
-            Turno turno = Turno.valueOf(datos.getOrDefault("turno", "MAÑANA").toString().toUpperCase());
-            Operador nuevo = new Operador(
-                (String) datos.get("id"),
-                (String) datos.get("nombre"),
-                (String) datos.get("correo"),
-                (String) datos.get("contrasena"),
-                LocalDateTime.now(),
-                (String) datos.get("codigoEmpleado"),
-                Double.parseDouble(datos.get("salario").toString()),
-                turno
-            );
-            usuariosRegistrados.agregar(nuevo);
-            techPark.registrarUsuario(nuevo);
-            return true;
-        } catch (Exception e) {
-            return false;
+    private String generarIdVisitante() {
+        int maxNum = 0;
+        for (Usuario u : usuariosRegistrados) {
+            if (u instanceof Visitante && u.getId() != null && u.getId().startsWith("V")) {
+                try {
+                    int num = Integer.parseInt(u.getId().substring(1));
+                    if (num > maxNum) maxNum = num;
+                } catch (NumberFormatException ignored) {}
+            }
         }
-    }
-
-    public boolean registrarAdministrador(Map<String, Object> datos) {
-        try {
-            Administrador nuevo = new Administrador(
-                (String) datos.get("id"),
-                (String) datos.get("nombre"),
-                (String) datos.get("correo"),
-                (String) datos.get("contrasena"),
-                LocalDateTime.now(),
-                (String) datos.get("codigoEmpleado"),
-                Double.parseDouble(datos.get("salario").toString()),
-                Integer.parseInt(datos.get("nivelAcceso").toString())
-            );
-            usuariosRegistrados.agregar(nuevo);
-            techPark.registrarUsuario(nuevo);
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        return "V" + (maxNum + 1);
     }
 }

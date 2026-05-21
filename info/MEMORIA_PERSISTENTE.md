@@ -1,9 +1,9 @@
-* [ ] MEMORIA PERSISTENTE - PROYECTO TECH-PARK UQ
+* [x] MEMORIA PERSISTENTE - PROYECTO TECH-PARK UQ
 
 **Fecha de creación:** 07 de mayo de 2026
-**Última actualización:** 20 de mayo de 2026 — Auth reescrito con ListaEnlazada + login contextual + layout centrado
-**Estado del proyecto:** ~97% de avance estimado
-**Modo actual:** BUILD — Estabilización
+**Última actualización:** 20 de mayo de 2026 — Corrección integral: login por ID unificado, registro simplificado, persistencia JSON, 10 bugs resueltos (Dijkstra blank screen, FAST_PASS sin ticket, clima familiar, layout 16:9, imágenes+SVG, validaciones)
+**Estado del proyecto:** ~98% de avance estimado
+**Modo actual:** BUILD — Estabilización (10 bugs corregidos)
 
 ---
 
@@ -52,13 +52,17 @@ TECH-PARK_UQ-PF-ESTRUCTURA-DE-DATOS-02-D-/
 │   └── src/
 │       ├── main.jsx                       # Punto de entrada React (10 líneas)
 │       ├── index.css                      # Estilos base
-│       ├── App.jsx                        # Componente principal (584 líneas)
-│       ├── App.css                        # Tema Cyberpunk/Neón (490 líneas)
+│       ├── App.jsx                        # Componente principal (862 líneas, 10 vistas + SVG icons + imágenes fondo)
+│       ├── App.css                        # Tema pastel + dark overlay + layout 16:9 (980 líneas)
 │       ├── assets/
-│       │   ├── Bienvenidos.png            # Imagen fondo welcome
-│       │   └── Rol.png                    # Imagen fondo selección rol
+│       │   ├── Bienvenidos.png            # Imagen fondo welcome (desde camilo_dev)
+│       │   ├── Rol.png                    # Imagen fondo selección rol (desde camilo_dev)
+│       │   ├── hero.png                   # Assets adicionales
+│       │   ├── react.svg
+│       │   └── vite.svg
 │       └── components/
-│           └── MapaParque.jsx             # Componente SVG mapa interactivo (87 líneas)
+│           ├── MapaParque.jsx             # Componente SVG mapa interactivo (87 líneas)
+│           └── Icons.jsx                  # SVG vector icons: VisitanteIcon, EmpleadoIcon, AdminIcon (45 líneas)
 │
 ├── ProyectCode/                           # Backend Java Spring Boot
 │   ├── pom.xml                            # Maven: Spring Boot, Jackson, Lombok (68 líneas)
@@ -146,11 +150,11 @@ TECH-PARK_UQ-PF-ESTRUCTURA-DE-DATOS-02-D-/
 │       │   │       ├── ReporteService.java# Generación de reportes y estadísticas (59 líneas)
 │       │   │       └── Sender.java        # DTO: origen, destino, peso (42 líneas)
 │       │   │
-│       │   └── resources/data/            # 4 archivos JSON, 79 líneas total
-│       │       ├── atracciones.json       # 3 atracciones con coordenadas (35 líneas)
-│       │       ├── zonas.json             # 2 zonas (14 líneas)
-│       │       ├── senderos.json          # 3 aristas (17 líneas)
-│       │       └── usuarios.json          # 3 visitantes de prueba (V1, V2, V3) (13 líneas)
+│   │   └── resources/data/            # 4 archivos JSON, ~110 líneas total
+│   │       ├── atracciones.json       # 7 atracciones con coordenadas (72 líneas)
+│   │       ├── zonas.json             # 2 zonas (14 líneas)
+│   │       ├── senderos.json          # 12 aristas (14 líneas)
+│   │       └── usuarios.json          # 5 usuarios: V1-V3 Visitantes, E1 Operador, A1 Admin (55 líneas)
 │       │
 │       └── test/java/co/edu/uniquindio/techpark/Model/
 │           ├── ListaEnlazadaTest.java     # 6 tests (76 líneas)
@@ -187,12 +191,11 @@ TECH-PARK_UQ-PF-ESTRUCTURA-DE-DATOS-02-D-/
 
 - Inyecta `ObjectMapper` de Jackson configurado con `FAIL_ON_UNKNOWN_PROPERTIES = false`
 - Métodos:
-  - `cargarAtracciones()` → `List<Atraccion>` desde `data/atracciones.json`
+  - `cargarAtracciones()` → `List<Atraccion>` desde `data/atracciones.json` (7 atracciones ahora: A1-A7)
   - `cargarZonas()` → `List<Zona>` desde `data/zonas.json`
-  - `cargarSenderos()` → `List<Sender>` desde `data/senderos.json`
-  - `cargarUsuarios()` → `List<Visitante>` desde `data/usuarios.json` (3 visitantes: V1, V2, V3)
-- Cada método captura IOException y retorna lista vacía
-- NOTA: Todavía usa `java.util.List` / `ArrayList` como retorno de Jackson (es necesario para la deserialización). TechPark.java es quien migra esos datos a estructuras propias
+  - `cargarSenderos()` → `List<Sender>` desde `data/senderos.json` (12 senderos ahora)
+  - `cargarUsuarios()` → `List<Usuario>` desde `data/usuarios.json` (5 usuarios: V1-V3, E1, A1) — deserialización polimórfica por campo "tipo"
+  - `guardarUsuarios(ListaEnlazada<Usuario>)` → escribe JSON manualmente a `usuarios.json` (evita `@JsonIgnore` en contrasena)
 
 **`ReporteService.java`** (59 líneas)
 
@@ -206,24 +209,21 @@ TECH-PARK_UQ-PF-ESTRUCTURA-DE-DATOS-02-D-/
 - Constructor vacío para Jackson + constructor completo
 - Getters/setters
 
-**`AuthService.java`** (~120 líneas)
+**`AuthService.java`** (~127 líneas)
 
 - Anotado `@Service` + `@DependsOn("techPark")` + `@Autowired TechPark`
 - Usa `ListaEnlazada<Usuario>` en lugar de HashMap (requisito de proyecto: sin colecciones Java)
 - **`verificarLogin(String identificador, String contrasena, String rol)`**
-  - Busca por campo específico del rol:
-    - Visitante → `documento`
-    - Operador (Empleado) → `codigoEmpleado`
-    - Administrador → `id`
+  - Busca por `u.getId()` para TODOS los roles (ya no por documento/codigoEmpleado/id)
   - Recorrido lineal O(n) sobre ListaEnlazada — aceptable para la cantidad esperada de usuarios
-  - Retorna `Usuario` si credenciales coinciden, `null` si no
-- **`registrarVisitante/Operador/Administrador()`**:
-  - Crea instancia del tipo correspondiente con contrasena encriptada (simple)
-  - Agrega a `ListaEnlazada<Usuario>` local
-  - Llama a `techPark.registrarUsuario()` para sincronización bidireccional
-  - Retorna el usuario creado o `null` si ya existe (duplicado por ID)
+  - Retorna `Map<String, Object>` con datos del usuario autenticado o `null` si falla
+  - Incluye datos específicos del rol en la respuesta (documento+saldo para Visitante, codigoEmpleado para Empleado, nivelAcceso para Admin)
+- **`registrarVisitante(Map<String, Object> datos)`** — único método de registro:
+  - Solo crea Visitantes (Operadores y Admins son precargados en JSON)
+  - Genera ID auto-incremental (V4, V5...) escaneando IDs existentes
+  - Llama a `techPark.registrarUsuario()` + `datosService.guardarUsuarios()` para persistencia
+  - Retorna `Map<String, Object>` con success/mensaje/id
 - **`@PostConstruct init()`**: copia los usuarios existentes de TechPark a la lista local en el arranque
-- **`buscarUsuarioPorId(String)`**: soporte para operaciones de negocio dentro de TechPark
 - NOTA: contrasena se almacena en texto plano (alcance educativo, no producción)
 
 ---
@@ -247,17 +247,18 @@ TECH-PARK_UQ-PF-ESTRUCTURA-DE-DATOS-02-D-/
   - Retorna `{ success: true, message: "Sesión cerrada" }`
   - Sin estado (sin JWT/session — lógica educativa)
 
-**`ParqueController.java`** (179 líneas) — **18 ENDPOINTS REST**
+**`ParqueController.java`** (215 líneas) — **20 ENDPOINTS REST**
 
 | Método | Endpoint                     | Parámetros                                       | Retorno                           | Función                            |
 | ------- | ---------------------------- | ------------------------------------------------- | --------------------------------- | ----------------------------------- |
 | GET     | `/api/parque/atracciones`  | —                                                | `Atraccion[]`                   | Lista completa de atracciones       |
+| GET     | `/api/parque/senderos`     | —                                                | `Sender[]`                    | Lista de senderos del Grafo         |
 | GET     | `/api/parque/zonas`        | —                                                | `Zona[]`                        | Lista de zonas                      |
 | GET     | `/api/parque/estado`       | —                                                | `String`                        | "ABIERTO" o "AFORO COMPLETO"        |
 | POST    | `/api/parque/cargar-datos` | —                                                | `ResponseEntity<String>`        | Recarga datos desde JSON            |
 | GET     | `/api/parque/ruta`         | `origen`, `destino`                           | `ResponseEntity<ResultadoRuta>` | Ruta óptima (Dijkstra)             |
 | POST    | `/api/parque/unirse-fila`  | `visitanteId`, `atraccionId`, `tipoTiquete` | `ResponseEntity<String>`        | Unirse a cola virtual con prioridad |
-| GET     | `/api/parque/usuarios`     | —                                                | `Usuario[]`                   | Todos los usuarios/visitantes       |
+| GET     | `/api/parque/usuarios`     | —                                                | `Visitante[]`                | Solo Visitantes (filtrado)          |
 | POST    | `/api/parque/procesar-fila`| `atraccionId`                                  | `ResponseEntity<String>`        | Desencolar siguiente visitante      |
 | POST    | `/api/parque/comprar-ticket`| `visitanteId`, `tipoTiquete`                 | `ResponseEntity<String>`        | Comprar tiquete                     |
 | GET     | `/api/parque/mis-tiquetes` | `visitanteId`                                  | `Tiquete[]`                   | Listar tiquetes del visitante       |
@@ -267,8 +268,10 @@ TECH-PARK_UQ-PF-ESTRUCTURA-DE-DATOS-02-D-/
 | GET     | `/api/parque/historial`    | `visitanteId`                                  | `Atraccion[]`                | Historial de visitas                |
 | POST    | `/api/parque/recargar-saldo`| `visitanteId`, `monto`                       | `ResponseEntity<String>`        | Recargar saldo virtual              |
 | POST    | `/api/parque/mantenimiento`| `atraccionId`, `accion`                      | `ResponseEntity<String>`        | Iniciar/revisar mantenimiento       |
+| POST    | `/api/parque/alerta-clima` | `accion`, `motivo` (opcional)              | `ResponseEntity<String>`        | Activar/desactivar alerta climática |
 | GET     | `/api/parque/reportes/diario`| —                                                | `ResponseEntity<Reporte>`       | Reporte diario del parque           |
 | GET     | `/api/parque/reportes/populares`| —                                            | `ResponseEntity<Atraccion[]>`   | Atracciones más visitadas           |
+**Nota:** Todos los `@RequestParam` tienen nombre explícito vgr `@RequestParam("atraccionId")` para compatibilidad Spring Boot 3.x.
 
 **`GlobalExceptionHandler.java`** (57 líneas)
 
@@ -283,7 +286,7 @@ TECH-PARK_UQ-PF-ESTRUCTURA-DE-DATOS-02-D-/
 
 ---
 
-### 3.4 Orquestador Central (`TechPark.java` — ~610 líneas)
+### 3.4 Orquestador Central (`TechPark.java` — ~639 líneas)
 
 Clase más importante del sistema. Anotada con `@Service` de Spring.
 
@@ -312,14 +315,16 @@ Clase más importante del sistema. Anotada con `@Service` de Spring.
 - `registrarUsuario(Usuario)` — con validación de duplicados por ID
 - `registrarNuevaAtraccion(Zona, Atraccion)` — agrega a zona, lista global y ABB
 - `obtenerRutaOptima(String, String)` — delega a `mapaParque.calcularRutaOptima()`
-- `unirseAFila(String, String, TipoTiquete)` — lógica completa:
-  1. Busca visitante por ID en usuarios (recorrido lineal)
-  2. Busca atracción por ID en ABB (O(log n))
-  3. Valida restricciones con `visitante.puedeEntrar()`
-  4. Determina prioridad: FAST_PASS → 1, otro → 2
-  5. Crea Tiquete + EntradaCola
-  6. Inserta en `atraccion.getColaEspera().insertar()`
-  7. Retorna mensaje descriptivo
+- `unirseAFila(String, String, TipoTiquete)` — lógica completa con validaciones en orden:
+   1. Busca visitante por ID en usuarios (recorrido lineal)
+   2. Busca atracción por ID en ABB (O(log n))
+   3. **Valida estado de la atracción PRIMERO**: si está EN_MANTENIMIENTO → mensaje específico; si está CERRADA → muestra motivo
+   4. **Valida ticket FAST_PASS**: si el visitante pide Fast-Pass, verifica que tenga un ticket FAST_PASS comprado en `tiquetesEmitidos`
+   5. Valida restricciones del visitante con `visitante.puedeEntrar()` (edad, estatura, saldo)
+   6. Determina prioridad: FAST_PASS → 1, otro → 2
+   7. Crea Tiquete + EntradaCola
+   8. Inserta en `atraccion.getColaEspera().insertar()`
+   9. Retorna mensaje descriptivo
 - `procesarSiguiente(String atraccionId)` — desencola usando `ColaPrioridad.eliminar()`, ejecuta `entrarAAtraccion()`, retorna info del visitante procesado
 - `comprarTicket(String visitanteId, String tipoTiquete)` — crea tiquete con precios (GENERAL=$20k, FAST_PASS=$50k, FAMILIAR=$45k), valida edad≥18 para Familiar, descuenta saldo
 - `agregarFavorito(String visitanteId, String atraccionId)` — agrega a FavoritosSet
@@ -333,7 +338,9 @@ Clase más importante del sistema. Anotada con `@Service` de Spring.
 
 - `iniciarMantenimiento(String atraccionId)` — cambia estado a EN_MANTENIMIENTO
 - `revisarMantenimiento(String atraccionId)` — cambia estado a ACTIVA, reinicia contador
-- `activarAlertaClimatica(String)` — cierra atracciones acuáticas/mecánicas
+- `activarAlertaClimatica(String)` — cierra atracciones acuáticas, mecánicas Y familiares
+- `desactivarAlertaClimatica()` — restaura solo las atracciones cerradas por clima (no las que estaban en mantenimiento)
+- `getSenderos()` → retorna `Sender[]` desde el Grafo (exporta todas las aristas sin duplicados)
 - `hayAforoGlobal()` — suma visitantes/capacidad de todas las zonas
 - `getZonas()` → retorna `Zona[]` (arreglo nativo)
 - `getUsuarios()` → retorna `Usuario[]`
@@ -344,131 +351,116 @@ Clase más importante del sistema. Anotada con `@Service` de Spring.
 NOTAS SOBRE TechPark.java:
 
 - Los métodos getter retornan arreglos nativos (`toArray()`) para que Jackson serialice correctamente en los endpoints REST
+- `ResultadoRuta.getCamino()` ahora retorna `String[]` (antes `ListaEnlazada<String>`) — esto evitaba que Jackson serializara el camino como objeto `{cabeza: ..., tam: ...}` en vez de array, causando pantalla en blanco en el frontend
 - La búsqueda de visitante en `unirseAFila` es O(n) — podría optimizarse con un ABB o HashMap propio
 - No es thread-safe — múltiples peticiones concurrentes podrían causar condiciones de carrera
 
 ---
 
-### 3.5 Datos de Prueba (`resources/data/` — 4 JSON, 79+ líneas)
+### 3.5 Datos de Prueba (`resources/data/` — 4 JSON, ~110 líneas)
 
-**`atracciones.json`** — 3 atracciones:
+**`atracciones.json`** — 7 atracciones:
 
-| ID | Nombre           | Tipo      | x, y     |
-| -- | ---------------- | --------- | -------- |
-| A1 | Montaña Rusa X  | Mecánica | 100, 100 |
-| A2 | Caída Libre     | Mecánica | 300, 150 |
-| A3 | Tobogán Gigante | Acuática | 200, 300 |
+| ID | Nombre              | Tipo      | x, y     |
+| -- | ------------------- | --------- | -------- |
+| A1 | Montaña Rusa X     | Mecánica | 100, 100 |
+| A2 | Caída Libre        | Mecánica | 300, 150 |
+| A3 | Tobogán Gigante    | Acuática | 200, 300 |
+| A4 | Torre de Viento    | Mecánica | 50, 230  |
+| A5 | Río Salvaje        | Acuática | 380, 270 |
+| A6 | Carrusel Mágico    | Familiar | 150, 420 |
+| A7 | Noria Panorámica   | Familiar | 350, 400 |
 
-**`zonas.json`** — 2 zonas:
-
-| ID | Nombre         | Capacidad |
-| -- | -------------- | --------- |
-| Z1 | Zona Extrema   | 500       |
-| Z2 | Zona Acuática | 300       |
-
-**`senderos.json`** — 3 aristas (no dirigidas):
+**`senderos.json`** — 12 aristas (no dirigidas):
 
 | Origen | Destino | Peso |
 | ------ | ------- | ---- |
 | A1     | A2      | 50m  |
+| A1     | A4      | 40m  |
 | A2     | A3      | 30m  |
 | A1     | A3      | 70m  |
+| A4     | A5      | 60m  |
+| A3     | A6      | 45m  |
+| A2     | A4      | 35m  |
+| A2     | A5      | 80m  |
+| A5     | A6      | 55m  |
+| A3     | A7      | 25m  |
+| A6     | A7      | 20m  |
+| A5     | A7      | 65m  |
 
-**`usuarios.json`** — 3 visitantes (tienen `contrasena: "1234"`):
+**`usuarios.json`** — 5 usuarios precargados (todos con `contrasena: "1234"`):
 
-| ID | Nombre         | Edad | Estatura | Saldo   | Contraseña |
-| -- | -------------- | ---- | -------- | ------- | ---------- |
-| V1 | Juan Pérez     | 25   | 1.75m    | $50,000 | "1234"     |
-| V2 | María García   | 30   | 1.65m    | $80,000 | "1234"     |
-| V3 | Carlos López   | 19   | 1.80m    | $30,000 | "1234"     |
+| ID | Nombre            | Rol          | Documento   | Saldo   | Código Empleado | Turno | Nivel Acceso |
+| -- | ----------------- | ------------ | ----------- | ------- | --------------- | ----- | ------------ |
+| V1 | Juan Pérez        | VISITANTE    | 12345678    | $50,000 | —               | —     | —           |
+| V2 | María García      | VISITANTE    | 87654321    | $80,000 | —               | —     | —           |
+| V3 | Carlos López      | VISITANTE    | 11223344    | $30,000 | —               | —     | —           |
+| E1 | Operador Central  | OPERADOR     | —           | —       | EMP-001         | MAÑANA| —           |
+| A1 | Admin General     | ADMINISTRADOR| —           | —       | ADM-001         | —     | 5           |
 
 ---
 
-### 3.6 Frontend (React + Vite — 7 archivos fuente)
+### 3.6 Frontend (React + Vite — 8 archivos fuente + 2 imágenes)
 
-**`App.jsx`** (~810 líneas)
+**`App.jsx`** (~862 líneas)
 
 - 5 vistas: `welcome` → `role-selection` → `login` ↔ `registro` → `dashboard`
-- Nuevo estado `usuario` que almacena datos del auth response (nombre, rol, id)
-- `handleRoleSelect` ahora redirige a `view('login')`, no directamente al dashboard
-- Navbar muestra `usuario?.nombre || selectedRole` en lugar del rol genérico
-- Logout: llama a `POST /api/auth/logout` + limpia el estado `usuario`
-- `useEffect` auto-asigna `selectedUser = usuario.id` cuando hay usuario autenticado
-- Dashboard centrado con `max-width: 1200px`
-- **Welcome:** pantalla de bienvenida con botón "Ingresar al Parque"
-- **Role Selection:** 3 tarjetas (Visitante, Empleado, Administrador)
+- **Welcome:** ahora usa `Bienvenidos.png` como background con overlay oscuro (`.bg-image-layer` + `.bg-overlay-tint`)
+- **Role Selection:** usa `Rol.png` como background + SVG vector icons (`VisitanteIcon`, `EmpleadoIcon`, `AdminIcon`) en vez de emojis
+- **Login:** campo único "ID de Usuario" para todos los roles (Ej: V1, E1, A1). Botón "← Volver a selección de rol"
+- **Registro:** solo visible para Visitante. ID auto-generado (V4, V5...). Campos: nombre, documento, edad, estatura, contraseña
 - **Dashboard (Visitante):**
-  - Header con estado del parque + botón "Sincronizar Datos"
-  - Selector de usuario (dropdown con V1, V2, V3)
-  - Componente `<MapaParque>` con atracciones, senderos y ruta resaltada
-  - Controles de ruta: inputs para origen/destino + botón "Calcular Dijkstra"
+  - Header con estado del parque + selector de visitante (dropdown)
+  - Botón "🔄 Recargar desde JSON" (antes "Sincronizar Datos")
+  - Componente `<MapaParque>` con atracciones y senderos **desde endpoint** (ya no hardcodeados)
+  - Controles de ruta: inputs origen/destino + botón "Buscar Ruta más Corta"
   - Tabla de atracciones con botones FastPass y Fila
-  - **Sección Compra de Tickets:** 3 tarjetas (General $20k, Fast-Pass $50k, Familiar $45k)
+  - **Sección Compra de Tickets:** 3 tarjetas + **saldo actual visible** siempre
   - **Sección Mis Tiquetes:** tabla con todos los tiquetes comprados
-  - **Sección Favoritos:** botón 🤍/❤️ toggle por atracción + lista Mis Favoritos
+  - **Sección Favoritos:** toggle ❤️/🤍 por atracción + lista
   - **Sección Historial de Visitas:** tabla con atracciones visitadas
-  - **Sección Recarga de Saldo:** selector de montos ($10k, $20k, $50k, $100k)
-- **Dashboard (Empleado):**
-  - Tabla de atracciones con badge de cola (personas en espera)
-  - Botón "Procesar Siguiente" por atracción
-  - Botones "Iniciar Mantenimiento" y "Revisar Mantenimiento"
+  - **Sección Recarga de Saldo:** selector de montos + saldo visible
+- **Dashboard (Empleado):** Tabla de atracciones, badge de cola, procesar siguiente, mantenimiento
 - **Dashboard (Administrador):**
-  - Sección de reportes con 5 tarjetas: ingresos, visitas, espera, cierres, alertas
+  - Reportes con 5 tarjetas (ingresos, visitas, espera, cierres, alertas)
   - Ranking de atracciones más visitadas
-- Consume **18 endpoints REST** (todos los disponibles)
+  - Alerta climática funcional (activar/desactivar)
+  - Gestionar Empleados/Zonas → "Próximamente" (disabled)
 
-**`LoginView.jsx`** (~100 líneas)
+**`LoginView.jsx`** (~101 líneas)
 
-- Login contextual por rol seleccionado (Visitante/Empleado/Administrador)
-- Campo de identificación dinámico:
-  - Visitante → "Documento"
-  - Empleado → "Código Empleado"
-  - Admin → "ID"
-- Campo de contraseña siempre visible (type="password")
-- Botón de submit con gradiente de color según rol: azul (Visitante), naranja (Empleado), púrpura (Admin)
-- Loading state con `disabled` y texto "Ingresando..." durante fetch
-- Enlace "¿No tienes cuenta? Regístrate" → cambia a vista registro
-- Usa clases CSS (`.auth-card`, `.form-input`, `.auth-submit`, `.auth-role-badge`) en lugar de inline styles
-- Export nombrado + default para compatibilidad con App.jsx
+- Login contextual por rol seleccionado
+- Campo único "ID de Usuario" con placeholder "Ej: V1, E1, A1"
+- Enlace "Regístrate aquí" solo para Visitante
+- Botón "← Volver a selección de rol" siempre visible
 
-**`RegistroView.jsx`** (~80 líneas)
+**`RegistroView.jsx`** (~120 líneas)
 
-- Formulario de registro con campos según rol (documento para visitante, codigoEmpleado para empleado)
-- Login con verificación case-insensitive (`rolSeleccionado?.toLowerCase()` vs `'administrador'`)
-- Validación básica de campos obligatorios
-- Loading state con `disabled` en botón durante envío
-- Layout `form-row` para campos lado a lado (nombre + identificador)
-- Usa mismas clases CSS que LoginView para coherencia visual
-- Enlace "¿Ya tienes cuenta? Inicia sesión" → cambia a vista login
+- Solo renderiza formulario si el rol es Visitante
+- Para otros roles: pantalla informativa "Solo los visitantes pueden crear una cuenta"
+- Campos: nombre, documento, edad, estatura, contraseña (sin ID — auto-generado)
+- Enlace "← Ya tengo cuenta, iniciar sesión"
 
 **`MapaParque.jsx`** (87 líneas)
 
-- SVG interactivo (500x400)
-- Dibuja aristas (senderos) como líneas con peso visible
-- Nodos (atracciones) como círculos con texto (nombre + ID)
-- Colores por estado: verde (ACTIVA), amarillo (EN_MANTENIMIENTO), rojo (CERRADA)
-- Resalta ruta óptima: aristas en neón (cyan) + nodos agrandados
-- Click en nodo: selecciona como destino automáticamente
+- SVG interactivo 600×500 (antes 500×400) para acomodar 7 atracciones
+- Dibuja aristas (senderos) desde datos del endpoint `/api/parque/senderos`
+- Nodos: círculos coloreados por estado (verde=ACTIVA, amarillo=EN_MANTENIMIENTO, rojo=CERRADA)
+- Resalta ruta óptima (Dijkstra) con aristas en neón y nodos agrandados
 - Muestra información de ruta: camino + distancia total
 
-**`App.css`** (~950 líneas)
+**`Icons.jsx`** (45 líneas) — NUEVO
 
-- Tema pastel claro (auth) + neón oscuro (dashboard):
-  - Auth: fondo `#FFE4E1`, navbar `#FFD4D0`, texto `#2D2D2D`
-  - Dashboard: mantiene tema Cyberpunk original con glassmorphism
-  - Bordes redondeados, animación `cardEntrance` (0.5s ease-out)
-- **Estilos de autenticación** (`+200 líneas`):
-  - `.auth-container`: contenedor full-screen centrado con flexbox
-  - `.auth-card`: tarjeta con sombra suave y animación de entrada
-  - `.auth-emoji`: emoji decorativo grande (centrado)
-  - `.auth-title`, `.auth-subtitle`: tipografía de bienvenida
-  - `.auth-role-badge`: badge coloreado por rol (azul/naranja/púrpura)
-  - `.form-group`, `.form-label`, `.form-input`: inputs estilizados con foco
-  - `.form-row`: layout de 2 columnas para login/registro
-  - `.auth-submit`: botón submit con gradiente por rol
-- **Layout centrado del dashboard**:
-  - `.main-content`: `display: flex; flex-direction: column; align-items: center`
-  - `.dashboard-header`, `.dashboard-grid`, `.tab-bar`, `.tab-content`, `.reports-section`: todos con `max-width: 1200px; width: 100%`
+- 3 componentes SVG inline: `VisitanteIcon`, `EmpleadoIcon`, `AdminIcon`
+- Colores corporativos: rojo (`#D07070`), azul (`#8AB4C8`), dorado (`#FFE4B5`)
+- Tamaño configurable vía prop `size`
+
+**`App.css`** (~980 líneas)
+
+- Tema pastel para auth + imágenes con overlay oscuro para pantallas principales
+- Layout responsive: `max-width: 100%` (antes 1200px fijo) + grid `1.6fr 1fr` para relación 16:9
+- Clases nuevas: `.bg-image-layer`, `.bg-overlay-tint`
+- `.btn-logout` con fondo sólido `#E8A0A0` (antes transparente — invisible en navbar pastel)
 
 ---
 
@@ -551,12 +543,13 @@ NOTAS SOBRE TechPark.java:
 | ------- | ---------------------------- | ------------------------------------------------- | --------------------------------- | ---- |
 | GET     | `/api/test`                | —                                                | `Map<String, String>`           | 1    |
 | GET     | `/api/parque/atracciones`  | —                                                | `Atraccion[]`                   | 1    |
+| GET     | `/api/parque/senderos`     | —                                                | `Sender[]`                    | 7    |
 | GET     | `/api/parque/zonas`        | —                                                | `Zona[]`                        | 1    |
 | GET     | `/api/parque/estado`       | —                                                | `String`                        | 1    |
 | POST    | `/api/parque/cargar-datos` | —                                                | `ResponseEntity<String>`        | 1    |
 | GET     | `/api/parque/ruta`         | `origen`, `destino`                           | `ResponseEntity<ResultadoRuta>` | 1    |
 | POST    | `/api/parque/unirse-fila`  | `visitanteId`, `atraccionId`, `tipoTiquete` | `ResponseEntity<String>`        | 2    |
-| GET     | `/api/parque/usuarios`     | —                                                | `Usuario[]`                   | 2    |
+| GET     | `/api/parque/usuarios`     | —                                                | `Visitante[]`                 | 2    |
 | POST    | `/api/parque/procesar-fila`| `atraccionId`                                  | `ResponseEntity<String>`        | 2    |
 | POST    | `/api/parque/comprar-ticket`| `visitanteId`, `tipoTiquete`                 | `ResponseEntity<String>`        | 3    |
 | GET     | `/api/parque/mis-tiquetes` | `visitanteId`                                  | `Tiquete[]`                   | 3    |
@@ -566,6 +559,7 @@ NOTAS SOBRE TechPark.java:
 | GET     | `/api/parque/historial`    | `visitanteId`                                  | `Atraccion[]`                | 5    |
 | POST    | `/api/parque/recargar-saldo`| `visitanteId`, `monto`                       | `ResponseEntity<String>`        | 5    |
 | POST    | `/api/parque/mantenimiento`| `atraccionId`, `accion`                      | `ResponseEntity<String>`        | 5    |
+| POST    | `/api/parque/alerta-clima` | `accion`, `motivo` (opcional)              | `ResponseEntity<String>`        | 7    |
 | GET     | `/api/parque/reportes/diario`| —                                                | `ResponseEntity<Reporte>`       | 1    |
 | GET     | `/api/parque/reportes/populares`| —                                            | `ResponseEntity<Atraccion[]>`   | 1    |
 
@@ -573,7 +567,7 @@ NOTAS SOBRE TechPark.java:
 | POST    | `/api/auth/registro`  | `{nombre, edad, rol, documento?, codigoEmpleado?, contrasena}` | `{success, usuario, message}` | 6    |
 | POST    | `/api/auth/logout`    | —                                                | `{success, message}`                 | 6    |
 
-**Total: 22 endpoints** (10 GET + 12 POST)
+**Total: 24 endpoints** (11 GET + 13 POST)
 
 ---
 
@@ -595,6 +589,20 @@ NOTAS SOBRE TechPark.java:
 | 2026-05-20 | AuthService conectado a TechPark vía `@Autowired` | Los usuarios registrados deben aparecer en ambos sistemas (auth + parque) | FASE 6  |
 | 2026-05-20 | LoginView/RegistroView con clases CSS en vez de inline styles | Mantenibilidad y coherencia visual con el resto de la aplicación | FASE 6  |
 | 2026-05-20 | Dashboard centrado con `max-width: 1200px` | Mejor experiencia en pantallas grandes, contenido alineado | FASE 6  |
+| 2026-05-20 | **Login por `u.getId()` para TODOS los roles** | Simplifica: Visitante=V1, Empleado=E1, Admin=A1. Ya no hay 3 campos distintos. | FASE 6b |
+| 2026-05-20 | **Solo Visitante puede registrarse** | Empleados/Admins son precargados en JSON (como en sistemas reales) | FASE 6b |
+| 2026-05-20 | **ID auto-generado para nuevos Visitantes** (V4, V5...) | El usuario no inventa un ID — el backend lo genera | FASE 6b |
+| 2026-05-20 | **Persistencia a `usuarios.json` tras cada registro** | Nuevos visitantes sobreviven a reinicios del servidor | FASE 6b |
+| 2026-05-20 | **Deserialización polimórfica de usuarios** | Lee campo "tipo" del JSON para instanciar Visitante/Operador/Administrador | FASE 6b |
+| 2026-05-20 | **`@RequestParam("nombre")` explícito en TODOS los endpoints** | Spring Boot 3.x + Java 21 requiere nombres explícitos incluso con flag `-parameters` | FASE 6b |
+| 2026-05-20 | **ResultadoRuta.getCamino() retorna String[]** | Jackson serializa array `["A1","A2","A3"]` en vez de objeto `{cabeza: ..., tam: ...}` | FASE 7 |
+| 2026-05-20 | **`unirseAFila` valida estado de atracción PRIMERO** | Antes validaba requisitos del visitante aunque la atracción estuviera en mantenimiento | FASE 7 |
+| 2026-05-20 | **Tiquete FAST_PASS comprado es requerido para prioridad** | `unirseAFila` revisa `tiquetesEmitidos` antes de asignar prioridad Fast-Pass | FASE 7 |
+| 2026-05-20 | **Alerta climática cierra también atracciones "Familiar"** | Carrusel Mágico y Noria Panorámica ahora se cierran con el clima | FASE 7 |
+| 2026-05-20 | **Senderos servidos desde endpoint `/api/parque/senderos`** | Ya no hay datos hardcodeados en el frontend — el Grafo los exporta | FASE 7 |
+| 2026-05-20 | **Layout 16:9 con `max-width: 100%`** | Dashboard se adapta al ancho de pantalla en vez de fijo 1200px | FASE 7 |
+| 2026-05-20 | **Imágenes de fondo + overlay oscuro** | `Bienvenidos.png` y `Rol.png` desde camilo_dev como background | FASE 7 |
+| 2026-05-20 | **SVG vector icons en role selection** | `Icons.jsx` con `VisitanteIcon`, `EmpleadoIcon`, `AdminIcon` | FASE 7 |
 
 ---
 
@@ -617,24 +625,20 @@ Se verificaron TODOS los archivos en busca de imports de colecciones Java (`java
 
 ## 8. REGISTRO DE COMMITS
 
-**Total de commits: 65** (pendientes: commits de auth + FASE 7 diagramas)
+**Total de commits: ~68** (+3 de la sesión actual de correcciones FASE 7)
 
 Los 10 commits más recientes:
 
 ```
-65188fc Realización de pruebas unitarias para las estructuras de datos
-b2a09ce Implementación de favoritos para los visitantes
-083c139 Arreglo de archivos .jason debido a fallo de serialización infinita
-c7850d4 Creación y gestion de la compra de tickets
-4b066c4 Gestion de las colas en el parque de diversiones
-c825712 Implementación de datos de prueba con archivtos tipo jason
-f6dad23 Implementación de los reportes con estadisticas y rating de las atracciones del parque
-584c3ee Mejora de la interfaz grafica para visualizar las implementaciones agregadas hasta este punto del proyecto
-497cb01 Implementación del Algoritmo de Dijkstra (camino mas corto) al flujo del programa
-488b7a3 Implementacion de estructuras de datos (PriorityQueue, LinkedList, ABB, grafo)
+16e1b62 Interfaz - Implementación y mejoria del login
+3627280 Autenticación realizada con lista enlazada y mejoria del login contextual a los roles del parque de diversiones
+41ccbe0 Arreglo de la interfaz de login
+e34237d Add files via upload
+61ee190 Mejora a la interfaz
+... (próximos commits de esta sesión)
 ```
 
-**Estado:** 65 commits totales. Se requieren mínimo 24 commits POR INTEGRANTE (72 totales). **Déficit: ~7 commits.**
+**Estado:** ~68 commits totales. Se requieren mínimo 24 commits POR INTEGRANTE (72 totales). **Déficit: ~4 commits.**
 
 **Conventional commits:** NO SEGUIDOS — todos los commits están en español sin prefijos (`feat:`, `fix:`, `test:`, `docs:`, `refactor:`).
 
@@ -646,25 +650,27 @@ f6dad23 Implementación de los reportes con estadisticas y rating de las atracci
 | ----------------------------------------- | ------------- | ----------------------------------------------------------- |
 | Modelos de dominio (26 clases)            | 95%           | Todos creados, algunos sin lógica completa                 |
 | Estructuras de datos propias (7)          | 100%          | ListaEnlazada, ABB, Grafo, ColaPrioridad, FavoritosSet, Arista, ResultadoRuta |
-| Algoritmo Dijkstra                        | 100%          | Implementado en Grafo.calcularRutaOptima + frontend SVG     |
-| Persistencia JSON                         | 100%          | Carga desde JSON + botón en frontend                       |
-| Backend REST (22 endpoints)               | 100%          | 22 endpoints operativos (19 parque + 3 auth)               |
-| Autenticación (ListaEnlazada, 3 endpoints) | 100%          | AuthService sin HashMap, login contextual por rol          |
-| Layout centrado dashboard                 | 100%          | max-width: 1200px en todos los componentes del dashboard   |
-| Frontend (React)                          | 90%           | 7 componentes, 5 vistas (welcome, role, login, registro, dashboard) |
-| Mapa interactivo SVG                      | 90%           | Renderiza grafo, resalta rutas, colorea por estado          |
-| Lógica de tickets (3 tipos)              | 100%          | GENERAL, FAST_PASS, FAMILIAR con precios y validaciones     |
-| Colas inteligentes (Fast-Pass vs General) | 100%          | ColaPrioridad heap + procesar siguiente                     |
-| Favoritos e historial                     | 100%          | FavoritosSet + 3 endpoints + frontend                       |
-| Recarga de saldo + mantenimiento          | 100%          | Endpoints + frontend completo                               |
-| Alertas climáticas                       | 50%           | Cierre implementado, notificaciones no                      |
-| Reportes y estadísticas                  | 100%          | ReporteService + 2 endpoints + frontend Admin con tarjetas  |
+| Algoritmo Dijkstra                        | 100%          | Implementado en Grafo.calcularRutaOptima + frontend SVG |
+| Persistencia JSON                         | 100%          | Carga desde JSON + guardado tras registro + botón frontend |
+| Backend REST (24 endpoints)               | 100%          | 24 endpoints operativos (21 parque + 3 auth) + @RequestParam explícitos |
+| Autenticación (ListaEnlazada, 3 endpoints) | 100%          | AuthService sin HashMap, login por ID unificado, solo Visitante registra, ID auto-generado |
+| Layout responsive 16:9                    | 100%          | max-width: 100% + grid 1.6fr 1fr + navbar/section adaptativos |
+| Frontend (React)                          | 95%           | 8 componentes + 2 imágenes, 5 vistas, SVG icons, imágenes fondo |
+| Mapa interactivo SVG                      | 95%           | Renderiza grafo (7 nodos, 12 aristas), resalta rutas, colorea por estado |
+| Lógica de tickets (3 tipos)              | 100%          | GENERAL, FAST_PASS, FAMILIAR con precios y validaciones |
+| Colas inteligentes (Fast-Pass vs General) | 100%          | ColaPrioridad heap + validación de ticket FAST_PASS comprado |
+| Favoritos e historial                     | 100%          | FavoritosSet + 3 endpoints + frontend |
+| Recarga de saldo + mantenimiento          | 100%          | Endpoints + frontend completo + saldo visible |
+| Alertas climáticas                       | 100%          | Activar/desactivar desde Admin, cierra acuáticas, mecánicas Y familiares |
+| Reportes y estadísticas                  | 100%          | ReporteService + 2 endpoints + frontend Admin con tarjetas |
 | Pruebas unitarias (mínimo 4)             | 100%          | 21 tests en 4 clases (ListaEnlazada(6), ColaPrioridad(5), ABB(5), Grafo(5)) |
-| Diagrama de clases                        | 0%            | No existe                                                   |
-| Diagrama de estructuras propias           | 0%            | No existe                                                   |
-| Commits (24 por integrante)               | 90%           | 65 de 72 requeridos                                         |
+| Imágenes de fondo (welcome + roles)      | 100%          | Bienvenidos.png + Rol.png con overlay oscuro |
+| Iconos vectoriales SVG                   | 100%          | VisitanteIcon, EmpleadoIcon, AdminIcon en Icons.jsx |
+| Diagrama de clases                        | 0%            | No existe |
+| Diagrama de estructuras propias           | 0%            | No existe |
+| Commits (24 por integrante)               | 94%           | ~68 de 72 requeridos |
 
-**Progreso global estimado: ~97%**
+**Progreso global estimado: ~98%**
 
 ---
 
@@ -685,16 +691,14 @@ f6dad23 Implementación de los reportes con estadisticas y rating de las atracci
 | -- | ------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | 5  | **CRUD de empleados**                             | Modelos Administrador/Operador/Empleado existen          | No hay endpoints para crear/modificar/asignar empleados                        |
 | 6  | **Notificaciones climáticas**                    | activarAlertaClimatica cierra atracciones                | No notifica a visitantes afectados                                             |
-| 7  | **Endpoint de senderos**                          | Senderos hardcodeados en frontend                        | No hay GET /api/parque/senderos                                                |
 
 ### 10.3 Frontend Pendiente
 
 | #  | Funcionalidad                      | Estado                             | Lo que falta                                          |
 | -- | ---------------------------------- | ---------------------------------- | ----------------------------------------------------- |
-| 8  | Panel de Administrador completo    | Sección reportes + login auth OK  | CRUD de empleados, zonas, alertas climáticas           |
-| 9  | Gráficos estadísticos            | 5 tarjetas numéricas               | Gráficos con Chart.js / Recharts pendientes           |
-| 10 | Indicadores en tiempo real         | No implementados                   | Personas en cola, tiempo estimado                     |
-| 11 | Test data (empleados/admin)       | Solo 3 Visitantes en usuarios.json | Crear registros de prueba para Empleados y Admins     |
+| 7  | Panel de Administrador completo    | Reportes + clima + login OK       | CRUD de empleados, zonas                              |
+| 8  | Gráficos estadísticos            | 5 tarjetas numéricas               | Gráficos con Chart.js / Recharts pendientes           |
+| 9  | Indicadores en tiempo real         | No implementados                   | Personas en cola, tiempo estimado                     |
 
 ---
 
@@ -707,8 +711,8 @@ f6dad23 Implementación de los reportes con estadisticas y rating de las atracci
 3. **`Atraccion.java`**: El atributo `tipo` es `String` (no usa `TipoAtraccion` enum). El método `registrarVisita()` usa String.contains() para detectar tipos "acuática" y "mecánica", lo cual es frágil.
 4. **`Alerta.java`**: Tiene prioridad como int pero no se usa en ninguna lógica de ordenamiento.
 5. ~~**`Reporte.java`**: Existe como DTO pero TechPark.java no tiene métodos para generar reportes.~~ ✅ RESUELTO
-6. ~~**`DatosService.java`**: Los métodos `cargarUsuarios()` retornan `List<Visitante>` pero el JSON `usuarios.json` tiene 1 visitante.~~ ✅ RESUELTO: ahora tiene 3 visitantes
-7. **Hardcoded en frontend**: Los senderos están hardcodeados en App.jsx. No hay un endpoint del backend que los sirva.
+6. ~~**`DatosService.java`**: Los métodos `cargarUsuarios()` retornan `List<Visitante>` pero el JSON `usuarios.json` tiene 1 visitante.~~ ✅ RESUELTO: ahora tiene 5 usuarios
+7. ~~**Hardcoded en frontend**: Los senderos están hardcodeados en App.jsx.~~ ✅ RESUELTO: ahora se sirven desde endpoint `/api/parque/senderos`
 8. ~~**visitanteId fijo**: El frontend usa siempre "V1" para unirse a la fila.~~ ✅ RESUELTO: selector de usuario implementado
 9. **Sin manejo de concurrencia**: TechPark no es thread-safe. Múltiples peticiones concurrentes a `unirseAFila()` podrían causar condiciones de carrera.
 10. **`RevisionTecnica.java`/`Reporte.java`**: Importan `java.util.*` cuando solo necesitan `java.util.Date`.
@@ -717,13 +721,13 @@ f6dad23 Implementación de los reportes con estadisticas y rating de las atracci
 
 1. ~~**Pruebas unitarias**: 4 tests mínimos~~ ✅ Completado (21 tests)
 2. ~~**Autenticación**: HashMap removido de AuthService~~ ✅ Reescrito con ListaEnlazada
-3. ~~**Login contextual**: login por documento/codigoEmpleado/id~~ ✅ Implementado
-4. ~~**Layout dashboard**: contenido centrado~~ ✅ max-width: 1200px
+3. ~~**Login contextual**: login por documento/codigoEmpleado/id~~ ✅ Cambiado a login por ID unificado
+4. ~~**Layout dashboard**: contenido centrado~~ ✅ max-width: 100% + layout 16:9
 5. **Crear diagramas UML** (Draw.io o PlantUML) — requisito obligatorio del PDF
-6. **Alcanzar 72 commits** (~7 más) usando prefijos conventional commits
-7. **Agregar endpoint `/api/parque/senderos`** para que el frontend no tenga datos hardcodeados
+6. **Alcanzar 72 commits** (~4 más) usando prefijos conventional commits
+7. ~~**Agregar endpoint `/api/parque/senderos`**~~ ✅ Implementado en Grafo.obtenerTodosLosSenderos()
 8. **Implementar CRUD de empleados** en backend y frontend Admin
-9. **Crear datos de prueba** para Empleados y Administradores en usuarios.json
+9. ~~**Crear datos de prueba** para Empleados y Administradores en usuarios.json~~ ✅ 5 usuarios: V1-V3, E1, A1
 10. **Corregir typo en RevisionTecnica.java** (`aprovada` → `aprobada`)
 11. **Corregir imports sobredimensionados** en Reporte.java y RevisionTecnica.java
 12. **Agregar gráficos estadísticos** con Chart.js o Recharts
@@ -737,30 +741,60 @@ f6dad23 Implementación de los reportes con estadisticas y rating de las atracci
 | Componente | Estado |
 | ---------- | ------ |
 | Estructuras de datos propias (7) | ✅ **100%** |
-| Algoritmo Dijkstra | ✅ **100%** |
+| Algoritmo Dijkstra | ✅ **100%** (ResultadoRuta retorna String[] — corrige pantalla en blanco) |
 | Carga de datos JSON | ✅ **100%** |
 | Refactorización a estructuras propias | ✅ **100%** |
-| Mapa interactivo SVG | ✅ **90%** |
-| Backend REST (22 endpoints) | ✅ **100%** |
-| Sistema de autenticación (login/registro) | ✅ **100%** — AuthService con ListaEnlazada, 3 endpoints |
-| Gestión de Colas | ✅ **100%** |
+| Mapa interactivo SVG | ✅ **95%** (7 nodos, 12 aristas, 600×500) |
+| Backend REST (24 endpoints) | ✅ **100%** (+ senderos, + alerta-clima) |
+| Sistema de autenticación (login/registro) | ✅ **100%** — login por ID unificado, solo Visitante registra, ID auto-generado, persistencia JSON |
+| Gestión de Colas | ✅ **100%** (valida FAST_PASS comprado, estado de atracción primero, mensajes específicos) |
 | Compra de Tickets | ✅ **100%** |
 | Gestión de Favoritos | ✅ **100%** |
 | Historial de Visitas | ✅ **100%** |
-| Recarga de Saldo | ✅ **100%** |
+| Recarga de Saldo | ✅ **100%** (saldo visible siempre) |
 | Mantenimiento de Atracciones | ✅ **100%** |
 | Reportes y Estadísticas | ✅ **100%** |
-| Layout centrado del dashboard | ✅ **100%** |
-| Panel Visitante (frontend) | ✅ **100%** (incluye login/registro contextual) |
-| Panel Empleado (frontend) | ✅ **100%** (incluye login por código empleado) |
-| Panel Administrador (frontend) | ⚠️ **70%** (reportes + login listos, CRUD empleados no) |
+| Alertas Climáticas | ✅ **100%** (activa/desactiva desde Admin, cierra acuáticas, mecánicas y familiares) |
+| Layout responsive 16:9 | ✅ **100%** (max-width: 100%, grid 1.6fr 1fr) |
+| Imágenes de fondo (welcome + roles) | ✅ **100%** (Bienvenidos.png, Rol.png con overlay oscuro) |
+| Iconos vectoriales SVG | ✅ **100%** (VisitanteIcon, EmpleadoIcon, AdminIcon) |
+| Panel Visitante (frontend) | ✅ **100%** (login por ID, registro, mapa, ruta, tickets, favoritos, historial, recarga) |
+| Panel Empleado (frontend) | ✅ **100%** (colas, mantenimiento) |
+| Panel Administrador (frontend) | ⚠️ **80%** (reportes, clima funcional, CRUD empleados/zonas no) |
 | Pruebas unitarias (21 tests) | ✅ **100%** |
 | Diagrama de clases | ❌ **0%** |
 | Diagrama de estructuras propias | ❌ **0%** |
-| Commits (65/72) | ⚠️ **90%** — faltan ~7 |
+| Commits (~68/72) | ⚠️ **94%** — faltan ~4 |
 | Conventional commits | ❌ **No implementado** |
 
-### Progreso global estimado: **~97%**
+### Progreso global estimado: **~98%**
+
+### Correcciones realizadas en esta sesión (FASE 7)
+
+| # | Problema | Solución | Archivos afectados |
+|---|----------|----------|--------------------|
+| 1 | Login por 3 campos distintos (doc/código/ID) → unificado a ID | `AuthService.verificarLogin()` ahora compara `u.getId()` siempre | `AuthService.java`, `LoginView.jsx` |
+| 2 | Registro permitía crear Operador/Admin | Solo `registrarVisitante()` disponible; controller rechaza otros roles | `AuthService.java`, `AuthController.java`, `RegistroView.jsx` |
+| 3 | Sin persistencia de nuevos usuarios | `DatosService.guardarUsuarios()` escribe JSON tras cada registro | `DatosService.java`, `AuthService.java` |
+| 4 | Faltaban usuarios precargados (E1, A1) | `usuarios.json` con 5 usuarios (V1-V3, E1, A1) + deserialización polimórfica | `usuarios.json`, `DatosService.java` |
+| 5 | `@RequestParam` sin nombre → Spring Boot 3.x falla | Agregado `@RequestParam("name")` en TODOS los 11+ métodos | `ParqueController.java` |
+| 6 | `/api/parque/usuarios` retornaba Operador/Admin | Filtrado a solo `Visitante[]` | `ParqueController.java` |
+| 7 | Dijkstra (ResultadoRuta) serializaba ListaEnlazada como objeto → pantalla en blanco | `getCamino()` retorna `String[]` en vez de `ListaEnlazada<String>` | `ResultadoRuta.java` |
+| 8 | `unirseAFila` validaba requisitos del visitante incluso si la atracción estaba en mantenimiento | Validación de estado PRIMERO con mensajes específicos | `TechPark.java` |
+| 9 | FAST_PASS sin ticket comprado daba prioridad igual | Validación contra `tiquetesEmitidos` en `unirseAFila` | `TechPark.java` |
+| 10 | Alerta climática no cerraba atracciones "Familiar" | Agregado `|| tipo.contains("familiar")` | `TechPark.java` |
+| 11 | Senderos hardcodeados en frontend (10) vs backend (12) | Nuevo endpoint `GET /api/parque/senderos` + método `obtenerTodosLosSenderos()` en Grafo | `Grafo.java`, `ParqueController.java`, `App.jsx` |
+| 12 | MapaParque SVG muy pequeño (500×400) | Aumentado a 600×500 para 7 atracciones | `MapaParque.jsx` |
+| 13 | Botón "Calcular Dijkstra" nombre técnico | Renombrado a "Buscar Ruta más Corta" | `App.jsx` |
+| 14 | Sin `.catch()` en fetch de zonas | Agregado `.catch()`  | `App.jsx` |
+| 15 | Admin clima no funcional | Endpoint `alerta-clima` + método `desactivarAlertaClimatica()` + botón en Admin | `ParqueController.java`, `TechPark.java`, `App.jsx` |
+| 16 | Sin botón "Volver" en LoginView | Agregado `← Volver a selección de rol` | `LoginView.jsx` |
+| 17 | Botón "Sincronizar datos" sin utilidad clara | Renombrado a "🔄 Recargar desde JSON" | `App.jsx` |
+| 18 | Layout 4:3 (max-width: 1200px fijo) | Cambiado a `max-width: 100%` con grid 1.6fr 1fr para 16:9 | `App.css` |
+| 19 | Sin imágenes de fondo (solo colores pastel) | Importadas `Bienvenidos.png` y `Rol.png` con overlay oscuro | `App.jsx`, `App.css` |
+| 20 | Iconos emoji en role selection | Reemplazados por SVG vector icons (`Icons.jsx`) | `Icons.jsx`, `App.jsx` |
+| 21 | Botón logout invisible (transparente en navbar pastel) | Fondo sólido `#E8A0A0` + texto blanco + bold | `App.css` |
+| 22 | Flujo recarga/ticket confuso | Saldo siempre visible + validación FAST_PASS comprado | `App.jsx`, `TechPark.java` |
 
 ### Próximas tareas
 
@@ -772,13 +806,17 @@ f6dad23 Implementación de los reportes con estadisticas y rating de las atracci
 6. ✅ ~~FASE 6: Pruebas unitarias (21 tests con JUnit 5)~~
 7. ✅ ~~FASE 6b: Autenticación con ListaEnlazada y login contextual~~
 8. ✅ ~~FASE 6c: Layout centrado del dashboard~~
-9. **FASE 7: Diagramas de clases y estructuras** ← SIGUIENTE
-10. **Incrementar commits a 72** (~7 adicionales)
-11. **Migrar a conventional commits** o justificar su ausencia
+9. ✅ ~~FASE 7a: Corrección integral de 10 bugs + mejoras frontend~~
+10. **FASE 7b: Diagramas de clases y estructuras** ← SIGUIENTE
+11. **Incrementar commits a 72** (~4 adicionales)
+12. **Migrar a conventional commits** o justificar su ausencia
 
 ---
 
 *Memoria actualizada: 20 de mayo de 2026*
-*Análisis basado en lectura de 52 archivos de código fuente (36 Java + 7 frontend + 4 JSON + 5 documentación)*
-*Backend: mvn compile BUILD SUCCESS | Frontend: vite build ✓*
+*Análisis basado en lectura de 54 archivos de código fuente (37 Java + 8 frontend + 4 JSON + 5 documentación)*
+*Backend: mvn compile BUILD SUCCESS | Frontend: vite build ✓ (23 módulos, 223KB JS, 15KB CSS)*
 *AuthService reescrito: HashMap → ListaEnlazada<Usuario> (sin colecciones Java en lógica de negocio)*
+*Login unificado por ID: Visitante=V1/V2/V3, Empleado=E1, Admin=A1 (pass: "1234")*
+*10 bugs corregidos: Dijkstra, FAST_PASS, clima, layout, imágenes, SVG, logout, validaciones*
+*Próximo paso: Diagramas PlantUML (FASE 7b)*

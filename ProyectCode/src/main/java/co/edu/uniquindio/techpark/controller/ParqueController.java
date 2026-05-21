@@ -6,14 +6,18 @@ import co.edu.uniquindio.techpark.Model.Zona;
 import co.edu.uniquindio.techpark.Model.ResultadoRuta;
 import co.edu.uniquindio.techpark.Model.Reporte;
 import co.edu.uniquindio.techpark.Model.Usuario;
+import co.edu.uniquindio.techpark.Model.Visitante;
 import co.edu.uniquindio.techpark.Model.Tiquete;
 import co.edu.uniquindio.techpark.Model.TipoTiquete;
 import co.edu.uniquindio.techpark.service.ReporteService;
+import co.edu.uniquindio.techpark.service.Sender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -30,6 +34,11 @@ public class ParqueController {
     @GetMapping("/atracciones")
     public Atraccion[] getAtracciones() {
         return techPark.getTodasLasAtracciones();
+    }
+
+    @GetMapping("/senderos")
+    public Sender[] getSenderos() {
+        return techPark.getSenderos();
     }
 
     @GetMapping("/zonas")
@@ -64,7 +73,7 @@ public class ParqueController {
      * Endpoint para obtener la ruta más corta entre dos puntos.
      */
     @GetMapping("/ruta")
-    public ResponseEntity<ResultadoRuta> getRuta(@RequestParam String origen, @RequestParam String destino) {
+    public ResponseEntity<ResultadoRuta> getRuta(@RequestParam("origen") String origen, @RequestParam("destino") String destino) {
         ResultadoRuta ruta = techPark.obtenerRutaOptima(origen, destino);
         if (ruta != null) {
             return ResponseEntity.ok(ruta);
@@ -76,9 +85,9 @@ public class ParqueController {
      * Endpoint para que un visitante se una a la fila de una atracción.
      */
     @PostMapping("/unirse-fila")
-    public ResponseEntity<String> unirseAFila(@RequestParam String visitanteId, 
-                                              @RequestParam String atraccionId, 
-                                              @RequestParam String tipoTiquete) {
+    public ResponseEntity<String> unirseAFila(@RequestParam("visitanteId") String visitanteId, 
+                                               @RequestParam("atraccionId") String atraccionId, 
+                                               @RequestParam("tipoTiquete") String tipoTiquete) {
         try {
             TipoTiquete tipo = TipoTiquete.valueOf(tipoTiquete.toUpperCase());
             String mensaje = techPark.unirseAFila(visitanteId, atraccionId, tipo);
@@ -89,19 +98,26 @@ public class ParqueController {
     }
 
     @GetMapping("/usuarios")
-    public Usuario[] getUsuarios() {
-        return techPark.getUsuarios();
+    public Visitante[] getUsuarios() {
+        Usuario[] todos = techPark.getUsuarios();
+        List<Visitante> visitantes = new ArrayList<>();
+        for (Usuario u : todos) {
+            if (u instanceof Visitante) {
+                visitantes.add((Visitante) u);
+            }
+        }
+        return visitantes.toArray(new Visitante[0]);
     }
 
     @PostMapping("/procesar-fila")
-    public ResponseEntity<String> procesarFila(@RequestParam String atraccionId) {
+    public ResponseEntity<String> procesarFila(@RequestParam("atraccionId") String atraccionId) {
         String mensaje = techPark.procesarSiguiente(atraccionId);
         return ResponseEntity.ok(mensaje);
     }
 
     @PostMapping("/comprar-ticket")
-    public ResponseEntity<String> comprarTicket(@RequestParam String visitanteId,
-                                                 @RequestParam String tipoTiquete) {
+    public ResponseEntity<String> comprarTicket(@RequestParam("visitanteId") String visitanteId,
+                                                  @RequestParam("tipoTiquete") String tipoTiquete) {
         try {
             TipoTiquete tipo = TipoTiquete.valueOf(tipoTiquete.toUpperCase());
             String mensaje = techPark.comprarTicket(visitanteId, tipo);
@@ -112,47 +128,47 @@ public class ParqueController {
     }
 
     @GetMapping("/mis-tiquetes")
-    public ResponseEntity<Tiquete[]> getMisTiquetes(@RequestParam String visitanteId) {
+    public ResponseEntity<Tiquete[]> getMisTiquetes(@RequestParam("visitanteId") String visitanteId) {
         Tiquete[] tiquetes = techPark.getTiquetesVisitante(visitanteId);
         return ResponseEntity.ok(tiquetes);
     }
 
     @PostMapping("/agregar-favorito")
-    public ResponseEntity<String> agregarFavorito(@RequestParam String visitanteId,
-                                                   @RequestParam String atraccionId) {
+    public ResponseEntity<String> agregarFavorito(@RequestParam("visitanteId") String visitanteId,
+                                                    @RequestParam("atraccionId") String atraccionId) {
         String mensaje = techPark.agregarFavorito(visitanteId, atraccionId);
         return ResponseEntity.ok(mensaje);
     }
 
     @PostMapping("/eliminar-favorito")
-    public ResponseEntity<String> eliminarFavorito(@RequestParam String visitanteId,
-                                                    @RequestParam String atraccionId) {
+    public ResponseEntity<String> eliminarFavorito(@RequestParam("visitanteId") String visitanteId,
+                                                     @RequestParam("atraccionId") String atraccionId) {
         String mensaje = techPark.eliminarFavorito(visitanteId, atraccionId);
         return ResponseEntity.ok(mensaje);
     }
 
     @GetMapping("/mis-favoritos")
-    public ResponseEntity<Atraccion[]> getMisFavoritos(@RequestParam String visitanteId) {
+    public ResponseEntity<Atraccion[]> getMisFavoritos(@RequestParam("visitanteId") String visitanteId) {
         Atraccion[] favoritas = techPark.getFavoritos(visitanteId);
         return ResponseEntity.ok(favoritas);
     }
 
     @GetMapping("/historial")
-    public ResponseEntity<Atraccion[]> getHistorial(@RequestParam String visitanteId) {
+    public ResponseEntity<Atraccion[]> getHistorial(@RequestParam("visitanteId") String visitanteId) {
         Atraccion[] historial = techPark.getHistorial(visitanteId);
         return ResponseEntity.ok(historial);
     }
 
     @PostMapping("/recargar-saldo")
-    public ResponseEntity<String> recargarSaldo(@RequestParam String visitanteId,
-                                                 @RequestParam int monto) {
+    public ResponseEntity<String> recargarSaldo(@RequestParam("visitanteId") String visitanteId,
+                                                  @RequestParam("monto") int monto) {
         String mensaje = techPark.recargarSaldo(visitanteId, monto);
         return ResponseEntity.ok(mensaje);
     }
 
     @PostMapping("/mantenimiento")
-    public ResponseEntity<String> mantenimiento(@RequestParam String atraccionId,
-                                                 @RequestParam String accion) {
+    public ResponseEntity<String> mantenimiento(@RequestParam("atraccionId") String atraccionId,
+                                                  @RequestParam("accion") String accion) {
         String mensaje;
         switch (accion) {
             case "iniciar":
@@ -165,6 +181,20 @@ public class ParqueController {
                 return ResponseEntity.badRequest().body("❌ Acción inválida. Use 'iniciar' o 'revisar'.");
         }
         return ResponseEntity.ok(mensaje);
+    }
+
+    @PostMapping("/alerta-clima")
+    public ResponseEntity<String> alertaClima(@RequestParam("accion") String accion,
+                                               @RequestParam(value = "motivo", defaultValue = "") String motivo) {
+        if ("activar".equals(accion)) {
+            String m = motivo.isEmpty() ? "Tormenta eléctrica detectada" : motivo;
+            techPark.activarAlertaClimatica(m);
+            return ResponseEntity.ok("✅ Alerta climática activada: " + m + ". Atracciones acuáticas y mecánicas cerradas.");
+        } else if ("desactivar".equals(accion)) {
+            techPark.desactivarAlertaClimatica();
+            return ResponseEntity.ok("✅ Alerta climática desactivada. Atracciones restauradas.");
+        }
+        return ResponseEntity.badRequest().body("❌ Acción inválida. Use 'activar' o 'desactivar'.");
     }
 
     @GetMapping("/reportes/diario")

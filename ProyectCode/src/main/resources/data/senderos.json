@@ -1,17 +1,14 @@
 [
-  {
-    "origen": "A1",
-    "destino": "A2",
-    "peso": 50
-  },
-  {
-    "origen": "A2",
-    "destino": "A3",
-    "peso": 30
-  },
-  {
-    "origen": "A1",
-    "destino": "A3",
-    "peso": 70
-  }
+  { "origen": "A1", "destino": "A2", "peso": 50 },
+  { "origen": "A2", "destino": "A3", "peso": 30 },
+  { "origen": "A1", "destino": "A3", "peso": 70 },
+  { "origen": "A1", "destino": "A4", "peso": 40 },
+  { "origen": "A4", "destino": "A5", "peso": 60 },
+  { "origen": "A2", "destino": "A4", "peso": 35 },
+  { "origen": "A2", "destino": "A5", "peso": 80 },
+  { "origen": "A3", "destino": "A6", "peso": 45 },
+  { "origen": "A5", "destino": "A6", "peso": 55 },
+  { "origen": "A3", "destino": "A7", "peso": 25 },
+  { "origen": "A6", "destino": "A7", "peso": 20 },
+  { "origen": "A5", "destino": "A7", "peso": 65 }
 ]

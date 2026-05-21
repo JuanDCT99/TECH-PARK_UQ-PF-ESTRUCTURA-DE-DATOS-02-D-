@@ -31,5 +31,25 @@
     "estatura": 1.80,
     "saldoVirtual": 30000,
     "tipo": "VISITANTE"
+  },
+  {
+    "id": "E1",
+    "nombre": "Operador Central",
+    "correo": "operador@techpark.com",
+    "contrasena": "1234",
+    "codigoEmpleado": "EMP-001",
+    "salario": 2500000,
+    "turno": "MAÑANA",
+    "tipo": "OPERADOR"
+  },
+  {
+    "id": "A1",
+    "nombre": "Admin General",
+    "correo": "admin@techpark.com",
+    "contrasena": "1234",
+    "codigoEmpleado": "ADM-001",
+    "salario": 4500000,
+    "nivelAcceso": 5,
+    "tipo": "ADMINISTRADOR"
   }
 ]

@@ -103,10 +103,10 @@ public class TechPark {
                 agregarZona(zona);
             }
             
-            // Cargar usuarios (visitantes)
-            List<Visitante> usuariosCargados = datosService.cargarUsuarios();
-            for (Visitante v : usuariosCargados) {
-                this.usuarios.agregar(v);
+            // Cargar usuarios
+            List<Usuario> usuariosCargados = datosService.cargarUsuarios();
+            for (Usuario u : usuariosCargados) {
+                this.usuarios.agregar(u);
             }
             
             return true;
@@ -194,9 +194,33 @@ public class TechPark {
         Atraccion atraccion = catalogoAtracciones.buscarPorId(atraccionId);
         if (atraccion == null) return "❌ Error: Atracción no encontrada.";
 
-        // Validar si puede entrar
+        // 1. Validar estado de la atracción PRIMERO
+        if (atraccion.getEstado() == EstadoAtraccion.EN_MANTENIMIENTO) {
+            return "⚠️ La atracción " + atraccion.getNombre() + " está en mantenimiento. No puedes unirte a la fila.";
+        }
+        if (atraccion.getEstado() == EstadoAtraccion.CERRADA) {
+            String motivo = atraccion.getMotivoCierre();
+            String causa = (motivo != null && !motivo.isEmpty()) ? " (" + motivo + ")" : "";
+            return "⚠️ La atracción " + atraccion.getNombre() + " está cerrada" + causa + ".";
+        }
+
+        // 2. Validar que el visitante tenga el ticket correspondiente
+        if (tipoTiquete == TipoTiquete.FAST_PASS) {
+            boolean tieneFastPass = false;
+            for (Tiquete t : tiquetesEmitidos) {
+                if (t.getPropietario().getId().equals(visitanteId) && t.getTipo() == TipoTiquete.FAST_PASS) {
+                    tieneFastPass = true;
+                    break;
+                }
+            }
+            if (!tieneFastPass) {
+                return "❌ No tienes un ticket Fast-Pass. Cómpralo primero en la sección Tickets.";
+            }
+        }
+
+        // 3. Validar si puede entrar (edad, estatura, saldo)
         if (!visitante.puedeEntrar(atraccion)) {
-            return "⚠️ El visitante no cumple con los requisitos mínimos.";
+            return "⚠️ El visitante no cumple con los requisitos mínimos para " + atraccion.getNombre() + ".";
         }
 
         // Determinar prioridad
@@ -320,9 +344,21 @@ public class TechPark {
     public void activarAlertaClimatica(String motivo) {
         for (Atraccion atr : todasLasAtracciones) {
             String tipo = atr.getTipo().toLowerCase();
-            if (tipo.contains("acuática") || tipo.contains("mecánica")) {
+            if (tipo.contains("acuática") || tipo.contains("mecánica") || tipo.contains("familiar")) {
                 atr.setEstado(EstadoAtraccion.CERRADA);
                 atr.setMotivoCierre("CIERRE AUTOMÁTICO POR CLIMA: " + motivo);
+            }
+        }
+    }
+
+    public void desactivarAlertaClimatica() {
+        for (Atraccion atr : todasLasAtracciones) {
+            String tipo = atr.getTipo().toLowerCase();
+            if (tipo.contains("acuática") || tipo.contains("mecánica") || tipo.contains("familiar")) {
+                if (atr.getMotivoCierre() != null && atr.getMotivoCierre().startsWith("CIERRE AUTOMÁTICO POR CLIMA")) {
+                    atr.setEstado(EstadoAtraccion.ACTIVA);
+                    atr.setMotivoCierre(null);
+                }
             }
         }
     }
@@ -617,6 +653,11 @@ public class TechPark {
 
     public ListaEnlazada<Zona> getListaZonas() {
         return zonas;
+    }
+
+    public Sender[] getSenderos() {
+        ListaEnlazada<Sender> senderos = mapaParque.obtenerTodosLosSenderos();
+        return senderos.toArray(Sender.class);
     }
 }
 

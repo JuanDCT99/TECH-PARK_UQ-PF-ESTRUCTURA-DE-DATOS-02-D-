@@ -1,7 +1,9 @@
 package co.edu.uniquindio.techpark.Model;
 
+
+import co.edu.uniquindio.techpark.service.Sender;
+
 /**
- * Implementación de un Grafo propio (Lista de Adyacencia).
  * Representa el mapa físico del parque TECH-PARK UQ.
  * Nodos: Atracciones.
  * Aristas: Senderos con peso (distancia/tiempo).
@@ -87,6 +89,30 @@ public class Grafo {
 
     public int totalNodos() {
         return nodos.size();
+    }
+
+    public ListaEnlazada<Sender> obtenerTodosLosSenderos() {
+        ListaEnlazada<Sender> resultado = new ListaEnlazada<>();
+        ListaEnlazada<String> visitados = new ListaEnlazada<>();
+        for (NodoGrafo nodo : nodos) {
+            for (Arista arista : nodo.adyacentes) {
+                String clave = nodo.atraccionId.compareTo(arista.getDestinoId()) < 0
+                    ? nodo.atraccionId + "-" + arista.getDestinoId()
+                    : arista.getDestinoId() + "-" + nodo.atraccionId;
+                if (!contiene(visitados, clave)) {
+                    visitados.agregar(clave);
+                    resultado.agregar(new Sender(nodo.atraccionId, arista.getDestinoId(), (int) arista.getPeso()));
+                }
+            }
+        }
+        return resultado;
+    }
+
+    private boolean contiene(ListaEnlazada<String> lista, String valor) {
+        for (String s : lista) {
+            if (s.equals(valor)) return true;
+        }
+        return false;
     }
 
     /**

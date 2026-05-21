@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 
-const CAMPOS_POR_ROL = {
-  visitante: { label: 'Documento de Identidad', placeholder: 'Número de documento', icon: '🎟️' },
-  empleado: { label: 'Código de Empleado', placeholder: 'EMP-12345', icon: '🛠️' },
-  administrador: { label: 'ID de Administrador', placeholder: 'admin01', icon: '🔐' },
+const ICONOS_POR_ROL = {
+  visitante: '🎟️',
+  empleado: '🛠️',
+  administrador: '🔐',
 };
 
 export const LoginView = ({ rolSeleccionado, alIniciarSesion, alCambiarDeVista }) => {
@@ -13,7 +13,8 @@ export const LoginView = ({ rolSeleccionado, alIniciarSesion, alCambiarDeVista }
   const [cargando, setCargando] = useState(false);
 
   const rolKey = rolSeleccionado?.toLowerCase() || '';
-  const campo = CAMPOS_POR_ROL[rolKey] || CAMPOS_POR_ROL.visitante;
+  const icono = ICONOS_POR_ROL[rolKey] || '🎟️';
+  const soloVisitanteRegistra = rolKey === 'visitante';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,7 +43,7 @@ export const LoginView = ({ rolSeleccionado, alIniciarSesion, alCambiarDeVista }
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <div className="auth-emoji">{campo.icon}</div>
+        <div className="auth-emoji">{icono}</div>
         <h2 className="auth-title">Iniciar Sesión</h2>
         <p className="auth-subtitle">
           Ingresando como <strong className={`auth-role-badge role-${rolKey}`}>{rolSeleccionado}</strong>
@@ -52,13 +53,13 @@ export const LoginView = ({ rolSeleccionado, alIniciarSesion, alCambiarDeVista }
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">{campo.label}</label>
+            <label className="form-label">ID de Usuario</label>
             <input
               type="text"
               className="form-input"
               value={identificador}
               onChange={(e) => setIdentificador(e.target.value)}
-              placeholder={campo.placeholder}
+              placeholder="Ej: V1, E1, A1"
               required
             />
           </div>
@@ -84,10 +85,18 @@ export const LoginView = ({ rolSeleccionado, alIniciarSesion, alCambiarDeVista }
           </button>
         </form>
 
-        <p className="auth-footer">
-          ¿No tienes una cuenta?{' '}
-          <button className="auth-link" onClick={() => alCambiarDeVista('registro')}>
-            Regístrate aquí
+        {soloVisitanteRegistra && (
+          <p className="auth-footer">
+            ¿No tienes una cuenta?{' '}
+            <button className="auth-link" onClick={() => alCambiarDeVista('registro')}>
+              Regístrate aquí
+            </button>
+          </p>
+        )}
+
+        <p className="auth-footer" style={{ marginTop: '0.5rem' }}>
+          <button className="auth-link back" onClick={() => alCambiarDeVista('role-selection')}>
+            ← Volver a selección de rol
           </button>
         </p>
       </div>
