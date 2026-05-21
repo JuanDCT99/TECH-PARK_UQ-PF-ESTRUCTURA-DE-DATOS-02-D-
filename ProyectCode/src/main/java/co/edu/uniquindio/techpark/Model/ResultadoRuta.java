@@ -5,15 +5,15 @@ package co.edu.uniquindio.techpark.Model;
  * Contiene el camino de atracciones y el peso total (distancia/tiempo).
  */
 public class ResultadoRuta {
-    private ListaEnlazada<String> camino;
+    private String[] camino;
     private double pesoTotal;
 
-    public ResultadoRuta(ListaEnlazada<String> camino, double pesoTotal) {
-        this.camino = camino;
+    public ResultadoRuta(ListaEnlazada<String> caminoLista, double pesoTotal) {
+        this.camino = caminoLista.toArray(String.class);
         this.pesoTotal = pesoTotal;
     }
 
-    public ListaEnlazada<String> getCamino() {
+    public String[] getCamino() {
         return camino;
     }
 

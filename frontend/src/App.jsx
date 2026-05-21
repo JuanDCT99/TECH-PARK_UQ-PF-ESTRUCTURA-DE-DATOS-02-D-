@@ -3,6 +3,9 @@ import './App.css'
 import MapaParque from './components/MapaParque'
 import { LoginView } from './components/LoginView'
 import { RegistroView } from './components/RegistroView'
+import { VisitanteIcon, EmpleadoIcon, AdminIcon } from './components/Icons'
+import welcomeImg from './assets/Bienvenidos.png'
+import roleImg from './assets/Rol.png'
 
 function App() {
   const [view, setView] = useState('welcome') // 'welcome', 'role-selection', 'login', 'registro', 'dashboard'
@@ -28,6 +31,8 @@ function App() {
   const [montoRecarga, setMontoRecarga] = useState(10000)
   const [mensajeRecarga, setMensajeRecarga] = useState('')
   const [mensajeMant, setMensajeMant] = useState('')
+  const [mensajeClima, setMensajeClima] = useState('')
+  const [alertaActiva, setAlertaActiva] = useState(false)
   const [visitorTab, setVisitorTab] = useState('tickets')
   const [empleadoTab, setEmpleadoTab] = useState('colas')
   const [adminTab, setAdminTab] = useState('reportes')
@@ -43,8 +48,6 @@ function App() {
       .then(data => setEstadoParque(data))
       .catch(err => console.error("Error cargando estado:", err))
 
-    // Nota: Necesitaríamos un endpoint para senderos, pero por ahora los definimos manual 
-    // o podemos crear el endpoint en el backend. Vamos a asumir que los senderos vienen de un JSON local o endpoint.
     fetch('http://localhost:8080/api/parque/usuarios')
       .then(res => res.json())
       .then(data => {
@@ -53,15 +56,10 @@ function App() {
       })
       .catch(err => console.error("Error cargando usuarios:", err))
 
-    fetch('http://localhost:8080/api/parque/zonas') // Como ejemplo, pero lo ideal es un endpoint de senderos
-      .then(() => {
-        // Hardcoded por ahora para el frontend si no hay endpoint
-        setSenderos([
-          { origen: "A1", destino: "A2", peso: 50 },
-          { origen: "A2", destino: "A3", peso: 30 },
-          { origen: "A1", destino: "A3", peso: 70 }
-        ]);
-      });
+    fetch('http://localhost:8080/api/parque/senderos')
+      .then(res => res.json())
+      .then(data => setSenderos(data))
+      .catch(err => console.error("Error cargando senderos:", err))
   }
 
   const cargarDatosPrueba = () => {
@@ -142,6 +140,18 @@ function App() {
         fetchDatosBase()
       })
       .catch(err => setMensajeMant('❌ Error: ' + err))
+  }
+
+  const toggleAlertaClima = () => {
+    const accion = alertaActiva ? 'desactivar' : 'activar';
+    fetch(`http://localhost:8080/api/parque/alerta-clima?accion=${accion}`, { method: 'POST' })
+      .then(res => res.text())
+      .then(data => {
+        setMensajeClima(data);
+        setAlertaActiva(!alertaActiva);
+        fetchDatosBase();
+      })
+      .catch(err => setMensajeClima('❌ Error: ' + err));
   }
 
   const toggleFavorito = (atraccionId, esFavorito) => {
@@ -227,6 +237,8 @@ function App() {
   if (view === 'welcome') {
     return (
       <div className="welcome-container">
+        <div className="bg-image-layer" style={{ backgroundImage: `url(${welcomeImg})` }}></div>
+        <div className="bg-overlay-tint"></div>
         <div className="overlay">
           <div className="content">
             <h1 className="title">TECH-PARK UQ</h1>
@@ -243,22 +255,24 @@ function App() {
   if (view === 'role-selection') {
     return (
       <div className="role-container">
+        <div className="bg-image-layer" style={{ backgroundImage: `url(${roleImg})` }}></div>
+        <div className="bg-overlay-tint"></div>
         <div className="overlay">
           <div className="content">
             <h2 className="title">Selecciona tu Rol</h2>
             <div className="role-grid">
               <button className="role-card" onClick={() => handleRoleSelect('Visitante')}>
-                <span className="role-icon">🎟️</span>
+                <VisitanteIcon size={56} />
                 <h3>Visitante</h3>
                 <p>Calcula rutas y únete a filas</p>
               </button>
               <button className="role-card" onClick={() => handleRoleSelect('Empleado')}>
-                <span className="role-icon">🛠️</span>
+                <EmpleadoIcon size={56} />
                 <h3>Empleado</h3>
                 <p>Gestiona atracciones</p>
               </button>
               <button className="role-card" onClick={() => handleRoleSelect('Administrador')}>
-                <span className="role-icon">🔐</span>
+                <AdminIcon size={56} />
                 <h3>Administrador</h3>
                 <p>Alertas y estadísticas</p>
               </button>
@@ -299,7 +313,8 @@ function App() {
       <nav className="navbar">
         <h2>TECH-PARK | {usuario?.nombre || selectedRole}</h2>
         <button className="btn-logout" onClick={() => {
-          fetch('http://localhost:8080/api/auth/logout', { method: 'POST' }).catch(() => {});
+          fetch('http://localhost:8080/api/auth/logout', { method: 'POST' })
+            .catch(err => console.error("Error en logout:", err));
           setUsuario(null);
           setView('role-selection');
         }}>Cerrar Sesión</button>
@@ -321,15 +336,15 @@ function App() {
               </div>
             )}
           </div>
-          <button className="btn-primary" onClick={cargarDatosPrueba}>
-            🔄 Sincronizar Datos
+          <button className="btn-primary" onClick={cargarDatosPrueba} title="Recarga los datos desde los archivos JSON del servidor">
+            🔄 Recargar desde JSON
           </button>
         </header>
 
         <div className="dashboard-grid">
-          {/* SECCIÓN MAPA (Fase 4) */}
+          {/* SECCIÓN MAPA Y RUTA ÓPTIMA */}
           <section className="map-section card">
-            <h3>🗺️ Mapa del Parque (Grafo)</h3>
+            <h3>🗺️ Ruta Óptima</h3>
             <MapaParque 
               atracciones={atracciones} 
               senderos={senderos} 
@@ -348,7 +363,7 @@ function App() {
                   value={destinoRuta} 
                   onChange={(e) => setDestinoRuta(e.target.value.toUpperCase())}
                 />
-                <button className="btn-action" onClick={calcularRuta}>Calcular Dijkstra</button>
+                <button className="btn-action" onClick={calcularRuta}>Buscar Ruta más Corta</button>
               </div>
             )}
           </section>
@@ -550,7 +565,21 @@ function App() {
               {visitorTab === 'tickets' && (
                 <>
                   <div className="section-card">
+                    <h3 className="section-title">💰 Saldo Actual</h3>
+                    <p style={{ fontSize: '1.8rem', fontWeight: 700, color: 'var(--accent-3)' }}>
+                      ${usuario?.saldoVirtual?.toLocaleString() || '0'}
+                    </p>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                      Este saldo se descuenta al comprar tickets y al usar atracciones con costo adicional.
+                    </p>
+                  </div>
+
+                  <div className="section-card">
                     <h3 className="section-title">🎫 Comprar Tiquete</h3>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '0.8rem' }}>
+                      Compra un tiquete y úsalo para unirte a la fila de cualquier atracción.
+                      {usuario && ` Saldo disponible: $${usuario.saldoVirtual?.toLocaleString() || '0'}`}
+                    </p>
                     <div className="ticket-grid">
                       <div className="ticket-card" onClick={() => comprarTicket('GENERAL')}>
                         <h3>General</h3>
@@ -608,6 +637,9 @@ function App() {
 
                   <div className="section-card">
                     <h3>💰 Recargar Saldo</h3>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '0.8rem' }}>
+                      Tu saldo actual: <strong>${usuario?.saldoVirtual?.toLocaleString() || '0'}</strong>
+                    </p>
                     <div className="recarga-section">
                       <div className="recarga-controls">
                         <select value={montoRecarga} onChange={(e) => setMontoRecarga(Number(e.target.value))}>
@@ -794,18 +826,27 @@ function App() {
               {adminTab === 'gestion' && (
                 <div className="section-card">
                   <h3>🔐 Gestión del Parque</h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1rem' }}>
-                    Panel de administración — próximamente: gestión de empleados, zonas y alertas climáticas.
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '1rem' }}>
+                    Administra el estado del parque, alertas climáticas y personal.
                   </p>
+                  {mensajeClima && (
+                    <div className={`ticket-mensaje ${mensajeClima.includes('✅') ? 'exito' : 'error'}`}>
+                      {mensajeClima}
+                    </div>
+                  )}
                   <div style={{ display: 'flex', gap: '0.8rem', flexWrap: 'wrap' }}>
-                    <button className="btn-action" disabled style={{ opacity: 0.6, cursor: 'not-allowed' }}>
-                      👥 Gestionar Empleados
+                    <button
+                      className={`btn-action ${alertaActiva ? 'danger' : ''}`}
+                      onClick={toggleAlertaClima}
+                      style={alertaActiva ? { background: '#D07070', color: '#fff' } : {}}
+                    >
+                      {alertaActiva ? '⛔ Desactivar Alerta Climática' : '🌩️ Activar Alerta Climática'}
                     </button>
-                    <button className="btn-action" disabled style={{ opacity: 0.6, cursor: 'not-allowed' }}>
-                      🗺️ Gestionar Zonas
+                    <button className="btn-action" disabled style={{ opacity: 0.6, cursor: 'not-allowed', fontSize: '0.85rem' }}>
+                      👥 Gestionar Empleados — Próximamente
                     </button>
-                    <button className="btn-action" disabled style={{ opacity: 0.6, cursor: 'not-allowed' }}>
-                      🌤️ Alertas Climáticas
+                    <button className="btn-action" disabled style={{ opacity: 0.6, cursor: 'not-allowed', fontSize: '0.85rem' }}>
+                      🗺️ Gestionar Zonas — Próximamente
                     </button>
                   </div>
                 </div>

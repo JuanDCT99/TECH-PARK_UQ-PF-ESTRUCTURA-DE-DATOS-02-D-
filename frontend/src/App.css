@@ -227,56 +227,63 @@ body {
   align-items: center;
   padding: 1rem 2rem;
   background: var(--navbar-bg);
-  border-bottom: 1px solid var(--card-border);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  max-width: 100%;
+  margin: 0 auto;
 }
 
 .navbar h2 {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #B06060;
+  color: var(--text-main);
 }
 
 .main-content {
-  flex: 1;
-  padding: 1.5rem 2rem;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  max-width: 100%;
+  padding: 2rem;
+  margin: 0 auto;
 }
 
 .dashboard-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  max-width: 1200px;
+  max-width: 100%;
   width: 100%;
 }
 
 .dashboard-header h1 {
-  font-size: 1.4rem;
+  font-size: 1.8rem;
   font-weight: 700;
-  color: #C07070;
-  margin-bottom: 0.2rem;
 }
 
 .dashboard-header p {
-  font-size: 0.85rem;
   color: var(--text-muted);
+  margin-top: 0.3rem;
+  font-size: 0.9rem;
 }
 
+.user-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.user-selector select {
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--card-border);
+  background: #fff;
+  font-size: 0.85rem;
+}
+
+/* DASHBOARD GRID - Layout 16:9 */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
+  grid-template-columns: 1.6fr 1fr;
   gap: 1.5rem;
-  max-width: 1200px;
+  max-width: 100%;
   width: 100%;
 }
 
@@ -298,7 +305,7 @@ body {
   padding: 0.35rem;
   border: 1px solid var(--card-border);
   box-shadow: var(--shadow-soft);
-  max-width: 1200px;
+  max-width: 100%;
   width: 100%;
 }
 
@@ -331,7 +338,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  max-width: 1200px;
+  max-width: 100%;
   width: 100%;
 }
 
@@ -584,13 +591,32 @@ body {
 /* WELCOME & ROLES */
 .welcome-container, .role-container {
   min-height: 100vh;
-  background: var(--bg-main);
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-image-layer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+}
+
+.bg-overlay-tint {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 1;
 }
 
 .overlay {
+  position: relative;
+  z-index: 2;
   width: 100%;
   min-height: 100vh;
   display: flex;
@@ -607,16 +633,18 @@ body {
 .title {
   font-size: 3.5rem;
   margin-bottom: 0.5rem;
-  color: #D07070;
+  color: #fff;
   font-weight: 800;
   letter-spacing: -1px;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
 .subtitle {
   font-size: 1.2rem;
-  color: var(--text-muted);
+  color: rgba(255,255,255,0.85);
   margin-bottom: 2.5rem;
   font-weight: 400;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
 
 .btn-secondary {
@@ -638,20 +666,19 @@ body {
 }
 
 .btn-logout {
-  background: transparent;
-  color: var(--text-muted);
-  border: 1px solid var(--card-border);
-  padding: 0.5rem 1rem;
+  background: #E8A0A0;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.2rem;
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.8rem;
+  font-weight: 600;
   transition: all 0.2s;
 }
 
 .btn-logout:hover {
-  background: var(--danger);
-  border-color: var(--danger);
-  color: #fff;
+  background: #D07070;
 }
 
 .role-grid {
@@ -882,7 +909,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  max-width: 1200px;
+  max-width: 100%;
   width: 100%;
 }
 

@@ -46,30 +46,20 @@ public class AuthController {
                 .body(Collections.singletonMap("mensaje", "El rol es obligatorio"));
         }
 
-        boolean exito = false;
-
-        switch (rol.toLowerCase()) {
-            case "visitante":
-                exito = authService.registrarVisitante(datos);
-                break;
-            case "operador":
-                exito = authService.registrarOperador(datos);
-                break;
-            case "administrador":
-                exito = authService.registrarAdministrador(datos);
-                break;
-            default:
-                return ResponseEntity.badRequest()
-                    .body(Collections.singletonMap("mensaje", "Rol no válido"));
+        String rolLower = rol.toLowerCase();
+        if (!"visitante".equals(rolLower)) {
+            return ResponseEntity.badRequest()
+                .body(Collections.singletonMap("mensaje", "Solo los visitantes pueden registrarse. Empleados y administradores usan credenciales asignadas."));
         }
 
-        if (exito) {
-            return ResponseEntity.ok(
-                Collections.singletonMap("mensaje", "Usuario registrado exitosamente bajo el rol " + rol)
-            );
+        Map<String, Object> resultado = authService.registrarVisitante(datos);
+
+        if (resultado != null && Boolean.TRUE.equals(resultado.get("success"))) {
+            return ResponseEntity.ok(resultado);
         } else {
+            String msg = resultado != null ? (String) resultado.get("mensaje") : "Error al registrar";
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Collections.singletonMap("mensaje", "Error al registrar el usuario. Verifique los campos."));
+                .body(Collections.singletonMap("mensaje", msg));
         }
     }
 

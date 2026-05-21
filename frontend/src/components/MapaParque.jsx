@@ -9,8 +9,8 @@ import React from 'react';
  * @param {Function} onNodoClick - Función al hacer click en una atracción
  */
 const MapaParque = ({ atracciones, senderos, rutaResaltada, onNodoClick }) => {
-  const width = 500;
-  const height = 400;
+  const width = 600;
+  const height = 500;
 
   // Función para saber si un sendero (arista) es parte de la ruta resaltada
   const esParteDeRuta = (id1, id2) => {
